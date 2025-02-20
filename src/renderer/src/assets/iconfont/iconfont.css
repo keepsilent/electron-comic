@@ -1,0 +1,171 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4833690 */
+  src: url('iconfont.woff2?t=1740042361049') format('woff2'),
+       url('iconfont.woff?t=1740042361049') format('woff'),
+       url('iconfont.ttf?t=1740042361049') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-restore:before {
+  content: "\e692";
+}
+
+.icon-top:before {
+  content: "\e695";
+}
+
+.icon-squarecheck:before {
+  content: "\e696";
+}
+
+.icon-contact-customer-service:before {
+  content: "\e603";
+}
+
+.icon-feedback:before {
+  content: "\e608";
+}
+
+.icon-more:before {
+  content: "\e615";
+}
+
+.icon-about:before {
+  content: "\e616";
+}
+
+.icon-password:before {
+  content: "\e62b";
+}
+
+.icon-female:before {
+  content: "\e632";
+}
+
+.icon-male:before {
+  content: "\e633";
+}
+
+.icon-star:before {
+  content: "\e635";
+}
+
+.icon-time:before {
+  content: "\e636";
+}
+
+.icon-select:before {
+  content: "\e637";
+}
+
+.icon-visible:before {
+  content: "\e63b";
+}
+
+.icon-problem:before {
+  content: "\e63d";
+}
+
+.icon-unselected:before {
+  content: "\e63e";
+}
+
+.icon-home:before {
+  content: "\e63f";
+}
+
+.icon-personal:before {
+  content: "\e640";
+}
+
+.icon-message:before {
+  content: "\e641";
+}
+
+.icon-scanning:before {
+  content: "\e642";
+}
+
+.icon-love:before {
+  content: "\e643";
+}
+
+.icon-search:before {
+  content: "\e645";
+}
+
+.icon-square:before {
+  content: "\e646";
+}
+
+.icon-add:before {
+  content: "\e649";
+}
+
+.icon-return:before {
+  content: "\e64b";
+}
+
+.icon-switch:before {
+  content: "\e64c";
+}
+
+.icon-invisible:before {
+  content: "\e64e";
+}
+
+.icon-remind:before {
+  content: "\e650";
+}
+
+.icon-setting:before {
+  content: "\e653";
+}
+
+.icon-minimize:before {
+  content: "\e65a";
+}
+
+.icon-maximize:before {
+  content: "\e65d";
+}
+
+.icon-close:before {
+  content: "\e660";
+}
+
+.icon-screenshots:before {
+  content: "\e662";
+}
+
+.icon-delete:before {
+  content: "\e664";
+}
+
+.icon-expression:before {
+  content: "\e667";
+}
+
+.icon-image:before {
+  content: "\e66a";
+}
+
+.icon-file:before {
+  content: "\e66c";
+}
+
+.icon-pictures:before {
+  content: "\e672";
+}
+
+.icon-clear:before {
+  content: "\e680";
+}
+

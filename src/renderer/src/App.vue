@@ -1,26 +1,27 @@
-<script setup lang="ts">
-import Versions from './components/Versions.vue'
-
-const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-</script>
-
 <template>
-  <img alt="logo" class="logo" src="./assets/electron.svg" />
-  <div class="creator">Powered by electron-vite</div>
-  <div class="text">
-    Build an Electron app with
-    <span class="vue">Vue</span>
-    and
-    <span class="ts">TypeScript</span>
-  </div>
-  <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>
-  <div class="actions">
-    <div class="action">
-      <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">Documentation</a>
+    <div class="wrap">
+        <Aside></Aside>
+        <div class="inner">
+            <Header></Header>
+            <div class="main">
+<!--                <router-view v-slot="{ Component }">-->
+<!--                    <component :key="refresh" :is="Component"></component>-->
+<!--                </router-view>-->
+                <router-view v-slot="{ Component, route }">
+                    <transition name="animation" mode="out-in">
+                        <component :is="Component" :key="route.path" />
+                    </transition>
+                </router-view>
+            </div>
+            <div class="footer"></div>
+        </div>
     </div>
-    <div class="action">
-      <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
-    </div>
-  </div>
   <Versions />
 </template>
+<script setup lang="ts">
+import Aside from '@renderer/layout/Aside/index.vue'
+import Header from '@renderer/layout/Header/index.vue'
+import Versions from '@renderer/components/Versions.vue'
+
+const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
+</script>
