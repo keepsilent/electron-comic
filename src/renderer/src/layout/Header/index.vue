@@ -13,7 +13,7 @@
             <!-- 头部菜单 -->
             <div class="menu tc">
                 <span class="iconfont icon-minimize" title="最小化" data-key="minimize" @click="ipcHandle"></span>
-                <span :class="maximize_cfg.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize_cfg.name" :data-key="maximize_cfg.value" @click="ipcHandle"></span>
+                <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="ipcHandle"></span>
                 <span class="iconfont icon-close" title="退出" data-key="close" @click="ipcHandle"></span>
             </div>
         </div>
@@ -22,20 +22,30 @@
 
 <script setup lang="ts">
 import {ref, reactive, toRefs} from "vue";
+//import Base from "@renderer/utils/base";
+import {Base,Time} from "@renderer/utils/";
 
-interface maximize {
+interface Maximize {
     name: string,
     value: string
 }
 
+console.log('Base',Base);
 const keyword:string = ref('');
-const maximize_cfg:maximize = reactive({name: '最大化', value: 'maximize'})
+const maximize:Maximize = reactive({name: '最大化', value: 'maximize'})
 
 const search = function({keyCode}):boolean|void {
     if(keyCode !== 13) {
         return false;
     }
-    console.error('k',keyCode)
+
+    if(Base.isEmpty(keyword.value)) {
+        return  false;
+    }
+
+    console.log('getTimeAgo',Time.getTimeAgo(1740118029 * 1000))
+    console.log('formatDateT',Time.formatDate(1740117422));
+    console.error('k',keyCode,keyword.value)
 }
 
 const clear = function():void {
@@ -45,13 +55,13 @@ const clear = function():void {
 const ipcHandle = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {
         case 'restore':
-            maximize_cfg.name = '最大化';
-            maximize_cfg.value = 'maximize';
+            maximize.name = '最大化';
+            maximize.value = 'maximize';
             window.electron.ipcRenderer.send(key);
             break
         case 'maximize':
-            maximize_cfg.name = '还原';
-            maximize_cfg.value = 'restore';
+            maximize.name = '还原';
+            maximize.value = 'restore';
             window.electron.ipcRenderer.send(key);
             break
         default:
@@ -61,13 +71,13 @@ const ipcHandle = function({currentTarget: {dataset: {key}}}): void {
 
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {
-        maximize_cfg.name = '还原';
-        maximize_cfg.value = 'restore';
+        maximize.name = '还原';
+        maximize.value = 'restore';
         return false
     }
 
-    maximize_cfg.name = '最大化';
-    maximize_cfg.value = 'maximize';
+    maximize.name = '最大化';
+    maximize.value = 'maximize';
 })
 </script>
 <style lang="scss" scoped>
