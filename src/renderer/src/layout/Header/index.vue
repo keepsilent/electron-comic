@@ -4,9 +4,9 @@
             <div class="nav">
                 <span class="iconfont icon-return" title="返回" onclick="config.back()"></span>
                 <div class="search ml-10">
-                    <i class="iconfont icon-search" onclick="config.iconSearch()"></i>
-                    <input type="text" placeholder="搜索..." onkeydown="config.search(event)" autocomplete="off">
-
+                    <i class="iconfont icon-search"></i>
+                    <input type="text" v-model="keyword" placeholder="搜索" @keydown="search" autocomplete="off">
+                    <i v-if="keyword" class="iconfont icon-close ml-10" @click="clear"></i>
                 </div>
             </div>
 
@@ -28,11 +28,21 @@ interface maximize {
     value: string
 }
 
-const search_cfg = reactive({status: true, name: '最大化', value: 'maximize'})
+const keyword:string = ref('');
 const maximize_cfg:maximize = reactive({name: '最大化', value: 'maximize'})
 
-const ipcHandle = function({currentTarget: {dataset: {key}}}):void {
-    console.log('key',key);
+const search = function({keyCode}):boolean|void {
+    if(keyCode !== 13) {
+        return false;
+    }
+    console.error('k',keyCode)
+}
+
+const clear = function():void {
+    keyword.value = '';
+}
+
+const ipcHandle = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {
         case 'restore':
             maximize_cfg.name = '最大化';
@@ -49,6 +59,16 @@ const ipcHandle = function({currentTarget: {dataset: {key}}}):void {
     }
 }
 
+window.electron.ipcRenderer.on('maximize',(event,args)=> {
+    if(args == true) {
+        maximize_cfg.name = '还原';
+        maximize_cfg.value = 'restore';
+        return false
+    }
+
+    maximize_cfg.name = '最大化';
+    maximize_cfg.value = 'maximize';
+})
 </script>
 <style lang="scss" scoped>
 @use "./index.scss";

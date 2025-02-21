@@ -104,6 +104,13 @@
       "unicode_decimal": 58939
     },
     {
+      "icon_id": "1280540",
+      "name": "Delete-2",
+      "font_class": "delete-2",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
       "icon_id": "1280559",
       "name": "Problem",
       "font_class": "problem",

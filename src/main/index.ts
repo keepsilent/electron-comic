@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-function createWindow(): void {
+const createWindow = function(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 662,
@@ -11,7 +11,7 @@ function createWindow(): void {
         minWidth: 1165,
         minHeight: 678,
 
-        frame: false,
+        frame: false, //无边框
         show: false, // 初始时不显示窗口
         autoHideMenuBar: true,// 自动隐藏菜单栏
         ...(process.platform === 'linux' ? { icon } : {}),
@@ -32,6 +32,11 @@ function createWindow(): void {
         return { action: 'deny' } // 拒绝在 Electron 窗口中打开新窗口
     })
 
+    // 监听窗口发生变化
+    mainWindow.on('resize', () => {
+        mainWindow.webContents.send('maximize', mainWindow.isMaximized())
+    })
+
 
     // 根据开发环境或生产环境加载不同的 URL
     // HMR for renderer base on electron-vite cli.
@@ -42,7 +47,7 @@ function createWindow(): void {
         mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
     }
 
-    // 监听ipcMain事件
+    // 监听ipcMain接收到的事件
     ipcMain.on('maximize', () => mainWindow.maximize())
     ipcMain.on('unmaximize', () => mainWindow.unmaximize())
     ipcMain.on('minimize', () => mainWindow.minimize())

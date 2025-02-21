@@ -1,5 +1,4 @@
 .header {
-
     position: fixed;
     top: 0;
     left: 0;
@@ -37,6 +36,22 @@
 
             &:hover {
                 background: rgba(0,0,0,.025);
+            }
+        }
+
+        .icon-close {
+            width: 16px;
+            height: 16px;
+            font-size: 8px;
+            line-height: 16px;
+            text-align: center;
+            cursor: pointer;
+            color: #FFF;
+            background: rgba(0,0,0,.25);
+            border-radius: 100%;
+
+            &:hover {
+                background: rgba(255,0,0,.25);
             }
         }
     }
