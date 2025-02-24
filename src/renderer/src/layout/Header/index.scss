@@ -35,7 +35,7 @@
             cursor: pointer;
 
             &:hover {
-                background: rgba(0,0,0,.025);
+                background: var(--button-hover-bg);
             }
         }
 
@@ -51,7 +51,7 @@
             border-radius: 100%;
 
             &:hover {
-                background: rgba(255,0,0,.25);
+                background: var(--button-hover-bg);
             }
         }
     }
@@ -106,7 +106,7 @@
             cursor: pointer;
 
             &:hover {
-                background: rgba(0,0,0,.025);
+                background: var(--button-hover-bg);
             }
 
             &:last-child:hover {

@@ -1,56 +1,169 @@
-.side { position: fixed; top: 0; left: 0; width: 208px; height: 100%; background: #FFF;  box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 10px; z-index: 2;}
-.side-inner { position: relative; height: 100%; }
+.aside {
 
-.side-header { margin-top: 15px; }
-.side-header h1 {  color: #ccc;  font-size: 22px; font-weight: normal; line-height: 1;}
-.side-header h1 i{ color: #ffc459; }
-.side-header h1 img { vertical-align: bottom; }
+    &-wrap {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 208px;
+        height: 100%;
+        background: #FFF;
+        box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 10px;
+        z-index: 2;
+    }
 
-/** 用户头像 **/
-.side-user img { position: relative; padding: 4px; border-radius: 100%; border: solid 1px rgba(0,0,0,0.04); z-index: 1 }
-.side-user h3 { margin-left: -5px; color: #666; font-weight: normal; }
-.side-user h3 span {  position: relative; }
-.side-user h3 span i { position: absolute; top: 8px; left: 5px; border:solid 5px transparent; border-top-color: #666;  }
-/*.side-user h3:hover { color: #000; }*/
-/*.side-user h3:hover span i { border-top-color: #000; }*/
+    &-inner {
+        position: relative;
+        height: 100%;
+    }
+
+    &-header {
+
+    }
+
+    &-main {
+        .user {
+            -webkit-app-region: drag;
+            -webkit-user-select: none;
+
+            .avatar {
+                position: relative;
+                padding: 4px;
+                border-radius: 100%;
+                border: solid 1px rgba(0,0,0,0.04);
+                z-index: 1;
+                -webkit-app-region: no-drag;
+            }
+
+            .title {
+                margin-left: -5px;
+                color: #666;
+                font-weight: normal;
+                -webkit-app-region: no-drag;
+            }
+
+            &-menu {
+                display: none;
+                position: absolute;
+                top: 59px;
+                left: 14px;
+                width: 180px;
+                font-size: 13px;
+                text-align: left;
+                background: #FFF;
+                border-radius: 2px;
+                box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);
+
+                &-header {
+                    padding-top: 24px;
+                    .title { text-align: center; font-size: 14px;}
+                    .level {
+                        padding: 15px;
+                        dt {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+
+                            .name { color: #333; }
+                            .exp {
+                                color: #999;
+                                font-size: 12px;
+                            }
+                        }
+                        dd.progress { position: relative; padding-top: 15px; padding-bottom: 2px; }
+                        dd.progress div {
+                            width: 100%; height: 2px; background: #F5F5F5; border-radius: 2px;
+                            &:first-child { width: 100%; }
+                            &:last-child { position: absolute; top: 15px; left: 0; width: 20px; background: #ffc459; }
+                        }
+                    }
+                }
+
+                &-main,&-footer {
+                    border-top: solid 1px var(--button-hover-bg);
+
+                     li { padding: 8px 15px; cursor: pointer; }
+                     li label { color: #999; margin-right: 13px; }
+                     li:hover { background: var(--button-hover-bg)}
+                }
+            }
+
+            &:hover .user-menu {
+                display: block;
+            }
+        }
+
+        .menu {
+            ul li {
+                padding: 7px 0 7px 72px;
+                font-size: 13px;
+                cursor: pointer;
+                border-left: solid 3px #FFF;
+
+                .iconfont {
+                    margin-left: -30px;
+                    margin-right: 13px;
+                    color: #999;
+                }
+
+                &.active {
+                    color: #000;
+                    background: var(--button-hover-bg);
+                }
+
+                &:hover {
+                    background: var(--button-hover-bg)
+                }
+            }
+        }
+    }
+
+    &-footer {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+
+        .banner {
+            position: relative;
+            //border-top: solid 1px rgba(0,0,0,0.025);
+            font-size: 0;
+            padding: 15px;
+
+            img {
+                width: 100%;
+                cursor: pointer;
+                border-radius: 2px;
+            }
+
+            .tips {
+                position: absolute;
+                right: 20px;
+                bottom: 20px;
+
+                width: fit-content;
+                line-height: 1;
+                padding: 2px 3px;
+
+                color: #CCC;
+                font-size: 7px;
+                pointer-events: none;
+
+                border: solid 1px #CCC;
+                border-radius: 2px;
+
+                pointer-events: none;
+                opacity: 0.5;
+            }
+        }
+    }
+}
 
 
-.user-avatar-box div.user-menu-box { display: none; }
-.user-avatar-box:hover div.user-menu-box { display: block;  }
+
+//.side-header { margin-top: 15px; }
+//.side-header h1 {  color: #ccc;  font-size: 22px; font-weight: normal; line-height: 1;}
+//.side-header h1 i{ color: #ffc459; }
+//.side-header h1 img { vertical-align: bottom; }
 
 
-.user-menu-box { position: absolute; top: 59px; left: 14px; width: 180px;  font-size: 13px; text-align: left;  background: #FFF; border-radius: 2px;  box-shadow: 1px 2px 10px rgba(0, 0, 0, .15); }
-.user-menu-header { padding-top: 24px; }
-.user-menu-header h3 { text-align: center; font-size: 14px; }
-.user-menu-header dl.level-box { padding: 15px; }
-.user-menu-header dl.level-box dt span { color: #999; font-size: 12px; }
-.user-menu-header dl.level-box dd { position: relative; padding-top: 15px; padding-bottom: 2px; }
-.user-menu-header dl.level-box dd div { width: 100%; height: 2px; background: #F5F5F5; border-radius: 2px; }
-.user-menu-header dl.level-box dd div:first-child { width: 100%;  }
-.user-menu-header dl.level-box dd div:last-child { position: absolute; top: 15px; left: 0; width: 20px; background: #ffc459; }
 
-.user-menu-main {  border-top: solid 1px #F5f5f5; }
-.user-menu-main li { padding: 8px 15px; cursor: pointer; }
-.user-menu-main li:hover { background: #f5f5f5;}
-.user-menu-main li label { color: #999; margin-right: 13px; }
 
-.user-menu-footer { border-top: solid 1px #F5f5f5; }
-.user-menu-footer li { padding: 8px 15px; cursor: pointer;}
-.user-menu-footer li:hover { background: #f5f5f5;}
-.user-menu-footer li label { color: #999; margin-right: 13px; }
-
-/** 菜单 **/
-.side-menu ul li { padding: 7px 0; padding-left: 72px; font-size: 13px; cursor: pointer;  border-left: solid 3px #FFF;}
-.side-menu ul li.active { color: #000; border-left: solid 3px rgba(255,196,89,0.6); background: rgba(255,196,89,0.06);}
-.side-menu ul li.active:hover { background: rgba(255,196,89,0.06); }
-.side-menu ul li:hover {  background: rgba(255,196,89,0.06);}
-.side-menu ul li i { margin-left: -30px; margin-right: 13px; color: #999; }
-
-/** 广告 **/
-.side-footer { position: absolute; left: 0; bottom: 0; border-top: solid 1px #f1f1f1; }
-.side-footer-inner { position: relative;  padding: 15px; }
-.side-footer-inner img { width: 100%; cursor: pointer;  }
-
-.side-footer-inner span.top { position: absolute; right: 20px; top: 17px;  color: #ccc; cursor: pointer; opacity: 0.5;}
-.side-footer-inner span.top:hover {  opacity: 1; }
-.side-footer-inner span.bottom { position: absolute; left: 20px; bottom: 17px; font-size: 12px; color: #ccc; opacity: 0.5;}

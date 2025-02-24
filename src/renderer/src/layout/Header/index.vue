@@ -5,16 +5,16 @@
                 <span class="iconfont icon-return" title="返回" onclick="config.back()"></span>
                 <div class="search ml-10">
                     <i class="iconfont icon-search"></i>
-                    <input type="text" v-model="keyword" placeholder="搜索" @keydown="search" autocomplete="off">
-                    <i v-if="keyword" class="iconfont icon-close ml-10" @click="clear"></i>
+                    <input type="text" v-model="keyword" placeholder="搜索" @keydown="onSearch" autocomplete="off">
+                    <i v-if="keyword" class="iconfont icon-close ml-10" @click="onClear"></i>
                 </div>
             </div>
 
             <!-- 头部菜单 -->
             <div class="menu tc">
-                <span class="iconfont icon-minimize" title="最小化" data-key="minimize" @click="ipcHandle"></span>
-                <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="ipcHandle"></span>
-                <span class="iconfont icon-close" title="退出" data-key="close" @click="ipcHandle"></span>
+                <span class="iconfont icon-minimize" title="最小化" data-key="minimize" @click="onIPC"></span>
+                <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="onIPC"></span>
+                <span class="iconfont icon-close" title="退出" data-key="close" @click="onIPC"></span>
             </div>
         </div>
     </div>
@@ -22,19 +22,17 @@
 
 <script setup lang="ts">
 import {ref, reactive, toRefs} from "vue";
-//import Base from "@renderer/utils/base";
-import {Base,Time} from "@renderer/utils/";
+import {Base} from "@renderer/utils";
 
 interface Maximize {
     name: string,
     value: string
 }
 
-console.log('Base',Base);
-const keyword:string = ref('');
+const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: '最大化', value: 'maximize'})
 
-const search = function({keyCode}):boolean|void {
+const onSearch = function({keyCode}):boolean|void {
     if(keyCode !== 13) {
         return false;
     }
@@ -43,16 +41,14 @@ const search = function({keyCode}):boolean|void {
         return  false;
     }
 
-    console.log('getTimeAgo',Time.getTimeAgo(1740118029 * 1000))
-    console.log('formatDateT',Time.formatDate(1740117422));
     console.error('k',keyCode,keyword.value)
 }
 
-const clear = function():void {
+const onClear = function():void {
     keyword.value = '';
 }
 
-const ipcHandle = function({currentTarget: {dataset: {key}}}): void {
+const onIPC = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {
         case 'restore':
             maximize.name = '最大化';
@@ -79,6 +75,7 @@ window.electron.ipcRenderer.on('maximize',(event,args)=> {
     maximize.name = '最大化';
     maximize.value = 'maximize';
 })
+
 </script>
 <style lang="scss" scoped>
 @use "./index.scss";

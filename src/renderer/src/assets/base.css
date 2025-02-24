@@ -18,9 +18,13 @@
   --ev-button-alt-border: transparent;
   --ev-button-alt-text: var(--ev-c-text-1);
   --ev-button-alt-bg: var(--ev-c-gray-3);
+
   --ev-button-alt-hover-border: transparent;
   --ev-button-alt-hover-text: var(--ev-c-text-1);
   --ev-button-alt-hover-bg: var(--ev-c-gray-2);
+
+
+  --ev-button-hover-bg: #F5F5F5;
 }
 
 :root {
@@ -29,6 +33,8 @@
   --color-background-mute: var(--ev-c-black-mute);
 
   --color-text: var(--ev-c-text-1);
+
+  --button-hover-bg:var(--ev-button-hover-bg);
 }
 
 *,
