@@ -1,33 +1,19 @@
 <template>
-    <div>
-        I am Aside
+    <div class="footer">
+        <div class="footer-inner">
+            <div class="file-path">
+                <span class="item" title="当前路径: comic++">comic++</span>
+                <i class="iconfont icon-return"></i>
+                <span class="item">file</span>
+            </div>
+            <div class="file-num"><i class="num">0</i>项</div>
+        </div>
     </div>
-
 </template>
 
-<!--<script>-->
-<!--export default {-->
-<!--    name: "index"-->
-<!--}-->
-<!--</script>-->
-
-<!--<style scoped>-->
-
-<!--</style>-->
-
-
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from "vue";
-import {test} from './index.ts'
-// const {test} = index
 
-
-console.log('a')
-
-onMounted(()=>{
-    test()
-})
 </script>
-<style lang="scss" scoped>
+<style scoped lang="scss">
 @use "./index.scss";
 </style>

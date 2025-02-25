@@ -5,7 +5,7 @@
             <!-- 用户头像 -->
             <div class="side-header hide">
                 <h1 class="tc">
-                    <img src="@renderer/assets/logo.svg" width="22" height="22" alt="comic++">
+                    <img src="@renderer/assets/electron.svg" width="22" height="22" alt="comic++">
                     <i>C</i>omi<i>c</i>++
                 </h1>
             </div>
@@ -70,6 +70,7 @@
 
 <script setup lang="ts">
 import {ref,reactive} from "vue";
+import { useRouter } from 'vue-router'
 import {Base,User} from "@renderer/utils";
 interface Menu {
     current: number,
@@ -88,14 +89,17 @@ interface User {
     exp:number
 }
 
+const router = useRouter()
 const menu:Menu = reactive({ current: 1,
     data:[
         {name: '最近使用',url: '',icon: 'icon-time'},
         {name: '全部文件',url: '',icon: 'icon-file'},
-        {name: '漫画',url: '',icon: ''},
+        {name: '图片',url: '',icon: ''},
+        {name: '漫画',url: '/',icon: ''},
+        {name: '视频',url: '',icon: ''},
         {name: '书籍',url: '',icon: ''},
         {name: '文档',url: '',icon: ''},
-        {name: '回收站',url: '',icon: 'icon-delete'},
+        {name: '回收站',url: '/recycle',icon: 'icon-delete'},
     ]
 })
 
@@ -107,7 +111,7 @@ const banner:Banner = reactive({
 
 const user:User = reactive({
     nicename: 'KeepSilent',
-    avatar: './src/assets/logo.svg',
+    avatar: './src/assets/electron.svg',
     level: 5,
     exp: 10000,
 })
@@ -120,7 +124,19 @@ const getUserExpProgress = function (level,exp):number {
     return User.getUserExpProgress(level,exp);
 }
 const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):void {
+    const {url} = menu.data[index];
+
     menu.current = index;
+    console.log('url',url);
+   // Base.redirect(url)
+
+    router.push({
+        path: url,
+        query:{ //query是个配置项
+            age:20
+        }
+    })
+    //this.$router.push({ name:‘hello’, query:{ name:‘word’, age:‘11’ } })
 }
 
 const onRedirectByEvent = function (event) {

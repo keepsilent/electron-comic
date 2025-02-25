@@ -1,0 +1,46 @@
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    &-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 6px 10px 10px;
+        margin-left: 208px;
+        color: #666;
+        font-size: 13px;
+        line-height: 1;
+        border-top: solid 1px var(--button-hover-bg);
+        background: #FFF;
+    }
+
+    .file-path {
+        display: flex;
+        align-items: center;
+        .item {
+            cursor: pointer;
+
+            &:hover { color: #000}
+        }
+
+        .icon-return {
+            display: block;
+            padding: 0 3px;
+
+            color: #AAA;
+            font-size: 13px;
+            transform: rotate(180deg);
+        }
+    }
+
+    .file-num {
+        .num {
+            padding-right: 3px;
+        }
+    }
+}
+

@@ -2,7 +2,7 @@ import type { App } from 'vue';
 // 引入 login.ts
 import LoginRouter from './modules/login';
 // 引入 test.ts
-import TestRouter from './modules/test';
+import RecycleRouter from './modules/recycle';
 import StoreRouter from './modules/store';
 // import { close, start } from '@/utils/nprogress';
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
@@ -12,6 +12,7 @@ export const publicRoutes: Array<RouteRecordRaw> = [
     // ...LoginRouter,
     // ...TestRouter,
     // ...StoreRouter,
+    ...RecycleRouter,
     {
         path: '/',
         name: 'homeIndex',

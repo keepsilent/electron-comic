@@ -14,7 +14,7 @@ import { ref } from 'vue'
 <template>
   <div class="padding-container">
     <Individual />
-        <img alt="logo" class="logo" src="@renderer/assets/logo.svg" />
+        <img alt="logo" class="logo" src="@renderer/assets/electron.svg" />
         <div class="creator">Powered by electron-vite</div>
         <div class="text">
           Build an Electron app with

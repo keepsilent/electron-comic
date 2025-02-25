@@ -14,7 +14,8 @@ const createWindow = function(): void {
         frame: false, //无边框
         show: false, // 初始时不显示窗口
         autoHideMenuBar: true,// 自动隐藏菜单栏
-        ...(process.platform === 'linux' ? { icon } : {}),
+        //...(process.platform === 'linux' ? { icon } : { icon: '../../resources/icon.ico?asset'}),
+        icon: join(__dirname,'.../../resources/icon.png?asset'),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'), // 预加载脚本路径
             sandbox: false // 禁用沙盒模式

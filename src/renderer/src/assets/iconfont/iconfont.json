@@ -6,11 +6,11 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "2076271",
-      "name": "退出",
+      "icon_id": "1111736",
+      "name": "exit",
       "font_class": "exit",
-      "unicode": "e892",
-      "unicode_decimal": 59538
+      "unicode": "e7cb",
+      "unicode_decimal": 59339
     },
     {
       "icon_id": "1306794",
@@ -258,6 +258,13 @@
       "unicode_decimal": 58980
     },
     {
+      "icon_id": "1299874",
+      "name": "Delete Fill",
+      "font_class": "delete-fill",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
       "icon_id": "1299910",
       "name": "Expression",
       "font_class": "expression",
@@ -277,6 +284,13 @@
       "font_class": "file",
       "unicode": "e66c",
       "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "1299934",
+      "name": "File Fill",
+      "font_class": "file-fill",
+      "unicode": "e66d",
+      "unicode_decimal": 58989
     },
     {
       "icon_id": "1300030",

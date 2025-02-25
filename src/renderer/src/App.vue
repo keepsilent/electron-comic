@@ -13,15 +13,14 @@
                     </transition>
                 </router-view>
             </div>
-            <div class="footer"></div>
+            <Footer></Footer>
         </div>
     </div>
-  <Versions />
 </template>
 <script setup lang="ts">
 import Aside from '@renderer/layout/Aside/index.vue'
 import Header from '@renderer/layout/Header/index.vue'
-import Versions from '@renderer/components/Versions.vue'
+import Footer from '@renderer/layout/Footer/index.vue'
 
-const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
+// const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
 </script>
