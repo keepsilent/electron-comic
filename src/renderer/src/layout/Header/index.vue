@@ -75,7 +75,6 @@ window.electron.ipcRenderer.on('maximize',(event,args)=> {
     maximize.name = '最大化';
     maximize.value = 'maximize';
 })
-
 </script>
 <style lang="scss" scoped>
 @use "./index.scss";

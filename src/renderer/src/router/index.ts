@@ -2,6 +2,7 @@ import type { App } from 'vue';
 // 引入 login.ts
 import LoginRouter from './modules/login';
 // 引入 test.ts
+import { defineAsyncComponent } from 'vue'
 import RecycleRouter from './modules/recycle';
 import StoreRouter from './modules/store';
 // import { close, start } from '@/utils/nprogress';
@@ -16,7 +17,8 @@ export const publicRoutes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'homeIndex',
-        component: () => import('@renderer/views/home/index.vue')
+        component: defineAsyncComponent(() => import('@renderer/views/home/index.vue'))
+        //component: () => import('@renderer/views/home/index.vue')
     }
 ];
 

@@ -18,9 +18,25 @@
     </div>
 </template>
 <script setup lang="ts">
+import {storeToRefs} from 'pinia'
+import {usePageStore} from '@renderer/stores/page'
+
 import Aside from '@renderer/layout/Aside/index.vue'
 import Header from '@renderer/layout/Header/index.vue'
 import Footer from '@renderer/layout/Footer/index.vue'
 
+
+const pageStore = usePageStore();
+const {height} = storeToRefs(pageStore);
+
 // const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
+window.electron.ipcRenderer.on('resize',(event,args)=> {
+    const {x, y, width, height} = args;
+
+    pageStore.x = x;
+    pageStore.y = y;
+    pageStore.width = width;
+    pageStore.height = height;
+})
+
 </script>

@@ -18,13 +18,16 @@ const createWindow = function(): void {
         icon: join(__dirname,'.../../resources/icon.png?asset'),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'), // 预加载脚本路径
-            sandbox: false // 禁用沙盒模式
+            sandbox: false, // 禁用沙盒模式
+            nodeIntegration: true,
+            contextIsolation: false,
         }
     })
 
     // 当窗口准备好显示时，显示窗口
     mainWindow.on('ready-to-show', () => {
-        mainWindow.show()
+        mainWindow.show();
+        //mainWindow.webContents.send('resize', mainWindow.getContentBounds())
     })
 
     // 拦截新窗口的打开请求，并在默认浏览器中打开 URL
@@ -36,6 +39,7 @@ const createWindow = function(): void {
     // 监听窗口发生变化
     mainWindow.on('resize', () => {
         mainWindow.webContents.send('maximize', mainWindow.isMaximized())
+        mainWindow.webContents.send('resize', mainWindow.getContentBounds())
     })
 
 
@@ -57,6 +61,10 @@ const createWindow = function(): void {
     ipcMain.on('reset', () => {
         app.exit() //退出当前程序
         app.relaunch() //重新启动
+    })
+
+    ipcMain.on('openpath', (event,value) => {
+        shell.openPath(value)
     })
 }
 

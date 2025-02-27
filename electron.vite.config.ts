@@ -3,6 +3,7 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
+    base: './',
     main: {
         plugins: [externalizeDepsPlugin()]
     },
@@ -13,8 +14,20 @@ export default defineConfig({
         resolve: {
             alias: {
                 '@renderer': resolve('src/renderer/src')
-            }
+            },
+            extensions: [
+                '.js',
+                '.json',
+                '.jsx',
+                '.mjs',
+                '.ts',
+                '.tsx',
+                '.vue',
+            ]
         },
         plugins: [vue()]
-    }
+    },
+    server: {
+        port: 3000,
+    },
 })

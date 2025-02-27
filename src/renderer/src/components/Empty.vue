@@ -9,20 +9,26 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-    icon: {
-        type: String,
-        default: 'icon-delete-fill',
-    },
-    title: {
-        type: String,
-        default: '您的回收站为空噢～'
-    },
-    subtitle: {
-        type: String,
-        default: '您的回收站为空噢～'
-    },
-});
+interface Props {
+    icon: string,
+    title: string,
+    subtitle?: string
+}
+const props = defineProps<Props>()
+// const props = defineProps({
+//     icon: {
+//         type: String,
+//         default: 'icon-delete-fill',
+//     },
+//     title: {
+//         type: String,
+//         default: '您的回收站为空噢～'
+//     },
+//     subtitle: {
+//         type: String,
+//         default: '您的回收站为空噢～'
+//     },
+// });
 </script>
 
 <style scoped lang="scss">
@@ -55,13 +61,14 @@ const props = defineProps({
 
         .title {
             padding-top: 25px;
-            color: #333;
-            font-size: 16px;
+            color: #666;
+            font-size: 14px;
         }
 
         .subtitle {
+            padding-top: 5px;
             color: #999;
-            font-size: 14px;
+            font-size: 12px;
         }
     }
 }
