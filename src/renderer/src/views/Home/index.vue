@@ -34,15 +34,27 @@
 <script lang="ts" setup>
 import {ref, reactive,watch} from 'vue'
 import {Base, Config, File} from "@renderer/utils";
+
+import {init} from "@renderer/sql/db.ts";
+import {addTest} from "@renderer/sql/sql-api.ts";
 // import fs from 'fs'
 // import path from 'path'
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
 const test = () => {
-    console.log('x');
-    const path = File.getStorePath();
-    File.mkdir(path)
+    // let db = conDb();
+    // console.log('db',db);
+    //init();
+    addTest();
+
+
+
+
+
+    // console.log('x');
+    // const path = File.getStorePath();
+    // File.mkdir(path)
     //mkdirs('C:/Users/keepsilent/Desktop/test/4')
 }
 
