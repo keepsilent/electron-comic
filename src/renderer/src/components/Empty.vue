@@ -55,20 +55,20 @@ const props = defineProps<Props>()
             font-size: 58px;
             line-height: 100px;
 
-            background: rgba(0,0,0,0.1);
-            border-radius: 100%;
+            background: var(--grey-30);
+            border-radius: var(--border-radius-max)
         }
 
         .title {
-            padding-top: 25px;
-            color: #666;
-            font-size: 14px;
+            padding-top: var(--spacing-l);
+            color: var(--content-color-secondary);
+            font-size: var(--text-size-l);
         }
 
         .subtitle {
-            padding-top: 5px;
-            color: #999;
-            font-size: 12px;
+            padding-top: var(--spacing-xxs);
+            color: var(--content-color-tertiary);
+            font-size: var(--text-size-m);
         }
     }
 }

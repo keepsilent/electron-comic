@@ -24,6 +24,7 @@ const createWindow = function(): void {
         }
     })
 
+    //mainWindow.webContents.openDevTools({mode:'detach'});
     // 当窗口准备好显示时，显示窗口
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();

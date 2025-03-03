@@ -10,7 +10,10 @@
                     </template>
                 </template>
             </div>
-            <div class="file-num"><i class="num">{{status.num}}</i>项</div>
+            <div class="file-info">
+                <div class="file-num"><i class="num">{{status.num}}</i>Item</div>
+                <div class="iconfont icon-problem"></div>
+            </div>
         </div>
     </div>
 </template>

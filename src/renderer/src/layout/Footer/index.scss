@@ -2,29 +2,36 @@
     position: fixed;
     bottom: 0;
     left: 0;
+
     width: 100%;
+    height: 25px;
+    line-height: 20px;
+
+    background: var(--background-color-secondary);
+    border-top: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
 
     &-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
 
-        padding: 6px 10px 10px;
+        padding: 0 10px;
         margin-left: 208px;
-        color: #666;
-        font-size: 13px;
-        line-height: 1;
-        border-top: solid 1px var(--button-hover-bg);
-        background: #FFF;
+
+        color: var(--content-color-secondary);
+        font-size: var(--text-size-m);
     }
 
     .file-path {
         display: flex;
         align-items: center;
+
         .item {
             cursor: pointer;
 
-            &:hover { color: #000}
+            &:hover {
+                color: var(--content-color-tertiary);
+            }
         }
 
         .icon-return {
@@ -32,14 +39,23 @@
             padding: 0 3px;
 
             color: #AAA;
-            font-size: 13px;
             transform: rotate(180deg);
         }
     }
 
-    .file-num {
-        .num {
-            padding-right: 3px;
+    .file-info {
+        display: flex;
+        align-items: center;
+
+        .file-num {
+            margin-right: var(--spacing-s);
+            .num {
+                padding-right: 3px;
+            }
+        }
+
+        .icon-problem {
+            font-size: var(--text-size-xl);
         }
     }
 }

@@ -1,21 +1,12 @@
 <template>
-    <div class="file-list-box scrollbar" :style="{height: page.height+'px'}">
+    <Toolbar></Toolbar>
+
+    <div class="file-list-box scrollbar" >
 <!--        <Empty :icon="empty.icon" :title="empty.title" :subtitle="empty.subtitle"></Empty>-->
 
-<!--        <ul>-->
-<!--            <li v-for="(item,index) in 100"  onmousedown="" data-id="{{item.file_id}}" title="名称：&#10;大小：&#10;修改时间：">-->
-<!--                <div class="font-0"><img src="./dist/images/default_cover.png" data-load="0" data-src="" data-width=""  data-height="" width="150" height="195"></div>-->
-<!--                <p>文件名</p>-->
-<!--            </li>-->
-<!--        </ul>-->
-
-        <img :src="src"/>
         <ul>
-            <span @click="test">点我</span>
             <template v-for="(image,index) in images">
-                <img
-                    :src="image" class="image"
-                >
+                <img :src="image" class="image">
             </template>
             <li class="upload-file-box">
                 <div class="upload-file">
@@ -34,6 +25,7 @@
 <script lang="ts" setup>
 import {ref, reactive,watch} from 'vue'
 import {Base, Config, File} from "@renderer/utils";
+import Toolbar from './components/toolbar.vue'
 
 import {init} from "@renderer/sql/db.ts";
 import {addTest} from "@renderer/sql/sql-api.ts";
@@ -42,6 +34,8 @@ import {addTest} from "@renderer/sql/sql-api.ts";
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
+
+console.log('mport.meta.env.VITE_CURRENT_RUN_MODE')
 const test = () => {
     // let db = conDb();
     // console.log('db',db);
@@ -125,7 +119,7 @@ const pageStore = usePageStore();
 const page = reactive({height: Config.getMainHeight(pageStore.height)});
 const empty:Empty = reactive({icon: 'icon-file-fill',title: '漫画库为空',subtitle:'您的漫画库空荡荡～'})
 
-pageStore.setStatusPath('漫画');
+pageStore.setStatusPath('Comic');
 //pageStore.setStatusPath(['C:','Users','keepsilent','Downloads'],'path');
 watch(() => pageStore.height,(value)=>{
     page.height = Config.getMainHeight(value);
