@@ -1,9 +1,20 @@
 import { app } from "electron";
-import * as path from "path";
-import * as sqlite3 from "sqlite3";
+// import * as path from "path";
+// import * as sqlite3 from "sqlite3";
+//
+// const userDataPath = app.getPath("userData");
+// const dbPath = path.join(userDataPath, "sqliteDatabase.db");
 
-const userDataPath = app.getPath("userData");
-const dbPath = path.join(userDataPath, "sqliteDatabase.db");
+// console.error('userDataPath',userDataPath);
+
+const sqlite3 = require('sqlite3').verbose();
+const os = require('os') as typeof import("os");
+const path = require("path") as typeof import("path");
+
+const homedir = os.homedir(); // 用于获取当前用户的主目录路径
+const userDataPath = homedir.replace(/\\/g,'\\\\'); // 替换绝对和相对路径
+const dbPath = path.join(userDataPath, "sqliteDatabase.db")
+console.error('dbPath',dbPath);
 
 export interface queryParam {
     sql: string;
@@ -59,15 +70,20 @@ class Database {
     }
 
     private initializeSchema(): Promise<void> {
-        return this.query({
-            sql: `
-      CREATE TABLE IF NOT EXISTS test (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        age INTEGER
-      )
-    `,
-        }).then(() => {
+        let sql = `CREATE TABLE IF NOT EXISTS file (
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+            modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+           
+            name varchar(255) NOT NULL DEFAULT '',
+            author varchar(64) NOT NULL DEFAULT '',
+            type varchar(64) NOT NULL DEFAULT '',
+            path varchar(255) NOT NULL DEFAULT '',
+            size int(20) NOT NULL DEFAULT 0,
+            total varchar(64) NOT NULL DEFAULT 0,
+            status varchar(20)  NOT NULL DEFAULT 'normal'
+        )`
+        return this.query({sql: sql}).then(() => {
             console.log("Database schema initialized.");
         }).catch((err) => {
             console.error("Error initializing database schema:", err);

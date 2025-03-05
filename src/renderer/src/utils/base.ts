@@ -1,3 +1,5 @@
+
+
 /**
  * 是否为空
  * @method isEmpty
@@ -21,6 +23,24 @@ const isEmpty = function (value:any): boolean {
 }
 
 /**
+ * 是否对象类型
+ * @method isEmpty
+ * @param {Any} value 需要较验的值
+ * @returns {boolean}
+ */
+const isObject = function (value:any): boolean {
+    if(isEmpty(value)) {
+        return false;
+    }
+
+    if(Object.prototype.toString.call(value) === '[object Object]') {
+        return true
+    }
+
+    return  false;
+}
+
+/**
  * 跳转
  * @method redirect
  * @param {String} url 链接
@@ -39,12 +59,60 @@ const redirect = function (url:string, target:string = null):boolean|void {
     window.location.href = url;
 }
 
-const redirectByEvent = function ({currentTarget: {dataset: {url,target}}}) {
+const redirectByEvent = function ({currentTarget: {dataset: {url,target}}}):void {
     redirect(url,target)
+}
+
+/**
+ * 获取数据长度
+ * @method getDataLength
+ * @param {Object} data 检查的数据
+ * @return {Number}
+ */
+const getDataLength = function(data:object):number {
+    let len = 0;
+    for (let i in data) {
+        len++;
+    }
+
+    return len;
+}
+
+
+/**
+ * 获取对象首个键名
+ * @method getObjectFirstKey
+ * @param {Object} object 校验的object值
+ * @return {String}
+ */
+const getObjectFirstKey = function (object:object):string {
+    if(!isObject(object)) {
+        return undefined
+    }
+
+    const [key] = Object.keys(object);
+    return key;
+}
+
+
+/**
+ * 打印错误日志
+ * @method printErrorLog
+ * @param {String} name
+ * @param {Any} error
+ */
+const printErrorLog = function (name:string, error:any):void {
+    console.error(name+' error', error);
 }
 
 export default {
     isEmpty: isEmpty,
+    isObject: isObject,
+
+    getDataLength: getDataLength,
+    getObjectFirstKey: getObjectFirstKey,
+
+    printErrorLog: printErrorLog,
     redirect:　redirect,
     redirectByEvent: redirectByEvent
 }

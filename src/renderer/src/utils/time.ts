@@ -80,7 +80,7 @@ const formatDate = function(value:string, format:string = 'YYYY/MM/DD HH:mm:ss')
     if (Base.isEmpty(value)) {
         return '';
     }
-    console.log('formatDate v4444a',compatibleDate(value))
+
     value = value * 1000;
     const date = new Date(compatibleDate(value));
     const options = {

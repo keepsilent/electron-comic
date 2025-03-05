@@ -10,6 +10,16 @@ const getMainHeight = function (height:number, blank:number = 118):number {
 }
 
 
-export default {
-    getMainHeight: getMainHeight
+/**
+ * 获取存储路径
+ * @method getStoragePath
+ */
+const getStoragePath = function (key:string):string {
+    return 'C:/Users/keepsilent/Desktop/新建文件夹 (3)/'
 }
+
+export default {
+    getMainHeight: getMainHeight,
+    getStoragePath: getStoragePath
+}
+
