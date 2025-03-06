@@ -11,23 +11,36 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive,watch} from 'vue'
+import {ref, reactive, watch, onMounted} from 'vue'
 import {Base, Config, File} from "@renderer/utils";
-import {sqQuery} from "@renderer/api/db/db";
+import {query} from "@renderer/api/file";
 
 
-console.error('import.meta.env.VITE_CURRENT_RUN_MODE',import.meta.env.VITE_CURRENT_RUN_MODE);
 
-const upload = ref(null);
-const src = ref('')
-const images = ref({})
 
+ // console.log(queryParam)
+// let res = await DB.query({
+//     sql: 'select * from file',
+//     params: []
+// });
+//
+//
+// console.log('res',res);
 import {Archive} from 'libarchive.js/main.js';
-import {sqInsert} from "../api/db";
-Archive.init({
-    workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
-});
+const upload = ref(null);
 
+const test = async function () {
+    let res = await query('select * from file where id = 1')
+    console.log('res',res);
+}
+
+onMounted(() => {
+    Archive.init({
+        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
+    });
+
+    test();
+})
 
 const onUpload = async function (event) {
     if (event.length == 0) {
@@ -37,16 +50,11 @@ const onUpload = async function (event) {
     }
 
     try {
-        console.log('event.target.files', event.target.files);
         const [file] = event.target.files;
-
-
-        console.log('file', file);
-
         const archive = await Archive.open(file);
         const res = await archive.extractFiles();
+
         const cover = await File.getExtractFileCover(res);
-        const total = File.getExtractFileTotal(res);
 
         File.createCoverByBase64(file.name,cover)
 
@@ -58,28 +66,15 @@ const onUpload = async function (event) {
                 type: file.type,
                 size: file.size,
                 path: file.path,
-                total: total
+                total: File.getExtractFileTotal(res)
             }
         }
 
-        sqInsert(sql);
     } catch (err) {
         console.error('err',err)
     } finally {
         upload.value.value = null;
     }
-
-    return false
-
-    const reader = new FileReader()
-    reader.onload = (loadEvent) =>{
-        const {target: {result}} = loadEvent
-        const base64 = (result).replace('data:application/octet-stream;base64,','data:image/png;base64,')
-        //console.log('loadEvent.target.resul',loadEvent.target.result);
-    }
-
-    //console.log('obj[0]',obj.test);
-    reader.readAsDataURL(new Blob([obj.test['00025AE0.png']]))
 }
 
 </script>

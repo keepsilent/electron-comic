@@ -37,6 +37,13 @@ export interface deleteParam {
     condition: string;
 }
 
+interface Result {
+    code: number,
+    message:string
+    data: any
+}
+
+
 class Database {
     private static instance: Database;
     private db: sqlite3.Database;
@@ -54,15 +61,19 @@ class Database {
         return Database.instance;
     }
 
+    private dataFormat(code:number,message:string = null, data:any = null):Result {
+        return { code: code, message: message, data: data }
+    }
+
     private open(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.db.serialize(() => {
                 this.db.run("PRAGMA foreign_keys = ON", (err) => {
                     if (err) {
-                        reject(err);
+                        reject(Database.instance.dataFormat(500,err));
                     } else {
                         console.log("Connected to the database.");
-                        resolve();
+                        resolve(Database.instance.dataFormat(200,'Connected to the database'));
                     }
                 });
             });
@@ -107,9 +118,9 @@ class Database {
         return new Promise<any[]>((resolve, reject) => {
             this.db.all(param.sql, param.params, (err, rows) => {
                 if (err) {
-                    reject(err);
+                    reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(rows);
+                    resolve(Database.instance.dataFormat(200,'success',rows));
                 }
             });
         });

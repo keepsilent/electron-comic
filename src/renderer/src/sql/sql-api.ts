@@ -19,9 +19,6 @@ export function addTest(type = 1, tel=123, cookie='1', uin='1') {
                 resolve({code:200,msg:'成功',data});
             }
         });
-
-
     })
-
 }
 

@@ -68,6 +68,19 @@ const createWindow = function(): void {
     ipcMain.on('openpath', (event,value) => {
         shell.openPath(value)
     })
+
+    // ipcMain.handle('sqQuery', (event: IpcMainInvokeEvent,param: queryParam): Promise<any> => {
+    //     return sqQuery(param);
+    // });
+    // ipcMain.handle('sqInsert', (event: IpcMainInvokeEvent,param: insertParam): Promise<any> => {
+    //     return sqInsert(param);
+    // });
+    // ipcMain.handle('sqUpdate', (event: IpcMainInvokeEvent,param: updateParam): Promise<any> => {
+    //     return sqUpdate(param);
+    // });
+    // ipcMain.handle('sqDelete', (event: IpcMainInvokeEvent,param: deleteParam): Promise<any> => {
+    //     return sqDelete(param);
+    // });
 }
 
 
