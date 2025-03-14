@@ -247,6 +247,8 @@ const getCoverPathByName = function (value:string):string {
     return `${path}${name}.png`;
 }
 
+
+
 export default {
     mkdir: mkdir,
     isImageFileByPath: isImageFileByPath,
