@@ -5,9 +5,17 @@
 
             <div v-for="(item,index) in files.data" :key="index" class="file-item">
                 <div class="cover">
-                    <img src="./dist/images/default_cover.png" data-load="0" data-src="xx" data-width="xx"  data-height="xx" width="216" height="287">
+                    <img :src="item.cover" data-load="0" data-src="xx" data-width="xx"  data-height="xx" width="216" height="287">
+<!--                    <span class="type">ZIP</span>-->
+<!--                    <div class="mask">-->
+<!--                        <span class="num">{{item.total}}页</span>-->
+<!--                    </div>-->
                 </div>
                 <p class="title">{{item.name}}</p>
+<!--                <p class="subtitle">-->
+<!--                    <span>{{item.date}}</span>-->
+<!--                    <span>{{item.total}}页</span>-->
+<!--                </p>-->
             </div>
 
 
@@ -23,7 +31,7 @@
 
 <script setup lang="ts">
 import {ref, reactive, watch, onMounted} from 'vue'
-import {Base, Config, File} from "@renderer/utils";
+import {Base, Config, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
 
 import {Archive} from 'libarchive.js/main.js';
@@ -40,7 +48,6 @@ onMounted(() => {
 })
 
 const loadFileList = async function () {
-    console.log('vv');
     try {
         const params = {
             page: 1,
@@ -48,11 +55,17 @@ const loadFileList = async function () {
         }
 
         const res = await getFileList(params)
-        console.log('res',res);
         if(res.code != 200) {
             return false;
         }
         console.log('res',res)
+
+        for(let i in res.data) {
+            res.data[i].name = File.getRenderFileName(res.data[i].name);
+            res.data[i].cover = File.getFileCoverById(res.data[i].id);
+            res.data[i].size = File.formatFileSize(res.data[i].size);
+            res.data[i].date = Time.formatDate(res.data[i].date,'YYYY/MM/DD');
+        }
         files.data = res.data;
 
         console.log('files',files)
@@ -72,38 +85,38 @@ const onUpload = async function (event) {
     try {
         const [file] = event.target.files;
         const archive = await Archive.open(file);
-        const res = await archive.extractFiles();
+        const extract = await archive.extractFiles();
 
-        const cover = await File.getExtractFileCover(res);
+        await addSingleFile(file, extract);
+    } catch (err) {
+        console.error('err',err)
+    } finally {
+        upload.value.value = null;
+    }
+}
 
-        File.createCoverByBase64(file.name,cover)
-
+const addSingleFile = async function ( file,extract) {
+    try {
         const data= {
             name: file.name,
             author: '',
             type: file.type,
             size: file.size,
             path: file.path,
-            total: File.getExtractFileTotal(res)
+            total: File.getExtractFileTotal(extract),
         }
 
-        await addFile(data);
-        // const sql = {
-        //     table: 'file',
-        //     data: {
-        //         name: file.name,
-        //         author: '',
-        //         type: file.type,
-        //         size: file.size,
-        //         path: file.path,
-        //         total: File.getExtractFileTotal(res)
-        //     }
-        // }
+        const cover = await File.getExtractFileCover(extract);
+        const res = await addFile(data);
+        if(res.code != 200) {
+            return false
+        }
 
+
+        File.createCoverByBase64(res.data, cover)
+        console.log('addSingleFile res',res);
     } catch (err) {
-        console.error('err',err)
-    } finally {
-        upload.value.value = null;
+        Base.printErrorLog('addFile', err)
     }
 }
 
@@ -121,56 +134,102 @@ const onUpload = async function (event) {
     &-inner {
         display: grid;
         //grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        grid-template-columns: repeat(auto-fill, 216px);
+        grid-template-columns: repeat(auto-fill, 183px);
         gap: 15px;
     }
 
 
     &-item {
-        width: 216px;
-        height: 317px;
-        //border: solid 1px #f5f5f5;
+        //width: 216px;
+        width: 183px;
         cursor: pointer;
         overflow: hidden;
 
-        &:hover {
-            background: rgba(255,196,89,0.06);
-            border-color: rgba(255,196,89,0.01);
-        }
-        //
-        //&.active {
-        //    border: solid 1px rgba(255,196,89,0.1);
-        //    background: rgba(255,196,89,0.06);
-        //
-        //    &:hover {
-        //        background: rgba(255,196,89,0.06);
-        //    }
-        //}
 
         .cover {
-            width: 216px;
-            height: 287px;
+            position: relative;
+            //width: 216px;
+            //height: 287px;
+            width: 183px;
+            height: 243px;
+
+
+            background: #FFF;
+            border-radius: var(--border-radius-default);
             overflow: hidden;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            .mask {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                font-size: 26px;
+                line-height: 24px;
+                padding: 0 8px 6px 0;
+                color: #fff;
+                background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, .5)));
+                background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
+                background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, .5) 100%);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
+                width: 100%;
+                text-align: right;
+                z-index: 4;
+
+                font-style: italic;
+                font-family: DIN-BoldItalic;
+            }
+            .type {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                padding: 2px 8px;
+                border-radius: 5px;
+                background: #FFF;
+            }
+
+            //.num {
+            //    position: absolute;
+            //    bottom: 5px;
+            //    right: 10px;
+            //
+            //    color: #FFF;
+            //    font-size: 24px;
+            //    font-weight: bolder;
+            //    font-style: italic;
+            //    font-family: DIN-BoldItalic;
+            //}
         }
 
         .title {
-            padding: 10px 0;
-            height: 30px;
-            text-align: center;
-            overflow: hidden;
+            padding: 5px 0;
+
+            color: #333;
+            font-size: var(--text-size-l);
+            height: calc(2* (var(--text-size-l) * 1.4));
 
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             overflow: hidden;
         }
+
+        .subtitle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
     }
 
 
     &-upload-btn {
         position: relative;
-        width: 150px;
-        height: 195px;
+
+        width: 183px;
+        height: 243px;
 
         text-align: center;
 
@@ -196,7 +255,7 @@ const onUpload = async function (event) {
             width: 60px;
             height: 60px;
             margin: 0 auto;
-            padding-top: 52px;
+            padding-top: 62.5px;
             color: var(--grey-40);
 
             opacity: 0.75;

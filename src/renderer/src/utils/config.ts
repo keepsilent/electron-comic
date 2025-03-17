@@ -15,7 +15,7 @@ const getMainHeight = function (height:number, blank:number = 118):number {
  * @method getStoragePath
  */
 const getStoragePath = function (key:string):string {
-    return 'C:/Users/keepsilent/Desktop/新建文件夹 (3)/'
+    return import.meta.env.VITE_APP_COVER_PATH
 }
 
 export default {

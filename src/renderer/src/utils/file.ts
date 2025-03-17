@@ -184,6 +184,25 @@ const getFileExt = function(path:string):string{
 }
 
 /**
+ * 获取渲染的文件名
+ * @method getRenderFileName
+ * @param {String} name 文件全称
+ * @return {String}
+ */
+const getRenderFileName = function(name:string):string{
+    if(Base.isEmpty(name)) {
+        return '';
+    }
+
+    if(name.indexOf('.') == -1) {
+        return '';
+    }
+
+    const data = name.trim().split('.');
+    return data[0];
+}
+
+/**
  * 通过路径，判断是否图片文件
  * @method isImageFileByPath
  * @param {String} path 文件路径
@@ -215,7 +234,8 @@ const createCoverByBase64 = function (name:string, base64:string):boolean|void {
         return false
     }
 
-    const path = getCoverPathByName(name);
+    //const path = getCoverPathByName(name);
+    const path = `${Config.getStoragePath()}${name}.png`;
     const dataBuffer = new Buffer(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
     fs.writeFile(path, dataBuffer,function(err) {//用fs写入文件
         if(Base.isEmpty(err)) {
@@ -248,6 +268,35 @@ const getCoverPathByName = function (value:string):string {
 }
 
 
+/**
+ * 获取文件图片通过id
+ * @method getFileCoverById
+ * @param {Number} id 文件ID
+ */
+const getFileCoverById = function (id:number):string {
+    const prefix = Config.getStoragePath();
+    const path = `${prefix}${id}.png`;
+    //return '/data/images/cover/36.png'
+    return path;
+}
+
+
+/**
+ * 格式化文件大小
+ * @method formatFileSize
+ * @param {Number} filesize
+ */
+const formatFileSize = function (filesize:number):string{
+    if(Base.isEmpty(filesize)) {
+        return "0 Bytes";
+    }
+
+    const unitArr = new Array("Bytes","KB","MB","GB","TB","PB","EB","ZB","YB");
+    const index = Math.floor(Math.log(filesize)/Math.log(1024));
+    const size = (filesize/Math.pow(1024,index)).toFixed(2);
+    return size+unitArr[index];
+}
+
 
 export default {
     mkdir: mkdir,
@@ -257,6 +306,10 @@ export default {
 
     getFileExt: getFileExt,
     getStorePath: getStorePath,
+    getFileCoverById: getFileCoverById,
+    getRenderFileName: getRenderFileName,
+
+    formatFileSize: formatFileSize,
 
     getExtractFileTotal: getExtractFileTotal,
     getExtractFileCover: getExtractFileCover

@@ -105,17 +105,16 @@ class Database {
         return new Promise<void>((resolve, reject) => {
             this.db.close((err) => {
                 if (err) {
-                    reject(err);
+                    reject(Database.instance.dataFormat(500,err));
                 } else {
-                    console.log("Database closed.");
-                    resolve();
+                    resolve(Database.instance.dataFormat(200,'Database closed.'));
                 }
             });
         });
     }
 
-    query(param: queryParam): Promise<any[]> {
-        return new Promise<any[]>((resolve, reject) => {
+    query(param: queryParam): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
             this.db.all(param.sql, param.params, (err, rows) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
@@ -126,52 +125,47 @@ class Database {
         });
     }
 
-    insert(param: insertParam): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
+    insert(param: insertParam): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
             const keys = Object.keys(param.data);
             const values = Object.values(param.data);
             const placeholders = keys.map(() => "?").join(",");
-            const sql = `INSERT INTO ${param.table} (${keys.join(
-                ","
-            )}) VALUES (${placeholders})`;
+            const sql = `INSERT INTO ${param.table} (${keys.join(",")}) VALUES (${placeholders})`;
 
             this.db.run(sql, values, function (err) {
                 if (err) {
-                    reject(err);
+                    reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(this.lastID);
+                    resolve(Database.instance.dataFormat(200,'success',this.lastID));
                 }
             });
         });
     }
 
-    update(param: updateParam): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
-            const entries = Object.entries(param.data)
-                .map(([key, value]) => `${key} = ?`)
-                .join(",");
+    update(param: updateParam): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
+            const entries = Object.entries(param.data).map(([key, value]) => `${key} = ?`).join(",");
             const params = Object.values(param.data);
             const sql = `UPDATE ${param.table} SET ${entries} WHERE ${param.condition}`;
 
             this.db.run(sql, params, function (err) {
                 if (err) {
-                    reject(err);
+                    reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(this.changes);
+                    resolve(Database.instance.dataFormat(200,'success',this.changes));
                 }
             });
         });
     }
 
-    delete(param: deleteParam): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    delete(param: deleteParam): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
             const sql = `DELETE FROM ${param.table} WHERE ${param.condition}`;
-
             this.db.run(sql, (err) => {
                 if (err) {
-                    reject(err);
+                    reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve();
+                    resolve(Database.instance.dataFormat(200,'success'));
                 }
             });
         });

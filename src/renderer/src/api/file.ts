@@ -4,7 +4,7 @@ import type {
     updateParam,
     deleteParam
 } from "@renderer/utils/db/base";
-import {Base,DB} from "@renderer/utils";
+import {Base, DB, Time} from "@renderer/utils";
 
 
 export const isFileExist = async function (name:string, type:string):Promise<boolen> {
@@ -36,7 +36,7 @@ export const getFileList = async function ({page,pagesize}):Promise<any[]> {
     const data:queryParam = {
         sql: sql,
         params: {
-            $page: page,
+            $page: (page - 1) * pagesize,
             $pagesize: pagesize
         },
     }
@@ -45,43 +45,17 @@ export const getFileList = async function ({page,pagesize}):Promise<any[]> {
 }
 
 export const addFile = async function (data:{ [key: string]: any }):Promise<any[]> {
+    console.log('add file',data);
+    const date = Time.formatDate(new Date().getTime());
     const params:insertParam = {
         table: 'file',
-        data: [...data]
+        data: {
+            date: date,
+            modified: date,
+            ...data
+        }
     }
 
     return await DB.insert(params);
-
-    // const sql = {
-    //     table: 'file',
-    //     data: {
-    //         name: file.name,
-    //         author: '',
-    //         type: file.type,
-    //         size: file.size,
-    //         path: file.path,
-    //         total: File.getExtractFileTotal(res)
-    //     }
-    // }
-    //
-    // return await DB.(data);
-}
-
-export const insertFileRecord = async function (data:{ [key: string]: any }) {
-    const params:insertParam = {
-        table: 'file',
-        data: [...data]
-    }
-
-    return await DB.insert(params);
-}
-
-export const query = async function (sql: string, params:any[] = []) {
-    const data:queryParam = {
-        sql: sql,
-        params: params
-    }
-
-    return await DB.query(data);
 }
 

@@ -81,7 +81,7 @@ const formatDate = function(value:string, format:string = 'YYYY/MM/DD HH:mm:ss')
         return '';
     }
 
-    value = value * 1000;
+
     const date = new Date(compatibleDate(value));
     const options = {
         'Y+': date.getFullYear().toString(), // 年

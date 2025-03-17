@@ -21,6 +21,7 @@ const createWindow = function(): void {
             sandbox: false, // 禁用沙盒模式
             nodeIntegration: true,
             contextIsolation: false,
+            webSecurity: false, //充许加载本地图片
         }
     })
 
