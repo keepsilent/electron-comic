@@ -27,6 +27,9 @@
             </div>
         </div>
     </div>
+
+    <Loading :show="page.loading"></Loading>
+    <Confirm :show="confirm.show" :title="confirm.title" :content="confirm.content" :showCancel="confirm.showCancel" :cancelText="confirm.cancelText" :confirmText="confirm.confirmText"></Confirm>
 </template>
 
 <script setup lang="ts">
@@ -35,7 +38,24 @@ import {Base, Config, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
 
 import {Archive} from 'libarchive.js/main.js';
+import Loading from "./Loading.vue";
+import Confirm from "./Confirm.vue";
 
+interface Page {
+    init: boolean,
+    loading: boolean
+}
+interface Confirm {
+    show:boolean,
+    title?:string,
+    content: string,
+    showCancel?: boolean,
+    cancelText?: string,
+    confirmText?: string
+}
+
+const page:Page = reactive({init: false, loading: false});
+const confirm:Confirm = reactive({show: false, title: '',content: '',showCancel: false,cancelText: '取消',confirmText: '确定'});
 const upload = ref(null);
 const files = reactive({data: {}});
 
@@ -44,6 +64,9 @@ onMounted(() => {
         workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
     });
 
+    confirm.show = true;
+    confirm.content = '本系列更新只有利用周末和下班时间整理，比较多的内容的话更新会比较慢，希望能对你有所帮助，请多多star或点赞收藏支持一下';
+    confirm.showCancel= false;
     loadFileList();
 })
 

@@ -1,14 +1,12 @@
 import type { queryParam, insertParam, updateParam, deleteParam } from "./base";
 
-const path = './base';
 const mode = import.meta.env.VITE_CURRENT_RUN_MODE;
-
 const query = function (param: queryParam) {
     if(mode === 'render') {
         return window.electronAPI.sqQuery(param);
     }
 
-    return import(path).then((module) => module.sqQuery(param));
+    return import('./base').then((module) => module.sqQuery(param));
 }
 
 
@@ -17,7 +15,7 @@ const insert = (param: insertParam) => {
         return window.electronAPI.sqInsert(param);
     }
 
-    return import(path).then((module) => module.sqInsert(param));
+    return import('./base').then((module) => module.sqInsert(param));
 }
 
 const update = (param: updateParam) => {
@@ -25,7 +23,7 @@ const update = (param: updateParam) => {
         return window.electronAPI.sqUpdate(param);
     }
 
-    return import(path).then((module) => module.sqUpdate(param));
+    return import('./base').then((module) => module.sqUpdate(param));
 }
 
 const clean = (param: deleteParam) => {
@@ -33,7 +31,7 @@ const clean = (param: deleteParam) => {
         return window.electronAPI.sqDelete(param);
     }
 
-    return import(path).then((module) => module.sqDelete(param));
+    return import('./base').then((module) => module.sqDelete(param));
 }
 
 export default {
