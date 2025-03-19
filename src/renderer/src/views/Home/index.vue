@@ -18,20 +18,18 @@ import {Base, Config, File} from "@renderer/utils";
 import Toolbar from '@renderer/components/Toolbar.vue'
 import FileManagement from '@renderer/components/FileManagement.vue'
 
-import {init} from "@renderer/sql/db.ts";
-import {addTest} from "@renderer/sql/sql-api.ts";
+
 // import fs from 'fs'
 // import path from 'path'
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
 
-console.log('mport.meta.env.VITE_CURRENT_RUN_MODE')
+
 const test = () => {
     // let db = conDb();
     // console.log('db',db);
     //init();
-    addTest();
 
 
 

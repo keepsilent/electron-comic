@@ -20,8 +20,7 @@ const createWindow = function(): void {
             preload: join(__dirname, '../preload/index.js'), // 预加载脚本路径
             sandbox: false, // 禁用沙盒模式
             nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false, //充许加载本地图片
+            contextIsolation: false
         }
     })
 

@@ -1,15 +1,15 @@
 <template>
-    <div v-if="show" :class="page.show ? 'confirm-mask opacity':'confirm-mask'"></div>
-    <div v-if="show" :class="page.show ? 'confirm-wrap opacity':'confirm-wrap'">
+    <div v-if="confirm.show" :class="page.show ? 'confirm-mask opacity':'confirm-mask'"></div>
+    <div v-if="confirm.show" :class="page.show ? 'confirm-wrap opacity':'confirm-wrap'">
         <div class="confirm-inner">
             <div class="confirm-main">
-                <div v-if="title" class="title">{{ title }}</div>
-                <div class="content">{{ content }}</div>
+                <div v-if="confirm.title" class="title">{{ confirm.title }}</div>
+                <div class="content">{{ confirm.content }}</div>
             </div>
 
             <div class="confirm-footer" >
-                <div v-if="showCancel" class="btn-cancel" catchtap="onCancel">{{cancelText}}</div>
-                <div class="btn-confirm" catchtap="onConfirm">{{confirmText}}</div>
+                <div v-if="confirm.showCancel" class="btn-cancel" @click="onCancel">{{confirm.cancelText}}</div>
+                <div class="btn-confirm" @click="onConfirm">{{confirm.confirmText}}</div>
             </div>
         </div>
     </div>
@@ -19,23 +19,33 @@
 import {reactive, watch} from "vue";
 
 interface Props {
-    show: boolean,
-    title: string,
-    content: string,
+    confirm: {
+        show: boolean,
+        title: string,
+        content: string,
 
-    confirmText: string,
-    showCancel: boolean,
-    cancelText: string,
+        confirmText: string,
+        showCancel: boolean,
+        cancelText: string,
+    }
 }
 
 interface Page {
     show:boolean
 }
 
+const emit = defineEmits(['cancel','confirm'])
 const props = defineProps<Props>()
 const page:Page = reactive({show: false})
 
-watch(() => props.show,(value)=>{
+const onCancel = function () {
+    emit('cancel')
+}
+
+const onConfirm = function () {
+    emit('confirm')
+}
+watch(() => props.confirm.show,(value)=>{
     //延时显示，动画效果更佳
     setTimeout(()=> {page.show = value},10)
 })
@@ -73,7 +83,7 @@ watch(() => props.show,(value)=>{
     }
 
     &-inner {
-        width: 320px;
+        width: 300px;
 
         background: #FFF;
         border-radius: 8px;
@@ -81,13 +91,22 @@ watch(() => props.show,(value)=>{
 
     &-main {
         padding: 10px;
+        text-align: center;
+        line-height: 1.7;
+
+        .title {
+            padding-top: 5px;
+            padding-bottom: 10px;
+            line-height: 1;
+
+            color: var(--content-color-primary);
+            font-size: var(--text-size-xl);
+            font-weight: bolder;
+        }
 
         .content {
-            display: block;
-            color: rgba(51, 51, 51, 1);
-            font-size: 14px;
-            text-align: center;
-            line-height: 1.7;
+            color: var(--content-color-secondary);
+            font-size: var(--text-size-m);
         }
     }
 

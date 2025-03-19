@@ -8,9 +8,10 @@
 <!--                    <component :key="refresh" :is="Component"></component>-->
 <!--                </router-view>-->
                 <router-view v-slot="{ Component, route }">
-                    <transition name="animation" mode="out-in">
-                        <component :is="Component" :key="route.path" />
-                    </transition>
+                    <component :is="Component" :key="route.path" />
+<!--                    <transition name="animation" mode="out-in">-->
+<!--                        <component :is="Component" :key="route.path" />-->
+<!--                    </transition>-->
                 </router-view>
             </div>
             <Footer></Footer>
