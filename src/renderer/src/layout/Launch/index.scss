@@ -37,6 +37,7 @@
         display: block;
         box-sizing: border-box;
 
+        margin: 0 auto;
         width: 150px;
         height: 150px;
         overflow: hidden;
@@ -58,6 +59,7 @@
     &-footer {
         padding-top: var(--spacing-l);
         color: var(--content-color-tertiary);
+        text-align: center;
     }
 }
 
