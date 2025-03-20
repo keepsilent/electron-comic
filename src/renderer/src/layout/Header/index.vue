@@ -2,7 +2,7 @@
     <div class="header">
         <div class="header-inner">
             <div class="nav">
-                <span class="iconfont icon-return" title="Return" onclick="config.back()"></span>
+                <span class="iconfont icon-return" :title="$t('button.return')" onclick="config.back()"></span>
                 <div class="search ml-10">
                     <i class="iconfont icon-search"></i>
                     <input type="text" v-model="keyword" placeholder="Search Comic++" @keydown="onSearch" autocomplete="off">
@@ -12,9 +12,17 @@
 
             <!-- 头部菜单 -->
             <div class="menu tc">
-                <span class="iconfont icon-minimize" title="Minimize" data-key="minimize" @click="onIPC"></span>
-                <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="onIPC"></span>
-                <span class="iconfont icon-close" title="Close" data-key="close" @click="onIPC"></span>
+                <div class="left">
+                    <span class="iconfont icon-setting" :title="$t('button.setting')">
+                        <i class="dot"></i>
+                    </span>
+                </div>
+
+                <div class="right">
+                    <span class="iconfont icon-minimize" :title="$t('button.minimize')" data-key="minimize" @click="onIPC"></span>
+                    <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="onIPC"></span>
+                    <span class="iconfont icon-close" :title="$t('button.close')" data-key="close" @click="onIPC"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -23,12 +31,14 @@
 <script setup lang="ts">
 import {ref, reactive, toRefs} from "vue";
 import {Base} from "@renderer/utils";
+import {useI18n} from "vue-i18n";
 
 interface Maximize {
     name: string,
     value: string
 }
 
+const { t } = useI18n();
 const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
 
@@ -51,12 +61,12 @@ const onClear = function():void {
 const onIPC = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {
         case 'restore':
-            maximize.name = 'Maximize';
+            maximize.name = t('button.maximize');
             maximize.value = 'maximize';
             window.electron.ipcRenderer.send(key);
             break
         case 'maximize':
-            maximize.name = 'Restore down';
+            maximize.name = t('button.restore');
             maximize.value = 'restore';
             window.electron.ipcRenderer.send(key);
             break
@@ -67,12 +77,12 @@ const onIPC = function({currentTarget: {dataset: {key}}}): void {
 
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {
-        maximize.name = 'Restore down';
+        maximize.name = t('button.restore');
         maximize.value = 'restore';
         return false
     }
 
-    maximize.name = 'Maximize';
+    maximize.name = t('button.maximize');
     maximize.value = 'maximize';
 })
 </script>

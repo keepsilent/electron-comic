@@ -87,7 +87,7 @@
 
 :root {
     /*Brand*/
-    --base-color-brand: var(--orange-50);
+    --base-color-brand: var(--yellow-50);
     --base-color-info: var(--blue-50);
     --base-color-warning: var(--yellow-50);
     --base-color-error: var(--red-50);

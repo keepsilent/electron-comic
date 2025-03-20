@@ -113,7 +113,7 @@ const printErrorLog = function (name:string, error:any):void {
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showAlert = function (confirm, content:string, title:string= '温馨提示', confirmText:string = '知道了',callback:string = '') {
+const showAlert = function (confirm, content:string, title:string= '温馨提示', confirmText:string = 'OK',callback:string = '') {
     confirm.show = true;
     confirm.title = title;
     confirm.content = content;
@@ -132,7 +132,7 @@ const showAlert = function (confirm, content:string, title:string= '温馨提示
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showConfirm = function (confirm, content:string, callback:string= '', title:string= '温馨提示' , confirmText:string = '确定', cancelText:string='取消'):void {
+const showConfirm = function (confirm, content:string, callback:string= '', title:string= '温馨提示' , confirmText:string = 'Confirm', cancelText:string='Cancel'):void {
     confirm.show = true;
 
     confirm.title = title;
@@ -163,12 +163,34 @@ const cancelConfirm = function (confirm):void {
     confirm.show = false;
 }
 
+
+/**
+ * 显示加载动画
+ * @method showLoading
+ * @param {Page} page
+ */
+const showLoading = function (page):void {
+    page.loading = true
+}
+
+/**
+ * 隐藏加载动画
+ * @method hideLoading
+ * @param {Page} page
+ */
+const hideLoading = function (page):void {
+    page.loading = false
+}
+
 export default {
     isEmpty: isEmpty,
     isObject: isObject,
 
     getDataLength: getDataLength,
     getObjectFirstKey: getObjectFirstKey,
+
+    showLoading: showLoading,
+    hideLoading: hideLoading,
 
     showAlert: showAlert,
     showConfirm: showConfirm,

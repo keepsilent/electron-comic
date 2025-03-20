@@ -36,7 +36,7 @@
             line-height: var(--line-height-xxl);
 
             color: var(--content-color-secondary);
-            font-size: var(--text-size-l);
+            font-size: var(--text-size-xl);
             text-align: center;
 
             cursor: pointer;
@@ -124,21 +124,65 @@
         align-items: center;
         -webkit-app-region: no-drag;
 
-        .iconfont {
-            width: 48px;
-            height: 48px;
-            line-height: 48px;
-            color: var(--content-color-secondary);
-            font-size: var(--text-size-m);
-            cursor: pointer;
+        .left {
+            display: flex;
+            align-items: center;
 
-            &:hover {
-                background: var(--highlight-background-color-secondary);
+            .icon-setting {
+                position: relative;
+                height: var(--size-m);
+                width: var(--size-m);
+                line-height: var(--line-height-xxl);
+
+                color: var(--content-color-secondary);
+                font-size: var(--text-size-xxl);
+
+                border-radius: var(--border-radius-default);
+                cursor: pointer;
+                margin-right: var(--spacing-xs);
+                opacity: 0.88;
+
+                .dot {
+                    position: absolute;
+                    top: 4px;
+                    right: 4px;
+                    width: 6.5px;
+                    height: 6.5px;
+                    border-radius: var(--border-radius-max);
+                    background: var(--base-color-brand);
+                    opacity: 1;
+                }
+
+                &:hover, &:active {
+                    color: var(--content-color-primary);
+                    background: var(--highlight-background-color-secondary);
+                    opacity: 1;
+                }
             }
+        }
 
-            &:last-child:hover {
-                color: #FFF;
-                background: var(--red-50);
+
+        .right {
+            display: flex;
+            align-items: center;
+
+            .iconfont {
+                width: 48px;
+                height: 48px;
+                line-height: 48px;
+
+                color: var(--content-color-secondary);
+                font-size: var(--text-size-l);
+                cursor: pointer;
+
+                &:hover {
+                    background: var(--highlight-background-color-secondary);
+                }
+
+                &:last-child:hover {
+                    color: #FFF;
+                    background: var(--red-50);
+                }
             }
         }
     }

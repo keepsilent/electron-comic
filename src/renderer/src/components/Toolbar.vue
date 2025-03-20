@@ -4,15 +4,15 @@
     <!-- 工具栏 -->
     <div class="toolbar">
         <div class="operate">
-            <span class="toolbar-menu-btn forbiden" title="上传文件"><i class="iconfont icon-top"></i>Upload <input type="file" class="cc-upload-btn" id="cc-index-upload-btn" title="上传文件" accept=".zip,.txt,.pdf" onchange="ccFile.upload($(this))"></span>
-            <span class="toolbar-menu-btn forbiden" title="编辑文件" onclick="ccSearch.showFile($(this))"><i class="iconfont icon-feedback"></i>Edit</span>
-            <span class="toolbar-menu-btn forbiden" title="删除文件" data-type="delete" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-delete"></i>Delete</span>
-            <span class="toolbar-menu-btn forbiden" title="粉碎文件" data-type="smash" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-clear"></i>Clear</span>
-            <span class="toolbar-menu-btn forbiden" title="打开所在目录" onclick="ccSearch.openCatalog($(this))"><i class="iconfont icon-file"></i>Open</span>
+            <span class="toolbar-menu-btn forbiden" title="上传文件"><i class="iconfont icon-top"></i>{{$t('button.upload')}}<input type="file" class="cc-upload-btn" id="cc-index-upload-btn" title="上传文件" accept=".zip,.txt,.pdf" onchange="ccFile.upload($(this))"></span>
+            <span class="toolbar-menu-btn forbiden" title="编辑文件" onclick="ccSearch.showFile($(this))"><i class="iconfont icon-feedback"></i>{{$t('button.edit')}}</span>
+            <span class="toolbar-menu-btn forbiden" title="删除文件" data-type="delete" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-delete"></i>{{$t('button.delete')}}</span>
+            <span class="toolbar-menu-btn forbiden" title="粉碎文件" data-type="smash" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-clear"></i>{{$t('button.clear')}}</span>
+            <span class="toolbar-menu-btn forbiden" title="打开所在目录" onclick="ccSearch.openCatalog($(this))"><i class="iconfont icon-file"></i>{{$t('button.open')}}</span>
         </div>
 
         <div class="more">
-            <span title="More" onclick="ccFile.showOrderMenu(event,'{{model}}')"><i class="iconfont icon-more"></i></span>
+            <span :title="$t('button.more')" onclick="ccFile.showOrderMenu(event,'{{model}}')"><i class="iconfont icon-more"></i></span>
         </div>
     </div>
 </template>

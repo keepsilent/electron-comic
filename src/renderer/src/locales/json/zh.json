@@ -1,0 +1,18 @@
+{
+	"welcome": "欢迎",
+	"message": {
+		"hello": "你好，{name}！"
+	},
+	"button": {
+		"open": "打开",
+		"edit": "编辑",
+		"clear": "清除",
+		"submit": "提交",
+		"cancel": "取消",
+		"confirm": "确定",
+		"delete": "删除",
+		"upload": "上传",
+		"more": "更多",
+		"ok": "知道了"
+	}
+}

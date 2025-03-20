@@ -2,19 +2,23 @@
     <div v-if="show" :class="page.show ? 'loading-mask opacity': 'loading-mask'"></div>
     <div v-if="show" :class="page.show ? 'loading-wrap opacity': 'loading-wrap'">
         <div class='loading-inner'>
-            <div>
-                <div>
-                    <div>
-                        <div>
-                            <div>
-                                <div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="rect"></div>
+            <div class="rect rect-two"></div>
+            <div class="rect rect-three"></div>
+
+<!--            <div>-->
+<!--                <div>-->
+<!--                    <div>-->
+<!--                        <div>-->
+<!--                            <div>-->
+<!--                                <div>-->
+<!--                                    <div></div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
     </div>
 </template>
@@ -60,11 +64,15 @@ watch(() => props.show,(value)=>{
         left: 50%;
         z-index: 9;
 
-        width: 60px;
-        height: 60px;
-        padding: 5px;
-        margin-left: -30px;
-        margin-top: -30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 46px;
+        height: 46px;
+
+        margin-left: -25px;
+        margin-top: -25px;
 
         background: #FFF;
         border-radius: 8px;
@@ -74,24 +82,31 @@ watch(() => props.show,(value)=>{
     }
 
     &-inner {
-        display: block;
-        box-sizing: border-box;
-        width: 60px;
-        height: 60px;
-        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
 
-        div {
-            box-sizing: border-box;
+        width: var(--size-xs,16px);
+        height: var(--size-xs,16px);
+        font-size: var(--text-size-xs,10px);
+        opacity: 0.75;
+
+        .rect {
+            width: 4px;
             height: 100%;
-            padding: 1px;
 
-            border: 2px solid transparent;
-            border-top-color: rgba(0, 0, 0, .12);
-            border-bottom-color: rgba(255,165,0,0.35);
-            border-radius: 50%;
-            animation: rotate linear 3.5s infinite;
+            border-radius: 8px;
+            background: var(--content-color-tertiary,#A6A6A6);
+            animation: spinner-bounce 0.6s infinite ease-in-out;
+            transform-origin: center;
+            opacity: 0.2;
+        }
 
-            will-change: transform;
+        .rect-two {
+            animation-delay: 0.15s;
+        }
+
+        .rect-three {
+            animation-delay: 0.3s;
         }
     }
 }
@@ -100,9 +115,15 @@ watch(() => props.show,(value)=>{
     opacity: 1;
 }
 
-@keyframes rotate {
-    0% {  transform: rotate(0deg);  }
-    50% {  transform: rotate(180deg);  }
-    100% {  transform: rotate(360deg);  }
+@keyframes spinner-bounce {
+    0%, 100% {
+        transform: scaleY(0.4);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
 }
 </style>

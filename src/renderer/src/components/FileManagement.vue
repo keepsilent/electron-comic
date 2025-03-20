@@ -22,7 +22,7 @@
 
             <div class="file-upload-btn">
                 <i class="iconfont icon-add"></i>
-                <input type="file" v-on:change="upload" ref="upload"  title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">
+                <input type="file" ref="upload" title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">
                 <p>Upload File</p>
             </div>
         </div>
@@ -30,53 +30,34 @@
 
     <Loading :show="page.loading"></Loading>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
-<!--    :title="confirm.title" :content="confirm.content" :showCancel="confirm.showCancel" :cancelText="confirm.cancelText" :confirmText="confirm.confirmText"-->
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import {ref, reactive, watch, onMounted} from 'vue'
+import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {Base, Config, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
 
-import {Archive} from 'libarchive.js/main.js';
 import Loading from "./Loading.vue";
 import Confirm from "./Confirm.vue";
+import {Archive} from 'libarchive.js/main.js';
 
-interface Page {
-    init: boolean,
-    loading: boolean,
-    actions?: object
-}
-interface Confirm {
-    show:boolean,
-    title?:string,
-    content: string,
-    callback?: string,
-    showCancel?: boolean,
-    cancelText?: string,
-    confirmText?: string
-}
-
-const page:Page = reactive({init: false, loading: false, actions: {}});
-const confirm:Confirm = reactive({show: false, title: '需要密码重置',content: '',callback:'',
-    showCancel: false,
-    cancelText: '取消',
-    confirmText: '确定'});
-const upload = ref('');
+const { t } = useI18n();
+const page:PageInter = reactive({init: false, loading: false, actions: {}});
+const confirm:ConfirmInter = reactive({show: false, title: '需要密码重置',content: '',callback:'', showCancel: false, cancelText: '取消', confirmText: '确定'});
+const upload:string = ref('');
 const files = reactive({data: {}});
 
 onMounted(() => {
     Archive.init({
         workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
     });
-
-    //Base.showConfirm(confirm,'本系列更新只有利用周末和下班时间整理，比较多的内容的话更新会比较慢，希望能对你有所帮助，请多多star或点赞收藏支持一下','onTest');
-    Base.showAlert(confirm,'本系列更新只有利用周末和下班时间整理，比较多的内容的话更新会比较慢，希望能对你有所帮助');
-    // confirm.show = true;
-    // confirm.callback = 'onTest';
-    // confirm.content = '本系列更新只有利用周末和下班时间整理，比较多的内容的话更新会比较慢，希望能对你有所帮助，请多多star或点赞收藏支持一下';
-    // confirm.showCancel= true;
     loadFileList();
+    Base.showLoading(page);
+    // setTimeout(()=>{
+    //     Base.hideLoading(page);
+    // },1000)
 })
 
 const loadFileList = async function () {
@@ -90,7 +71,6 @@ const loadFileList = async function () {
         if(res.code != 200) {
             return false;
         }
-        console.log('res',res)
 
         for(let i in res.data) {
             res.data[i].name = File.getRenderFileName(res.data[i].name);
@@ -99,22 +79,23 @@ const loadFileList = async function () {
             res.data[i].date = Time.formatDate(res.data[i].date,'YYYY/MM/DD');
         }
         files.data = res.data;
-
-        console.log('files',files)
-
     } catch (err) {
         Base.printErrorLog('getFileList',err);
     }
 }
 
+const isFileExist = async function () {
+
+}
 const onUpload = async function (event) {
     if (event.length == 0) {
-        // tipsBox.alert('请选择上传的文件');
+        Base.showAlert(confirm,'Please select the file you upload','Upload File Tips');
         upload.value.value = null;
         return false;
     }
 
     try {
+        Base.loading();
         const [file] = event.target.files;
         const archive = await Archive.open(file);
         const extract = await archive.extractFiles();
@@ -126,21 +107,6 @@ const onUpload = async function (event) {
         upload.value.value = null;
     }
 }
-
-
-
-page.actions.onTest = function () {
-    console.log('I am test')
-}
-
-const onCancelConfirm = function () {
-    Base.cancelConfirm(confirm);
-}
-
-const onOperateConfirm = function () {
-    Base.operateConfirm(confirm, page);
-}
-
 const addSingleFile = async function ( file,extract) {
     try {
         const data= {
@@ -166,6 +132,17 @@ const addSingleFile = async function ( file,extract) {
     }
 }
 
+page.actions.onTest = function () {
+    console.log('I am test')
+}
+
+const onCancelConfirm = function () {
+    Base.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function () {
+    Base.operateConfirm(confirm, page);
+}
 </script>
 
 <style scoped lang="scss">
