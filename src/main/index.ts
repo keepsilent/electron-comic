@@ -29,6 +29,9 @@ const createWindow = function(): void {
     // 当窗口准备好显示时，显示窗口
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
+        console.log('xxx');
+        mainWindow.webContents.send('ready-to-show');
+
         //mainWindow.webContents.send('resize', mainWindow.getContentBounds())
     })
 
@@ -43,6 +46,7 @@ const createWindow = function(): void {
         mainWindow.webContents.send('maximize', mainWindow.isMaximized())
         mainWindow.webContents.send('resize', mainWindow.getContentBounds())
     })
+
 
 
     // 根据开发环境或生产环境加载不同的 URL
@@ -101,6 +105,8 @@ app.whenReady().then(() => {
 
     // IPC test
     ipcMain.on('ping', () => console.log('pong'))
+
+
 
     createWindow()
 

@@ -20,22 +20,23 @@
     <Launch :show="page.launch"></Launch>
 </template>
 <script setup lang="ts">
+import {reactive, watch} from "vue";
 import {storeToRefs} from 'pinia'
 import {usePageStore} from '@renderer/stores/page'
-import {reactive, watch} from "vue";
 
 import Aside from '@renderer/layout/Aside/index.vue'
 import Header from '@renderer/layout/Header/index.vue'
 import Footer from '@renderer/layout/Footer/index.vue'
 import Launch from '@renderer/layout/Launch/index.vue'
 
+interface Page  {
+    launch: boolean
+}
+
 const pageStore = usePageStore();
 const {height} = storeToRefs(pageStore);
-const page = reactive({launch: true})
+const page:Page = reactive({launch: true})
 
-// setTimeout(()=> {
-//     page.launch = false
-// },3000)
 
 // const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
 window.electron.ipcRenderer.on('resize',(event,args)=> {
@@ -47,6 +48,9 @@ window.electron.ipcRenderer.on('resize',(event,args)=> {
     pageStore.height = height;
 })
 
+window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
+    page.launch = false;
+})
 </script>
 <style scoped lang="scss">
 

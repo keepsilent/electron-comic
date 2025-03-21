@@ -50,15 +50,21 @@ const upload:string = ref('');
 const files = reactive({data: {}});
 
 onMounted(() => {
-    Archive.init({
-        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
-    });
+    loadArchive();
     loadFileList();
-    Base.showLoading(page);
+
     // setTimeout(()=>{
     //     Base.hideLoading(page);
     // },1000)
 })
+
+const loadArchive = function () {
+    const options = {
+        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
+    }
+
+    Archive.init(options);
+}
 
 const loadFileList = async function () {
     try {
@@ -84,9 +90,26 @@ const loadFileList = async function () {
     }
 }
 
-const isFileExist = async function () {
+const isUploaded = async function (name,type) {
+    try {
+        const params = {name: name, type: type};
+        const res = await isFileExist(params);
 
+        if(res.code !== 200) {
+            return true;
+        }
+
+        if(Base.getDataLength(res.data) >= 1) {
+            return true
+        }
+
+        return false;
+    } catch (err) {
+        Base.printErrorLog('isFileExist',err)
+        return true;
+    }
 }
+
 const onUpload = async function (event) {
     if (event.length == 0) {
         Base.showAlert(confirm,'Please select the file you upload','Upload File Tips');
@@ -95,19 +118,26 @@ const onUpload = async function (event) {
     }
 
     try {
-        Base.loading();
+        Base.showLoading(page);
         const [file] = event.target.files;
         const archive = await Archive.open(file);
         const extract = await archive.extractFiles();
 
-        await addSingleFile(file, extract);
+        if(await isUploaded(file.name,file.type)) {
+            Base.showAlert(confirm,`${File.getRenderFileName(file.name)} already exist!`,'Upload File Tips');
+            return false;
+        }
+
+        await uploadFile(file, extract);
     } catch (err) {
         console.error('err',err)
     } finally {
+        Base.hideLoading(page);
         upload.value.value = null;
     }
 }
-const addSingleFile = async function ( file,extract) {
+
+const uploadFile = async function ( file,extract) {
     try {
         const data= {
             name: file.name,
@@ -124,8 +154,8 @@ const addSingleFile = async function ( file,extract) {
             return false
         }
 
-
         File.createCoverByBase64(res.data, cover)
+        loadFileList();
         console.log('addSingleFile res',res);
     } catch (err) {
         Base.printErrorLog('addFile', err)

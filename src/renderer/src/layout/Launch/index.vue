@@ -1,8 +1,8 @@
 <template>
-    <div v-if="show" :class="page.show ? 'loading-mask opacity': 'loading-mask'"></div>
-    <div v-if="show" :class="page.show ? 'loading-wrap opacity': 'loading-wrap'">
-        <div class='loading-inner'>
-            <div class="loading-main">
+    <div v-if="show" :class="page.show ? 'launch-mask opacity': 'launch-mask'"></div>
+    <div v-if="show" :class="page.show ? 'launch-wrap opacity': 'launch-wrap'">
+        <div class='launch-inner'>
+            <div class="launch-main">
                 <div>
                     <div>
                         <div>
@@ -17,10 +17,8 @@
                     </div>
                 </div>
             </div>
-
-            <div class="loading-footer">App is running,Please wait.</div>
+            <div class="launch-footer">App is running, Please wait.</div>
         </div>
-
     </div>
 </template>
 
