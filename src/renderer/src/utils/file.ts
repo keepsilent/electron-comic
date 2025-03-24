@@ -93,16 +93,27 @@ const getExtractFileTotal = function (data:object):number {
     return Base.getDataLength(data[key]);
 }
 
+
 /**
  * 获取解压文件封面
  * @member getExtractFileCover
  * @param {Object} data 解压包提出文件数据
  * @return {Number}
  */
-const getExtractFileCover = function (data:object):Promise<string> {
-    const reader = new FileReader()
+const getExtractFileCover = async function (data:File):Promise<string> {
     const file = getExtractImageFile(data);
+    return await getBase64Image(file);
+}
 
+
+/**
+ * 获取Base64图片
+ * @method getBase64Image
+ * @param {File} file
+ * @return {String}
+ */
+const getBase64Image = function (file:File):Promise<string> {
+    const reader = new FileReader()
     return new Promise(function (resolve, reject) {
         if (Base.isEmpty(file)) {
             reject('')
@@ -120,6 +131,38 @@ const getExtractFileCover = function (data:object):Promise<string> {
 
         reader.readAsDataURL(blob)
     })
+}
+
+/**
+ * 获取提取文件里的图片文件
+ * @method getExtractImageList
+ * @param {File} files 提取文件信息
+ * @param {Object} list
+ * @return {Object}
+ */
+const getExtractImageList = function (files:File, list:File[] = []) {
+    for(let i in files) {
+        if(isFolderByExtract(files[i])) {
+            list = getExtractImageList(files[i],list)
+        } else {
+            if(isImageFileByPath(files[i].name)) {
+                list.push(files[i])
+            }
+        }
+    }
+
+    list.sort((a, b) => {
+        if (a.name < b.name) {
+            return -1;
+        }
+        if (a.name > b.name) {
+            return 1;
+        }
+
+        return 0;
+    });
+
+    return list;
 }
 
 /**
@@ -311,6 +354,8 @@ export default {
 
     formatFileSize: formatFileSize,
 
+    getBase64Image: getBase64Image,
     getExtractFileTotal: getExtractFileTotal,
-    getExtractFileCover: getExtractFileCover
+    getExtractFileCover: getExtractFileCover,
+    getExtractImageList: getExtractImageList
 }
