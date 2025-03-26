@@ -32,6 +32,7 @@ const empty:Empty = reactive({icon: 'icon-file-fill',title: '回收站为空',su
 
 pageStore.setStatusPath('Recycle');
 //pageStore.setStatusPath(['C:','Users','keepsilent','Downloads'],'path');
+
 watch(() => pageStore.height,(value)=>{
     page.height = Config.getMainHeight(value);
 })

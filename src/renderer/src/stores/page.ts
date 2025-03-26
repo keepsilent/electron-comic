@@ -17,7 +17,6 @@ export const usePageStore = defineStore('page',()=>{
 
     const setStatusPath = function (value:string|object,type:string='catalogue'):void {
         scene.value = type;
-        console.log('type',type);
         switch (type) {
             case 'path':
                 path.value = value;
@@ -27,6 +26,10 @@ export const usePageStore = defineStore('page',()=>{
                 break
         }
     }
+
+    // const setStatusNum = function (value:number):void {
+    //     num.value = value;
+    // }
 
     return {
         x:x,

@@ -115,13 +115,12 @@ class Database {
 
     query(param: queryParam): Promise<Result> {
         return new Promise<Result>((resolve, reject) => {
-            console.log('param.sql',param.sql);
-            console.log('param.params',param.params);
+            // console.log('param.sql',param.sql);
+            // console.log('param.params',param.params);
             this.db.all(param.sql, param.params, (err, rows) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
                 } else {
-                    console.log('ro',rows);
                     resolve(Database.instance.dataFormat(200,'success',rows));
                 }
             });

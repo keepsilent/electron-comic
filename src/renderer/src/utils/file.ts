@@ -113,20 +113,28 @@ const getExtractFileCover = async function (data:File):Promise<string> {
  * @return {String}
  */
 const getBase64Image = function (file:File):Promise<string> {
-    const reader = new FileReader()
-    return new Promise(function (resolve, reject) {
-        if (Base.isEmpty(file)) {
-            reject('')
-        }
+    if (Base.isEmpty(file)) {
+        return '';
+    }
 
-        const blob = new Blob([file])
+    return new Promise(function (resolve, reject) {
+        const blob = new Blob([file]);
+        const reader = new FileReader();
+
         reader.onload = ({target: {result}}) => {
-            const base64 = (result).replace('data:application/octet-stream;base64,', 'data:image/png;base64,')
-            resolve(base64)
+            if(Base.isEmpty(result)) {
+                resolve('')
+            }
+
+            if(result.indexOf('data:application/octet-stream;base64,') != -1) {
+                result = (result).replace('data:application/octet-stream;base64,', 'data:image/png;base64,')
+            }
+
+            resolve(result)
         }
 
         reader.onerror = function (error) {
-            reject('')
+            reject(error)
         }
 
         reader.readAsDataURL(blob)
@@ -226,24 +234,24 @@ const getFileExt = function(path:string):string{
     return data[data.length - 1];
 }
 
-/**
- * 获取渲染的文件名
- * @method getRenderFileName
- * @param {String} name 文件全称
- * @return {String}
- */
-const getRenderFileName = function(name:string):string{
-    if(Base.isEmpty(name)) {
-        return '';
-    }
-
-    if(name.indexOf('.') == -1) {
-        return '';
-    }
-
-    const data = name.trim().split('.');
-    return data[0];
-}
+// /**
+//  * 获取渲染的文件名
+//  * @method getRenderFileName
+//  * @param {String} name 文件全称
+//  * @return {String}
+//  */
+// const getRenderFileName = function(name:string):string{
+//     if(Base.isEmpty(name)) {
+//         return '';
+//     }
+//
+//     if(name.indexOf('.') == -1) {
+//         return '';
+//     }
+//
+//     const data = name.trim().split('.');
+//     return data[0];
+// }
 
 /**
  * 通过路径，判断是否图片文件
@@ -340,17 +348,57 @@ const formatFileSize = function (filesize:number):string{
     return size+unitArr[index];
 }
 
+/**
+ * 获取文件别名
+ * @method getFileAlias
+ * @param  {String} value 名称
+ * @return {string}
+ */
+const getFileAlias = function (value:string):string {
+    if(Base.isEmpty(value)) {
+        return '';
+    }
+
+    if(value.lastIndexOf('.') == -1) {
+        return '';
+    }
+
+    const index = value.lastIndexOf('\\')
+    if(index != -1) {
+        value = value.substring(index + 1, value.length)
+    }
+
+    const [name] = value.trim().split('.');
+    return name;
+}
+
+/**
+ * 文件是否存在
+ * @method isExists
+ * @param {String} path
+ * @return {Boolean}
+ */
+const isExists = function (path:string):boolean {
+    if (fs.existsSync(path)) {
+        return true
+    }
+
+    return false
+}
 
 export default {
     mkdir: mkdir,
+    isExists: isExists,
     isImageFileByPath: isImageFileByPath,
 
     createCoverByBase64: createCoverByBase64,
 
     getFileExt: getFileExt,
+    getFileAlias: getFileAlias,
     getStorePath: getStorePath,
     getFileCoverById: getFileCoverById,
-    getRenderFileName: getRenderFileName,
+
+
 
     formatFileSize: formatFileSize,
 

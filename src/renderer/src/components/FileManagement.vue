@@ -79,7 +79,7 @@ const loadFileList = async function () {
         }
 
         for(let i in res.data) {
-            res.data[i].name = File.getRenderFileName(res.data[i].name);
+            res.data[i].name = File.ge(res.data[i].name);
             res.data[i].cover = File.getFileCoverById(res.data[i].id);
             res.data[i].size = File.formatFileSize(res.data[i].size);
             res.data[i].date = Time.formatDate(res.data[i].date,'YYYY/MM/DD');
@@ -124,7 +124,7 @@ const onUpload = async function (event) {
         const extract = await archive.extractFiles();
 
         if(await isUploaded(file.name,file.type)) {
-            Base.showAlert(confirm,`${File.getRenderFileName(file.name)} already exist!`,'Upload File Tips');
+            Base.showAlert(confirm,`${File.getFileAlias(file.name)} already exist!`,'Upload File Tips');
             return false;
         }
 

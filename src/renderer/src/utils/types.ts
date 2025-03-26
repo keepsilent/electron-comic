@@ -1,6 +1,7 @@
 export interface PageInter {
-    init: boolean,
-    loading: boolean,
+    show?: boolean,
+    init?: boolean,
+    loading?: boolean,
     actions?: object
 }
 
@@ -12,4 +13,18 @@ export interface ConfirmInter {
     showCancel?: boolean,
     cancelText?: string,
     confirmText?: string
+}
+
+
+export interface FileInter {
+    id:number,
+    date: string,
+    modified:string,
+    name: string,
+    author: string,
+    type: string,
+    path: string,
+    size:number,
+    total:number,
+    status: string
 }

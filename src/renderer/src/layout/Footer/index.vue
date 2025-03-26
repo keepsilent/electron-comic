@@ -5,13 +5,19 @@
                 <template v-if="status.scene == 'catalogue'">{{status.name}}</template>
                 <template v-else>
                     <template v-for="(item,index) in status.path">
-                        <span class="item" :title="'当前路径:' +item" @click="onOpenPath">{{item}}</span>
-                        <i v-if="index + 1 != status.path.length" class="iconfont icon-return"></i>
+                        <span class="item" :title="item.value" :data-index="index" @click="onOpenFolder">{{item.name}}</span>
+                        <template v-if="index + 1 != (status.path).length">
+                            <i class="iconfont icon-return"></i>
+                        </template>
                     </template>
                 </template>
             </div>
             <div class="file-info">
-                <div class="file-num"><i class="num">{{status.num}}</i>Item</div>
+                <div class="file-num">
+                    <i class="num">{{status.num}} </i>
+                    <template v-if="status.scene == 'path'">{{t('status.files')}}</template>
+                    <template v-else>{{t('status.item')}}</template>
+                </div>
                 <div class="iconfont icon-problem"></div>
             </div>
         </div>
@@ -19,9 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive,watch} from 'vue'
-import {Base, Config} from "@renderer/utils";
+import {reactive,watch} from 'vue'
+import {Base} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
+import {useI18n} from "vue-i18n";
 
 interface Status {
     name: string,
@@ -30,11 +37,39 @@ interface Status {
     path?: object
 }
 
-const status = reactive({name: '',num: 0, scene: '', path: []})
+const { t } = useI18n();
 const pageStore = usePageStore();
+const status:Status = reactive({name: '',num: 0, scene: '', path: []})
 
-const onOpenPath = function () {
-    window.electron.ipcRenderer.send('openpath',`C:\\Users\\keepsilent\\Desktop`);
+const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
+    window.electron.ipcRenderer.send('openpath', status.path[index].value);
+}
+
+const analyzePath = function (path:string):object {
+    if(Base.isEmpty(path)) {
+        return [];
+    }
+
+    const list = [];
+    const data = path.split('\\');
+    const len = Base.getDataLength(data);
+
+    data.splice(len - 1,1);
+
+    for(let i in data) {
+        let path = '';
+        for(let j = 0; j <= i; j++) {
+            path += data[j]+'\\';
+        }
+
+        list.push({name: data[i], value : path});
+    }
+
+    if(len - 1 > 0 && /^[a-zA-Z]:/ig.test(list[0].name)) {
+        list[0].name = `${t('status.location')}(${list[0].name})`;
+    }
+
+    return list;
 }
 
 watch(() => pageStore.name,(value)=>{
@@ -46,12 +81,13 @@ watch(() => pageStore.scene,(value)=>{
 })
 
 watch(() => pageStore.path,(value)=>{
-    status.path = value;
+    status.path = analyzePath(value);
 })
 
 watch(() => pageStore.num,(value)=>{
     status.num = value;
 })
+
 </script>
 <style scoped lang="scss">
 @use "./index.scss";

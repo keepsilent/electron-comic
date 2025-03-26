@@ -14,6 +14,7 @@
 		"upload": "Upload",
 		"ok": "OK",
 		"more": "More",
+		"rename": "Rename",
 		
 		"return": "Return",
 		"setting": "Setting",
@@ -22,5 +23,25 @@
 		"maximize": "Maximize",
 		"minimize": "Minimize",
 		"restore": "Restore"
+	},
+	"details": {
+		"author": "Author",
+		"include": {
+			"title": "Include",
+			"subtitle": "{files} files, {folders} folders"
+		},
+		"size": "Size",
+		"date": "Create Time"
+	},
+	"tool": {
+		"open": "Open in Explorer",
+		"edit": "Edit File",
+		"delete": "Delete File",
+		"upload": "upload File"
+	},
+	"status": {
+		"location": "Location",
+		"item": "Item",
+		"files": "Files"
 	}
 }

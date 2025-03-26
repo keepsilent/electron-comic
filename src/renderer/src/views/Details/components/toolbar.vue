@@ -1,24 +1,73 @@
-
-
 <template>
     <!-- 工具栏 -->
     <div class="toolbar">
-        <div class="operate">
-            <span class="toolbar-menu-btn forbiden" title="上传文件"><i class="iconfont icon-top"></i>{{$t('button.upload')}}<input type="file" class="cc-upload-btn" id="cc-index-upload-btn" title="上传文件" accept=".zip,.txt,.pdf" onchange="ccFile.upload($(this))"></span>
-            <span class="toolbar-menu-btn forbiden" title="编辑文件" onclick="ccSearch.showFile($(this))"><i class="iconfont icon-feedback"></i>{{$t('button.edit')}}</span>
-            <span class="toolbar-menu-btn forbiden" title="删除文件" data-type="delete" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-delete"></i>{{$t('button.delete')}}</span>
-            <span class="toolbar-menu-btn forbiden" title="粉碎文件" data-type="smash" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-clear"></i>{{$t('button.clear')}}</span>
-            <span class="toolbar-menu-btn forbiden" title="打开所在目录" onclick="ccSearch.openCatalog($(this))"><i class="iconfont icon-file"></i>{{$t('button.open')}}</span>
-        </div>
+        <template v-if="page.show">
+            <div class="operate">
+                <span class="toolbar-menu-btn forbiden" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i>{{$t('button.open')}}</span>
+                <span class="toolbar-menu-btn forbiden" :title="$t('tool.upload')"><i class="iconfont icon-top"></i>{{$t('button.upload')}}<input type="file" class="cc-upload-btn" :title="$t('tool.upload')" accept=".zip,.txt,.pdf" onchange="ccFile.upload($(this))"></span>
+                <span class="toolbar-menu-btn forbiden" :title="$t('tool.edit')" onclick="ccSearch.showFile($(this))"><i class="iconfont icon-feedback"></i>{{$t('button.edit')}}</span>
+                <span class="toolbar-menu-btn forbiden" :title="$t('tool.delete')" data-type="delete" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-delete"></i>{{$t('button.delete')}}</span>
+            </div>
 
-        <div class="more">
-            <span :title="$t('button.more')" onclick="ccFile.showOrderMenu(event,'{{model}}')"><i class="iconfont icon-more"></i></span>
-        </div>
+            <div class="more">
+                <span :title="$t('button.more')" onclick="ccFile.showOrderMenu(event,'{{model}}')"><i class="iconfont icon-more"></i></span>
+            </div>
+        </template>
     </div>
+
+    <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
 <script setup lang="ts">
+import {reactive, watch} from "vue";
+import type {PageInter, ConfirmInter, FileInter} from "@renderer/utils/types";
+import {Base, File, Time} from "@renderer/utils";
+import Confirm from "@renderer/components/Confirm.vue";
 
+interface Props {
+    file: {
+        id:number,
+        date: string,
+        modified:string,
+        name: string,
+        author: string,
+        type: string,
+        path: string,
+        size:number,
+        total:number,
+        status: string
+    }
+}
+
+
+const emit = defineEmits(['cancel','confirm'])
+const props = defineProps<Props>()
+const page:PageInter = reactive({show: false})
+const confirm:ConfirmInter = reactive({show: false});
+const onCancel = function () {
+    emit('cancel')
+}
+
+const onConfirm = function () {
+    emit('confirm')
+}
+
+const onOpenFolder = function () {
+    Base.showAlert(confirm,'xxx');
+    //window.electron.ipcRenderer.send('openpath', props.file.path);
+}
+
+const onCancelConfirm = function () {
+    Base.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function () {
+    Base.operateConfirm(confirm, page);
+}
+
+watch(() => props.file.path,(value)=>{
+    page.show = !Base.isEmpty(value)
+})
 </script>
 
 <style scoped lang="scss">

@@ -113,7 +113,9 @@ const printErrorLog = function (name:string, error:any):void {
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showAlert = function (confirm, content:string, title:string= '温馨提示', confirmText:string = 'OK',callback:string = '') {
+const showAlert = function (confirm, content:string, title:string = '温馨提示', confirmText, callback:string = '') {
+   // import { useI18n } from 'vue-i18n';
+   // const { t } = useI18n();
     confirm.show = true;
     confirm.title = title;
     confirm.content = content;
@@ -121,7 +123,18 @@ const showAlert = function (confirm, content:string, title:string= '温馨提示
 
     confirm.showCancel = false;
     confirm.cancelText = '';
-    confirm.confirmText = confirmText;
+    confirm.confirmText = confirmText ;
+    // const object = {
+    //     show: true,
+    //     title: title,
+    //     content: content,
+    //     callback: callback,
+    //     showCancel: false,
+    //     cancelText: '',
+    //     confirmText: confirmText
+    // }
+    //
+    // Object.assign(confirm,object)
 }
 
 /**
