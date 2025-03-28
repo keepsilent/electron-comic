@@ -20,8 +20,8 @@ export const publicRoutes: Array<RouteRecordRaw> = [
         path: '/',
         name: 'homeIndex',
         //component: defineAsyncComponent(() => import('@renderer/views/home/index.vue'))
-        //component: () => import('@renderer/views/Home/index.vue')
-        component: () => import('@renderer/views/Details/index.vue')
+        component: () => import('@renderer/views/Home/index.vue')
+        // component: () => import('@renderer/views/Details/index.vue')
     }
 ];
 

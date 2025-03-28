@@ -95,9 +95,9 @@ class Database {
             status varchar(20)  NOT NULL DEFAULT 'normal'
         )`
         return this.query({sql: sql}).then(() => {
-            console.log("Database schema initialized.");
+            //console.log("Database schema initialized.");
         }).catch((err) => {
-            console.error("Error initializing database schema:", err);
+            //console.error("Error initializing database schema:", err);
         });
     }
 
@@ -115,8 +115,7 @@ class Database {
 
     query(param: queryParam): Promise<Result> {
         return new Promise<Result>((resolve, reject) => {
-            // console.log('param.sql',param.sql);
-            // console.log('param.params',param.params);
+            //console.log('param.sql',param.sql);
             this.db.all(param.sql, param.params, (err, rows) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));

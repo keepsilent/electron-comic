@@ -2,10 +2,10 @@
     <div class="header">
         <div class="header-inner">
             <div class="nav">
-                <span class="iconfont icon-return" :title="$t('button.return')" onclick="config.back()"></span>
+                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
                 <div class="search ml-10">
                     <i class="iconfont icon-search"></i>
-                    <input type="text" v-model="keyword" placeholder="Search Comic++" @keydown="onSearch" autocomplete="off">
+                    <input type="text" v-model="keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
                     <i v-if="keyword" class="iconfont icon-close ml-10" @click="onClear"></i>
                 </div>
             </div>
@@ -29,9 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, toRefs} from "vue";
-import {Base} from "@renderer/utils";
 import {useI18n} from "vue-i18n";
+import {ref, reactive, toRefs} from "vue";
+import {useRouter,useRoute} from 'vue-router'
+import {Base} from "@renderer/utils";
+
+import {usePageStore} from '@renderer/stores/page'
 
 interface Maximize {
     name: string,
@@ -39,6 +42,9 @@ interface Maximize {
 }
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const pageStore = usePageStore();
 const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
 
@@ -47,15 +53,32 @@ const onSearch = function({keyCode}):boolean|void {
         return false;
     }
 
-    if(Base.isEmpty(keyword.value)) {
-        return  false;
+    // if(Base.isEmpty(keyword.value)) {
+    //     return false;
+    // }
+
+    if(route.path == '/') {
+        pageStore.keyword = keyword.value;
+        return false;
     }
 
-    console.error('k',keyCode,keyword.value)
+    const object = {
+        path: '/',
+        query: {
+            keyword: keyword.value
+        }
+    }
+
+    router.push(object)
+}
+
+const onGoBack = function ():void {
+    router.back();
 }
 
 const onClear = function():void {
     keyword.value = '';
+    pageStore.keyword = '';
 }
 
 const onIPC = function({currentTarget: {dataset: {key}}}): void {

@@ -26,8 +26,12 @@ export const getFileInfo = async function ({id}):Promise<Result> {
     return await DB.query(data);
 }
 
-export const getFileList = async function ({page,pagesize}):Promise<Result> {
-    const sql = `SELECT * FROM file LIMIT $page, $pagesize`;
+export const getFileList = async function ({keyword, page,pagesize}):Promise<Result> {
+    let where = `WHERE status='normal'`;
+    if(keyword) {
+        where += ` AND name LIKE '%${keyword}%'`;
+    }
+    const sql = `SELECT * FROM file  ${where}  LIMIT $page, $pagesize`;
 
     const data:queryParam = {
         sql: sql,
@@ -41,7 +45,6 @@ export const getFileList = async function ({page,pagesize}):Promise<Result> {
 }
 
 export const addFile = async function (data:{ [key: string]: any }):Promise<Result> {
-    console.log('add file',data);
     const date = Time.formatDate(new Date().getTime());
     const params:insertParam = {
         table: 'file',
@@ -55,3 +58,23 @@ export const addFile = async function (data:{ [key: string]: any }):Promise<Resu
     return await DB.insert(params);
 }
 
+export const updateFileStatus = async function ({id, status}):Promise<Result> {
+    const data:queryParam = {
+        table: 'file',
+        data: {
+            status: status
+        },
+        condition: `id = ${id}`
+    }
+
+    return await DB.update(data);
+}
+
+export const deleteFile = async function ({id, status}):Promise<Result> {
+    const data:deleteParam = {
+        table: 'file',
+        condition: `id = ${id} AND status = '${status}'`
+    }
+
+    return await DB.delete(data);
+}

@@ -1,5 +1,5 @@
 <template>
-    <Toolbar />
+    <Toolbar :file="file"/>
     <FileManagement/>
 
     <div class="file-list-box scrollbar">
@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import {ref, reactive,watch} from 'vue'
 import {Base, Config, File} from "@renderer/utils";
-import Toolbar from '@renderer/components/Toolbar.vue'
+import Toolbar from './components/Toolbar.vue'
 import FileManagement from '@renderer/components/FileManagement.vue'
 
 

@@ -63,6 +63,9 @@
 		"upload": "Upload File",
 		"increase": "Increase File"
 	},
+	"search": {
+		"placeholder": "Search"
+	},
 	"status": {
 		"location": "Location",
 		"item": "Item",

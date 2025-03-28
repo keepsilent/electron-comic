@@ -327,7 +327,6 @@ const getCoverPathByName = function (value:string):string {
 const getFileCoverById = function (id:number):string {
     const prefix = Config.getStoragePath();
     const path = `${prefix}${id}.png`;
-    //return '/data/images/cover/36.png'
     return path;
 }
 

@@ -3,9 +3,9 @@
         <div class="file-inner">
 
 
-            <div v-for="(item,index) in files.data" :key="index" class="file-item">
+            <div v-for="(item,index) in files" :key="index" class="file-item" :data-id="item.id" @click="onRedirect">
                 <div class="cover">
-                    <img :src="item.cover" data-load="0" data-src="xx" data-width="xx"  data-height="xx" width="216" height="287">
+                    <img :src="item.cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
 <!--                    <span class="type">ZIP</span>-->
 <!--                    <div class="mask">-->
 <!--                        <span class="num">{{item.total}}页</span>-->
@@ -34,55 +34,94 @@
 
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
+import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted} from 'vue'
+
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {Base, Common, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
+import {usePageStore} from '@renderer/stores/page'
 
 import Loading from "./Loading.vue";
 import Confirm from "./Confirm.vue";
 import {Archive} from 'libarchive.js/main.js';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const pageStore = usePageStore();
+const fs = require("fs") as typeof import("fs");
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
-const confirm:ConfirmInter = reactive({show: false, title: '需要密码重置',content: '',callback:'', showCancel: false, cancelText: '取消', confirmText: '确定'});
-const upload:string = ref('');
-const files = reactive({data: {}});
+const confirm:ConfirmInter = reactive({});
+const upload:string = ref(null);
+const keyword:string = ref(null);
+const files = reactive({});
 
 onMounted(() => {
-    loadArchive();
-    loadFileList();
+    init()
 })
 
-const loadArchive = function () {
-    const options = {
-        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
+const init = function () {
+    setArchive();
+    setSearchKeyWord();
+    loadFileList();
+}
+
+const setSearchKeyWord = function () {
+    keyword.value = route.query.keyword ?? '';
+}
+
+const setArchive = function () {
+    Common.setArchive(Archive);
+}
+
+const getParams = function () {
+    const params = {
+        page: 1,
+        pagesize: 10
     }
 
-    Archive.init(options);
+    if(!Base.isEmpty(keyword.value)) {
+        params.keyword = keyword.value
+    }
+
+    return params
 }
 
 const loadFileList = async function () {
     try {
-        const params = {
-            page: 1,
-            pagesize: 10
-        }
-
+        const params = getParams();
         const res = await getFileList(params)
         if(res.code != 200) {
             return false;
         }
 
         for(let i in res.data) {
-            res.data[i].name = File.ge(res.data[i].name);
-            res.data[i].cover = File.getFileCoverById(res.data[i].id);
+            res.data[i].name = File.getFileAlias(res.data[i].name);
+            res.data[i].cover = await getCover(res.data[i]);
             res.data[i].size = File.formatFileSize(res.data[i].size);
             res.data[i].date = Time.formatDate(res.data[i].date,'YYYY/MM/DD');
         }
-        files.data = res.data;
+
+        Object.assign(files,res.data);
     } catch (err) {
         Base.printErrorLog('getFileList',err);
+    }
+}
+
+
+const getCover = async function ({id}):void {
+    try {
+        const path = File.getFileCoverById(id);
+
+        if (File.isExists(path) == false) {
+            return Common.getDefaultImage();
+        }
+
+        const fileBuffer = fs.readFileSync(path);
+        return await File.getBase64Image(fileBuffer);
+    } catch (err) {
+        Base.printErrorLog('loadCover readFileSync',err)
     }
 }
 
@@ -166,9 +205,29 @@ const onCancelConfirm = function () {
     Common.cancelConfirm(confirm);
 }
 
+const onRedirect = function ({currentTarget: {dataset: {id}}}) {
+    const object = {
+        path: `/details`,
+        query: {
+            id: id
+        }
+    }
+
+    router.push(object)
+}
+
 const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
+
+const setDefaultImage = function ({currentTarget: {dataset: {index}}}) {
+    files[index].cover = Common.getDefaultImage();
+}
+
+watch(() => pageStore.keyword,(value)=>{
+   keyword.value = value;
+   loadFileList();
+})
 </script>
 
 <style scoped lang="scss">

@@ -53,6 +53,7 @@
 
 <script lang="ts" setup>
 import {useI18n} from 'vue-i18n';
+import {useRouter,useRoute} from 'vue-router'
 import {reactive, onMounted} from 'vue'
 import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
 import {Base,Common, File,Time} from "@renderer/utils";
@@ -67,6 +68,9 @@ import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
@@ -80,10 +84,14 @@ onMounted(() => {
     init();
 })
 
+page.actions.onGoBack = function ():void {
+    Common.cancelConfirm(confirm);
+    router.back()
+}
+
 const init = function () {
     setArchive();
     loadDetail();
-    //Common.showLoading(page);
 }
 
 const setArchive = function () {
@@ -92,28 +100,40 @@ const setArchive = function () {
 
 const loadDetail = async function () {
     try {
-        const params = {id: 36}
+        const {id} = route.query;
+        const params = {id: id, status:'normal'}
         const res = await getFileInfo(params);
-        if(res.code != 200) {
+        if(res.code != 200 ) {
+            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onGoBack')
+            return false;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onGoBack')
             return false;
         }
 
         resetFileData(res.data);
-        renderStatus(file);
         renderCover(file);
-
-        if(File.isExists(file.path)) {
-            renderFilesThumbnail(file);
-        } else {
-            Common.showEmpty(empty,t('empty.inexistence.title'),t('empty.inexistence.subtitle'))
-        }
-
+        renderContent(file)
+        renderStatus(file);
         Common.lazyRenderPage(page);
     } catch (err) {
         Base.printErrorLog('getFileInfo',err)
     }
 }
 
+const renderContent = function (file) {
+    const {path} = file;
+    if(File.isExists(path)) {
+        renderFilesThumbnail(file);
+        return false;
+    }
+
+    const title = t('empty.inexistence.title');
+    const subtitle = t('empty.inexistence.subtitle');
+    Common.showEmpty(empty,title, subtitle)
+}
 const resetFileData = function (data):boolean {
     if(Base.isEmpty(data)) {
         return false
@@ -181,7 +201,7 @@ const renderCover = async function ({id}):void {
         }
 
         if (File.isExists(path) == false) {
-            return  false;
+            return false;
         }
 
         const fileBuffer = fs.readFileSync(path);

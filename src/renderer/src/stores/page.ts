@@ -13,6 +13,7 @@ export const usePageStore = defineStore('page',()=>{
     const name:string = ref(null);
     const path:object = ref([]);
     const scene:string = ref(null);
+    const keyword:string = ref(null);
 
 
     const setStatusPath = function (value:string|object,type:string='catalogue'):void {
@@ -41,6 +42,7 @@ export const usePageStore = defineStore('page',()=>{
         path: path,
         num: num,
         scene: scene,
+        keyword: keyword,
         setStatusPath: setStatusPath
     }
 })

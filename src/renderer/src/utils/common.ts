@@ -1,7 +1,10 @@
 import Base from '@renderer/utils/base';
 import {i18n} from '@renderer/locales';
 import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
+
 const { t } = i18n.global;
+
+
 
 /**
  * 显示Alert
@@ -179,5 +182,5 @@ export default {
 
     lazyRenderPage: lazyRenderPage,
     setArchive:setArchive,
-    getDefaultImage: getDefaultImage
+    getDefaultImage: getDefaultImage,
 }
