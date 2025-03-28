@@ -27,20 +27,6 @@
       "unicode_decimal": 59029
     },
     {
-      "icon_id": "1309595",
-      "name": "Increase",
-      "font_class": "increase",
-      "unicode": "e698",
-      "unicode_decimal": 59032
-    },
-    {
-      "icon_id": "1309596",
-      "name": "Cut back",
-      "font_class": "cut-back",
-      "unicode": "e699",
-      "unicode_decimal": 59033
-    },
-    {
       "icon_id": "43409394",
       "name": "Squarecheck",
       "font_class": "squarecheck",

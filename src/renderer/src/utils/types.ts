@@ -28,3 +28,16 @@ export interface FileInter {
     total:number,
     status: string
 }
+
+
+export interface EmptyInter {
+    icon: string,
+    title: string,
+    subtitle?: string
+}
+
+
+export interface InterimInter {
+    show?:boolean,
+    space?: boolean
+}

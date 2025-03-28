@@ -1,12 +1,12 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n';
-import {i18nOptions} from './locales';
+import { i18nOptions} from './locales';
 
 import App from './App.vue'
 import router from './router/index.js';
 
-import './assets/main.css'
+import './assets/css/main.scss'
 import './assets/iconfont/iconfont.css'
 
 const app = createApp(App);

@@ -22,13 +22,18 @@
             </div>
         </div>
     </div>
+
+    <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
 <script setup lang="ts">
-import {reactive,watch} from 'vue'
-import {Base} from "@renderer/utils";
-import {usePageStore} from '@renderer/stores/page'
 import {useI18n} from "vue-i18n";
+import {reactive,watch} from 'vue'
+import {Base,Common,File} from "@renderer/utils";
+import {usePageStore} from '@renderer/stores/page'
+import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+
+import Confirm from "@renderer/components/Confirm.vue";
 
 interface Status {
     name: string,
@@ -40,9 +45,17 @@ interface Status {
 const { t } = useI18n();
 const pageStore = usePageStore();
 const status:Status = reactive({name: '',num: 0, scene: '', path: []})
+const page:PageInter = reactive({show: false})
+const confirm:ConfirmInter = reactive({show: false});
 
 const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
-    window.electron.ipcRenderer.send('openpath', status.path[index].value);
+    const path = status.path[index].value;
+    if(!File.isExists(path)) {
+        Common.showAlert(confirm,t("alert.content.inexistence"));
+        return false;
+    }
+
+    window.electron.ipcRenderer.send('openpath', path);
 }
 
 const analyzePath = function (path:string):object {
@@ -70,6 +83,14 @@ const analyzePath = function (path:string):object {
     }
 
     return list;
+}
+
+const onCancelConfirm = function () {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function () {
+    Common.operateConfirm(confirm, page);
 }
 
 watch(() => pageStore.name,(value)=>{

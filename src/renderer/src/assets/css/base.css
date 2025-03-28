@@ -176,8 +176,43 @@
     /*Border radius*/
     --border-radius-s: 2px;
     --border-radius-default: 4px;
+    --border-radius-m: 6px;
     --border-radius-l: 8px;
     --border-radius-max: 100%;
+}
+
+
+:root {
+    /*Skeleton colors*/
+    --skeleton-color-primary: var(--grey-00);
+    --skeleton-color-secondary: var(--grey-05);
+    --skeleton-color-tertiary: var(--grey-10);
+
+
+    /*Skeleton width*/
+    --skeleton-width-default: 100%;
+    --skeleton-width-s: 25%;
+    --skeleton-width-m: 50%;
+    --skeleton-width-l: 75%;
+
+    /*Skeleton height*/
+    --skeleton-height-default: 14px;
+    --skeleton-height-m: 16px;
+    --skeleton-height-l: 18px;
+    --skeleton-height-xl: 20px;
+
+
+    /*Skeleton animation*/
+    --skeleton-animation-duration: 2s;
+
+    /*//fade 1s ease-in-out infinite;*/
+
+    /*Skeleton radius*/
+    --skeleton-radius-s: 2px;
+    --skeleton-radius-default: 4px;
+    --skeleton-radius-m: 6px;
+    --skeleton-radius-l: 8px;
+    --skeleton-radius-max: 100%;
 }
 
 :root {
@@ -207,6 +242,24 @@
 .main {
     margin-top: 48px;
     margin-left: 208px;
+}
+
+@keyframes fade {
+    0% { opacity: 0.25;}
+    50% { opacity: 1;}
+    100% { opacity: 0.25;}
+}
+
+@keyframes spinner-bounce {
+    0%, 100% {
+        transform: scaleY(0.4);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
 }
 
 /**,*/

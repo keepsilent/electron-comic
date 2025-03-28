@@ -15,6 +15,7 @@
 		"ok": "OK",
 		"more": "More",
 		"rename": "Rename",
+		"increase": "Increase",
 		
 		"return": "Return",
 		"setting": "Setting",
@@ -31,13 +32,36 @@
 			"subtitle": "{files} files, {folders} folders"
 		},
 		"size": "Size",
-		"date": "Create Time"
+		"date": "Create Time",
+		"unknown": "Unknown"
+	},
+	"alert": {
+		"default": "Friendly Reminder",
+		"content": {
+			"inexistence":"The file could not be found. Is the project moved, renamed, or deleted?",
+			"delete": {
+				"fail": "File deletion failure"
+			}
+		}
+	},
+	"confirm": {
+		"delete": {
+			"title": "Delete File",
+			"content": "The selected file and its data will be permanently deleted."
+		}
+	},
+	"empty": {
+		"inexistence": {
+			"title": "File could not be found",
+			"subtitle": "Is the project moved, renamed, or deleted, lf this problem persists, Please contact us."
+		}
 	},
 	"tool": {
 		"open": "Open in Explorer",
 		"edit": "Edit File",
 		"delete": "Delete File",
-		"upload": "upload File"
+		"upload": "Upload File",
+		"increase": "Increase File"
 	},
 	"status": {
 		"location": "Location",

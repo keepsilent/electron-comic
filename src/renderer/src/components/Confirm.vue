@@ -87,6 +87,7 @@ watch(() => props.confirm.show,(value)=>{
 
         background: #FFF;
         border-radius: 8px;
+        overflow: hidden;
     }
 
     &-main {
@@ -116,14 +117,19 @@ watch(() => props.confirm.show,(value)=>{
         justify-content: space-between;
         line-height: 42px;
 
-        font-size: 14px;
+        font-size: var(--text-size-l);
         color: var(--content-color-primary);
         text-align: center;
+
         border-top: var(--border-width-default) var(--border-style-solid) var(--border-color-default);
 
         .btn-cancel, .btn-confirm {
             width: 100%;
             cursor: pointer;
+
+            &:hover,&:active {
+                background: var(--background-color-secondary);
+            }
         }
 
         .btn-cancel {

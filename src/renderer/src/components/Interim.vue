@@ -1,7 +1,6 @@
 <template>
-    <div v-if="show" :class="page.show ? 'loading-mask opacity': 'loading-mask'"></div>
-    <div v-if="show" :class="page.show ? 'loading-wrap opacity': 'loading-wrap'">
-        <div class='loading-inner'>
+    <div v-if="page.show" :class="page.space ? 'loading-wrap space': 'loading-wrap'">
+        <div class="loading-inner">
             <div class="rect"></div>
             <div class="rect rect-two"></div>
             <div class="rect rect-three"></div>
@@ -13,58 +12,43 @@
 import {reactive, watch} from "vue";
 
 interface Props {
-   show: boolean
+    interim: {
+        show: {
+            type: boolean,
+            default: true
+        },
+        space: {
+            type: boolean,
+            default: true
+        }
+    }
 }
 
 interface Page {
-    show:boolean
+    show: boolean,
+    space: boolean
 }
 
 const props = defineProps<Props>()
-const page:Page = reactive({show: false})
+const page:Page = reactive({show: true, space: true})
 
-watch(() => props.show,(value) => {
-    setTimeout(()=> {page.show = value},10) //延时显示，动画效果更佳
+watch(() => props.interim.show,(value) => {
+    page.show = value
+})
+
+watch(() => props.interim.space,(value) => {
+    page.space = value
 })
 </script>
 
 <style scoped lang="scss">
 .loading {
-    &-mask {
-        position: fixed;
-        top:0;
-        left: 0;
-        z-index: 8;
-        width: 100%;
-        height: 100%;
-
-        background: rgba(0,0,0,0.15);
-        transition: opacity 0.25s ease-in-out;
-        opacity: 0;
-    }
-
     &-wrap {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        z-index: 9;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
-        width: 46px;
-        height: 46px;
-
-        margin-left: -25px;
-        margin-top: -25px;
-
-        background: #FFF;
-        border-radius: 8px;
-        box-shadow: 1px 1px 10px rgba(0,0,0,0.15);
-        transition: opacity 0.25s ease-in-out;
-        opacity: 0;
     }
+
 
     &-inner {
         display: flex;
@@ -80,7 +64,7 @@ watch(() => props.show,(value) => {
             height: 100%;
 
             border-radius: 8px;
-            background: var(--content-color-tertiary,#A6A6A6);
+            background: var(--content-color-tertiary);
             animation: spinner-bounce 0.6s infinite ease-in-out;
             transform-origin: center;
             opacity: 0.2;
@@ -96,7 +80,7 @@ watch(() => props.show,(value) => {
     }
 }
 
-.opacity {
-    opacity: 1;
+.space {
+    padding-top: 10%;
 }
 </style>

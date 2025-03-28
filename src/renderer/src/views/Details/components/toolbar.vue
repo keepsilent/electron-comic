@@ -3,14 +3,14 @@
     <div class="toolbar">
         <template v-if="page.show">
             <div class="operate">
-                <span class="toolbar-menu-btn forbiden" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i>{{$t('button.open')}}</span>
-                <span class="toolbar-menu-btn forbiden" :title="$t('tool.upload')"><i class="iconfont icon-top"></i>{{$t('button.upload')}}<input type="file" class="cc-upload-btn" :title="$t('tool.upload')" accept=".zip,.txt,.pdf" onchange="ccFile.upload($(this))"></span>
-                <span class="toolbar-menu-btn forbiden" :title="$t('tool.edit')" onclick="ccSearch.showFile($(this))"><i class="iconfont icon-feedback"></i>{{$t('button.edit')}}</span>
-                <span class="toolbar-menu-btn forbiden" :title="$t('tool.delete')" data-type="delete" onclick="ccSearch.showTips($(this))"><i class="iconfont icon-delete"></i>{{$t('button.delete')}}</span>
+                <span class="operate-btn forbiden" :title="$t('tool.increase')"><i class="iconfont icon-increase"></i><em>{{$t('button.increase')}}</em></span>
+                <span class="operate-btn" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
+                <span class="operate-btn" :title="$t('tool.edit')" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
+                <span class="operate-btn" :title="$t('tool.delete')" @click="onDeleteFile"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
             </div>
 
             <div class="more">
-                <span :title="$t('button.more')" onclick="ccFile.showOrderMenu(event,'{{model}}')"><i class="iconfont icon-more"></i></span>
+                <span class="operate-btn" :title="$t('button.more')"><i class="iconfont icon-more"></i></span>
             </div>
         </template>
     </div>
@@ -19,9 +19,11 @@
 </template>
 
 <script setup lang="ts">
+import {useI18n} from 'vue-i18n';
 import {reactive, watch} from "vue";
-import type {PageInter, ConfirmInter, FileInter} from "@renderer/utils/types";
-import {Base, File, Time} from "@renderer/utils";
+import {Base, Common, File} from "@renderer/utils";
+import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
@@ -39,30 +41,55 @@ interface Props {
     }
 }
 
-
+const { t } = useI18n();
 const emit = defineEmits(['cancel','confirm'])
 const props = defineProps<Props>()
-const page:PageInter = reactive({show: false})
+const page:PageInter = reactive({show: false, actions:{}})
 const confirm:ConfirmInter = reactive({show: false});
-const onCancel = function () {
-    emit('cancel')
-}
 
-const onConfirm = function () {
-    emit('confirm')
+
+
+page.actions.onDeleteFile = function ():boolean {
+    try {
+        const {id, path} = props.file;
+        if (File.deleteFile(path) == false) {
+            Common.showAlert(confirm,t("alert.content.delete.fail"));
+            return false;
+        }
+    } catch (err) {
+
+        console.log('e',err);
+    } finally {
+        Common.cancelConfirm(confirm);
+    }
 }
 
 const onOpenFolder = function () {
-    Base.showAlert(confirm,'xxx');
-    //window.electron.ipcRenderer.send('openpath', props.file.path);
+    const path = props.file.path;
+    if(!File.isExists(path)) {
+        Common.showAlert(confirm,t("alert.content.inexistence"));
+        return false;
+    }
+
+    window.electron.ipcRenderer.send('openpath', path);
+}
+
+const onDeleteFile = function () {
+    const path = props.file.path;
+    if(!File.isExists(path)) {
+        Common.showAlert(confirm,t("alert.content.inexistence"));
+        return false;
+    }
+
+    Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }
 
 const onCancelConfirm = function () {
-    Base.cancelConfirm(confirm);
+    Common.cancelConfirm(confirm);
 }
 
 const onOperateConfirm = function () {
-    Base.operateConfirm(confirm, page);
+    Common.operateConfirm(confirm, page);
 }
 
 watch(() => props.file.path,(value)=>{
@@ -85,7 +112,9 @@ watch(() => props.file.path,(value)=>{
         display: flex;
         align-items: center;
 
-        span {
+        .operate-btn {
+            display: flex;
+            align-items: center;
             position: relative;
             width: fit-content;
             height: var(--size-s);
@@ -116,8 +145,17 @@ watch(() => props.file.path,(value)=>{
                 color: var(--content-color-primary);
                 background: var(--highlight-background-color-primary);
             }
+
             &:last-child {
                 margin-right: 0;
+            }
+        }
+
+        .forbiden {
+            color: var(--content-color-tertiary);
+            &:hover {
+                color: var(--content-color-tertiary);
+                background: transparent;
             }
         }
     }

@@ -287,7 +287,7 @@ const createCoverByBase64 = function (name:string, base64:string):boolean|void {
 
     //const path = getCoverPathByName(name);
     const path = `${Config.getStoragePath()}${name}.png`;
-    const dataBuffer = new Buffer(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
+    const dataBuffer = new Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
     fs.writeFile(path, dataBuffer,function(err) {//用fs写入文件
         if(Base.isEmpty(err)) {
            return false
@@ -386,6 +386,22 @@ const isExists = function (path:string):boolean {
     return false
 }
 
+/**
+ * 删除文件
+ * @method deleteFile
+ * @param {String} path
+ * @return {Boolean}
+ */
+const deleteFile = function (path:string):boolean{
+    try {
+        fs.unlinkSync(path);
+        return  true
+    } catch (err) {
+        Base.printErrorLog('unlinkSync',err)
+        return  false;
+    }
+}
+
 export default {
     mkdir: mkdir,
     isExists: isExists,
@@ -401,6 +417,7 @@ export default {
 
 
     formatFileSize: formatFileSize,
+    deleteFile: deleteFile,
 
     getBase64Image: getBase64Image,
     getExtractFileTotal: getExtractFileTotal,

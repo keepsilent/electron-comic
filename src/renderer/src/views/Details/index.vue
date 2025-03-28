@@ -1,12 +1,31 @@
 <template>
-    <Toolbar :file="file" @cancel="" @confirm=""/>
-    <div class="detail-wrap scrollbar">
+    <Toolbar :file="file"/>
+    <div v-if="page.init == false" class="detail-wrap scrollbar scrollbar-space">
+        <div class="detail-inner">
+            <div class="detail-header-skeleton">
+                <div class="cover"></div>
+                <div class="info">
+                    <p class="title"></p>
+                    <p class="subtitle"></p>
+                    <div class="tags">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <Interim :interim="interim"></Interim>
+        </div>
+    </div>
+
+    <div v-if="page.init" class="detail-wrap scrollbar scrollbar-space">
         <div class="detail-inner">
             <div class="detail-header">
-                <img class="cover" :src="file.cover" :alt="file.name" width="183" height="243">
+                <img class="cover" :src="file.cover" :alt="file.name" width="183" height="243" @error="setDefaultImage">
                 <div class="info">
                     <h3 class="title">{{file.alias}}</h3>
-                    <p>{{t('details.author')}}：{{file.author || '未知'}}</p>
+                    <p>{{t('details.author')}}：{{file.author || t('details.unknown')}}</p>
                     <p>{{t('details.size')}}：{{file.size}}</p>
 <!--                    <p>{{t('details.include.title')}}：{{t('details.include.subtitle',{files:file.total,folders:0})}} </p>-->
                     <p>{{t('details.date')}}：{{file.date}}</p>
@@ -15,7 +34,9 @@
                     </div>
                 </div>
             </div>
+            <Empty :empty="empty"></Empty>
             <div class="detail-main">
+
                 <div v-for="(item,index) in thumbnail" :key="index" class="file-item">
                     <div class="cover">
                         <img :src="item.cover" :alt="item.name" width="216" height="287">
@@ -25,39 +46,48 @@
             </div>
         </div>
     </div>
+
+    <Loading :show="page.loading"></Loading>
+    <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n';
-import {ref, reactive, watch, onMounted} from 'vue'
-import type {PageInter, ConfirmInter, FileInter} from "@renderer/utils/types";
-import {Base, File,Time} from "@renderer/utils";
+import {useI18n} from 'vue-i18n';
+import {reactive, onMounted} from 'vue'
+import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
+import {Base,Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import {getFileInfo} from "@renderer/api/file";
 import {Archive} from 'libarchive.js/main.js';
 
 import Toolbar from "./components/toolbar.vue";
+import Confirm from "@renderer/components/Confirm.vue";
+import Loading from "@renderer/components/Loading.vue";
+import Interim from "@renderer/components/Interim.vue";
+import Empty from "@renderer/components/Empty.vue";
 
 const { t } = useI18n();
+const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
-const confirm:ConfirmInter = reactive({show: false, title: '需要密码重置',content: '',callback:'', showCancel: false, cancelText: '取消', confirmText: '确定'});
+const confirm:ConfirmInter = reactive({});
 const file:FileInter = reactive({});
+const interim:InterimInter = reactive({});
+const empty:EmptyInter = reactive({});
 const thumbnail = reactive([])
 
-const pageStore = usePageStore();
-
-onMounted(()=>{
-    loadArchive();
-    loadDetail();
+onMounted(() => {
+    init();
 })
 
-const loadArchive = function () {
-    const options = {
-        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
-    }
+const init = function () {
+    setArchive();
+    loadDetail();
+    //Common.showLoading(page);
+}
 
-    Archive.init(options);
+const setArchive = function () {
+    Common.setArchive(Archive);
 }
 
 const loadDetail = async function () {
@@ -68,12 +98,17 @@ const loadDetail = async function () {
             return false;
         }
 
-
         resetFileData(res.data);
-
         renderStatus(file);
         renderCover(file);
-        renderFilesThumbnail(file);
+
+        if(File.isExists(file.path)) {
+            renderFilesThumbnail(file);
+        } else {
+            Common.showEmpty(empty,t('empty.inexistence.title'),t('empty.inexistence.subtitle'))
+        }
+
+        Common.lazyRenderPage(page);
     } catch (err) {
         Base.printErrorLog('getFileInfo',err)
     }
@@ -91,8 +126,8 @@ const resetFileData = function (data):boolean {
 }
 
 const renderStatus = function (file) {
-    pageStore.setStatusPath(file.path,'path');
     pageStore.num = file.total;
+    pageStore.setStatusPath(file.path,'path');
 }
 
 const renderFilesThumbnail = async function (file:File):void {
@@ -115,20 +150,19 @@ const readImageFile = async function (data):boolean {
     }
 
     for(let i in data) {
-        data[i].cover = await File.getBase64Image(data[i])
+        data[i].cover = await File.getBase64Image(data[i]);
         data[i].alias = File.getFileAlias(data[i].name);
     }
 
     Object.assign(thumbnail, data)
     autoCreateCover();
-    console.log('thumbnail',thumbnail);
 }
 
 const autoCreateCover = function () {
     const {id} = file;
     const cover = thumbnail[0].cover
     const path = File.getFileCoverById(id);
-    console.error('File.isExists(path)',File.isExists(path))
+
     if (File.isExists(path)) {
         return false;
     }
@@ -141,8 +175,13 @@ const renderCover = async function ({id}):void {
     try {
         const path = File.getFileCoverById(id);
 
-        if (File.isExists(path) == false) {
+        if (File.isExists(path) == false && File.isExists(file.path) == false) {
+            file.cover = Common.getDefaultImage()
             return false;
+        }
+
+        if (File.isExists(path) == false) {
+            return  false;
         }
 
         const fileBuffer = fs.readFileSync(path);
@@ -151,90 +190,18 @@ const renderCover = async function ({id}):void {
         Base.printErrorLog('loadCover readFileSync',err)
     }
 }
-</script>
 
-<style lang="scss" scoped>
-.detail {
-    &-wrap {
-        height: calc(100vh - 25px - 48px - 41px);
-        overflow-y: auto;
-    }
-
-    &-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-
-        padding: var(--spacing-m);
-        //height: 243px;
-        //overflow: hidden;
-
-        .cover {
-            margin-right: var(--spacing-m);
-            border-radius: var(--border-radius-l);
-            object-fit: contain;
-        }
-
-        .info {
-            position: relative;
-            width: 100%;
-            height: 243px;
-            h3 { padding-bottom: 8px; font-size: 20px; }
-            p { padding-bottom: 5px; font-size: 13px; }
-
-            .tags {
-                position: absolute;
-                left: 0;
-                bottom: 10px;
-                padding-top: var(--spacing-m);
-                span {
-                    margin-right: var(--spacing-m);
-                    padding: 3px 15px;
-                    color: #FFF;
-
-                    font-size: 12px;
-                    background: #CCC;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    opacity: 0.9;
-                    &:hover { opacity: 1}
-                }
-            }
-        }
-    }
-
-    &-main {
-        padding: var(--spacing-m);
-        display: grid;
-        grid-template-columns: repeat(auto-fill, 183px);
-        gap: 15px;
-
-        .file-item {
-            width: 183px;
-            cursor: pointer;
-            overflow: hidden;
-
-            .cover {
-                position: relative;
-                width: 183px;
-                height: 243px;
-
-                //background: var(--background-color-secondary);
-                border-radius: var(--border-radius-default);
-                overflow: hidden;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: contain;
-                }
-            }
-
-            .title {
-                text-align: center;
-            }
-        }
-    }
+const onCancelConfirm = function () {
+    Common.cancelConfirm(confirm);
 }
 
-</style>
+const onOperateConfirm = function () {
+    Common.operateConfirm(confirm, page);
+}
+
+const setDefaultImage = function () {
+    file.cover = Common.getDefaultImage();
+}
+</script>
+
+<style src="./index.scss" lang="scss" scoped></style>

@@ -33,10 +33,10 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+import {useI18n} from 'vue-i18n';
 import {ref, reactive, watch, onMounted} from 'vue'
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
-import {Base, Config, File, Time} from "@renderer/utils";
+import {Base, Common, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
 
 import Loading from "./Loading.vue";
@@ -52,10 +52,6 @@ const files = reactive({data: {}});
 onMounted(() => {
     loadArchive();
     loadFileList();
-
-    // setTimeout(()=>{
-    //     Base.hideLoading(page);
-    // },1000)
 })
 
 const loadArchive = function () {
@@ -112,19 +108,19 @@ const isUploaded = async function (name,type) {
 
 const onUpload = async function (event) {
     if (event.length == 0) {
-        Base.showAlert(confirm,'Please select the file you upload','Upload File Tips');
+        Common.showAlert(confirm,'Please select the file you upload','Upload File Tips');
         upload.value.value = null;
         return false;
     }
 
     try {
-        Base.showLoading(page);
+        Common.showLoading(page);
         const [file] = event.target.files;
         const archive = await Archive.open(file);
         const extract = await archive.extractFiles();
 
         if(await isUploaded(file.name,file.type)) {
-            Base.showAlert(confirm,`${File.getFileAlias(file.name)} already exist!`,'Upload File Tips');
+            Common.showAlert(confirm,`${File.getFileAlias(file.name)} already exist!`,'Upload File Tips');
             return false;
         }
 
@@ -132,7 +128,7 @@ const onUpload = async function (event) {
     } catch (err) {
         console.error('err',err)
     } finally {
-        Base.hideLoading(page);
+        Common.hideLoading(page);
         upload.value.value = null;
     }
 }
@@ -167,11 +163,11 @@ page.actions.onTest = function () {
 }
 
 const onCancelConfirm = function () {
-    Base.cancelConfirm(confirm);
+    Common.cancelConfirm(confirm);
 }
 
 const onOperateConfirm = function () {
-    Base.operateConfirm(confirm, page);
+    Common.operateConfirm(confirm, page);
 }
 </script>
 
