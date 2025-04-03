@@ -54,11 +54,11 @@ const upload:string = ref(null);
 
 page.actions.onDeleteFile = async function ():boolean {
     try {
-        const {id, path} = props.file;
-        if (File.deleteFile(path) == false) {
-            Common.showAlert(confirm,t("alert.content.delete.fail"));
-            return false;
-        }
+        const {id} = props.file;
+        // if (File.deleteFile(path) == false) {
+        //     Common.showAlert(confirm,t("alert.content.delete.fail"));
+        //     return false;
+        // }
         const params = { id: id, status: 'delete'};
         const res = await updateFileStatus(params);
         if(res.code != 200) {
@@ -87,11 +87,11 @@ const onOpenFolder = function () {
 }
 
 const onDeleteFile = function () {
-    const path = props.file.path;
-    if(!File.isExists(path)) {
-        Common.showAlert(confirm,t("alert.content.inexistence"));
-        return false;
-    }
+    // const path = props.file.path;
+    // if(!File.isExists(path)) {
+    //     Common.showAlert(confirm,t("alert.content.inexistence"));
+    //     return false;
+    // }
 
     Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }

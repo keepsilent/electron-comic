@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
 import {reactive, watch} from "vue";
+import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {updateFileStatus} from "@renderer/api/file";
@@ -42,6 +43,8 @@ interface Props {
 }
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const emit = defineEmits(['cancel','confirm'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
@@ -49,16 +52,17 @@ const confirm:ConfirmInter = reactive({show: false});
 
 page.actions.onDeleteFile = async function ():boolean {
     try {
-        const {id, path} = props.file;
-        if (File.deleteFile(path) == false) {
-            Common.showAlert(confirm,t("alert.content.delete.fail"));
-            return false;
-        }
+        const {id} = props.file;
+        // if (File.deleteFile(path) == false) {
+        //     Common.showAlert(confirm,t("alert.content.delete.fail"));
+        //     return false;
+        // }
         const params = { id: id, status: 'delete'};
         const res = await updateFileStatus(params);
         if(res.code != 200) {
             return false;
         }
+        router.back()
     } catch (err) {
         Base.printErrorLog('deleteFile',err);
     } finally {
@@ -77,11 +81,11 @@ const onOpenFolder = function () {
 }
 
 const onDeleteFile = function () {
-    const path = props.file.path;
-    if(!File.isExists(path)) {
-        Common.showAlert(confirm,t("alert.content.inexistence"));
-        return false;
-    }
+    //const path = props.file.path;
+    // if(!File.isExists(path)) {
+    //     Common.showAlert(confirm,t("alert.content.inexistence"));
+    //     return false;
+    // }
 
     Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }

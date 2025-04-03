@@ -45,7 +45,7 @@ const isObject = function (value:any): boolean {
  * @param {String} type 类型
  * @return {Bloon}
  */
-const redirect = function (url:string, target:string = null):boolean|void {
+const redirect = function (url:string, target:string = null):boolean {
     if(!isEmpty(target)) {
         const a = document.createElement('a');
         a.setAttribute('target', target);
@@ -104,8 +104,23 @@ const printErrorLog = function (name:string, error:any):void {
 }
 
 
+/**
+ * 首字母大写
+ * @method capitalizeFirstLetter
+ * @param {String} str
+ */
+const capitalizeFirstLetter = function (str):string {
+    if(isEmpty(str) == true) {
+        return str
+    }
 
+    const reg = /^[A-Za-z]+$/
+    if(reg.test(str) == false) {
+        return str;
+    }
 
+    return str[0].toUpperCase() + str.slice(1);
+}
 
 
 
@@ -121,5 +136,7 @@ export default {
 
     printErrorLog: printErrorLog,
     redirect:　redirect,
-    redirectByEvent: redirectByEvent
+    redirectByEvent: redirectByEvent,
+
+    capitalizeFirstLetter: capitalizeFirstLetter,
 }

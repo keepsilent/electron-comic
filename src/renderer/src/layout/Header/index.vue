@@ -13,7 +13,7 @@
             <!-- 头部菜单 -->
             <div class="menu tc">
                 <div class="left">
-                    <span class="iconfont icon-setting" :title="$t('button.setting')">
+                    <span class="iconfont icon-setting" :title="$t('button.setting')" @click="onShowSetting">
                         <i class="dot"></i>
                     </span>
                 </div>
@@ -26,6 +26,7 @@
             </div>
         </div>
     </div>
+    <Setting :show="setting" @hide="onHideSetting"></Setting>
 </template>
 
 <script setup lang="ts">
@@ -35,6 +36,8 @@ import {useRouter,useRoute} from 'vue-router'
 import {Base} from "@renderer/utils";
 
 import {usePageStore} from '@renderer/stores/page'
+
+import Setting from "@renderer/components/Setting.vue";
 
 interface Maximize {
     name: string,
@@ -47,6 +50,7 @@ const router = useRouter();
 const pageStore = usePageStore();
 const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
+const setting:boolean = ref(true)
 
 const onSearch = function({keyCode}):boolean|void {
     if(keyCode !== 13) {
@@ -72,6 +76,14 @@ const onSearch = function({keyCode}):boolean|void {
     router.push(object)
 }
 
+const onShowSetting = function ():void {
+    setting.value = true
+}
+
+const onHideSetting = function ():void {
+    setting.value = false
+}
+
 const onGoBack = function ():void {
     router.back();
 }
@@ -80,6 +92,8 @@ const onClear = function():void {
     keyword.value = '';
     pageStore.keyword = '';
 }
+
+
 
 const onIPC = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {

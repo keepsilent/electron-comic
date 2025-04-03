@@ -70,5 +70,22 @@
 		"location": "Location",
 		"item": "Item",
 		"files": "Files"
+	},
+	"setting": {
+		"title": "SETTINGS",
+		"general": {
+			"title": "General"
+		},
+		"theme": {
+			"title": "Themes",
+			"explain": "Personalize your Comic++ experience with a theme of your choice.",
+			"default": "System Default",
+			"light": "Light",
+			"dark": "Dark",
+			"tips": "{name} themes are not supported"
+		},
+		"about": {
+			"title": "About"
+		}
 	}
 }
