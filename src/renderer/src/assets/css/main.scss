@@ -50,30 +50,61 @@ img { -webkit-user-drag: none; }
 .fl { float: left; }
 .fr { float: right; }
 
-.mt-5 { margin-top: 5px; }
-.mt-10 { margin-top: 10px; }
-.mt-15 { margin-top: 15px; }
-.mt-20 { margin-top: 20px; }
-.mt-25 { margin-top: 25px; }
+.pt {
+    &-s {padding-top: var(--spacing-s);}
+    &-m {padding-top: var(--spacing-m);}
+    &-l {padding-top: var(--spacing-l);}
+    &-xl {padding-top: var(--spacing-xl);}
+}
 
-.ml-5 { margin-left: 5px; }
-.ml-10 { margin-left: 10px; }
-.ml-15 { margin-left: 15px; }
+.pb {
+    &-s {padding-bottom: var(--spacing-s);}
+    &-m {padding-bottom: var(--spacing-m);}
+    &-l {padding-bottom: var(--spacing-l);}
+    &-xl {padding-bottom: var(--spacing-xl);}
+}
 
-.mb-5 { margin-bottom: 5px; }
-.mb-10 { margin-bottom: 10px; }
-.mb-15 { margin-bottom: 15px; }
-.mb-25 { margin-bottom: 25px; }
+.pl {
+    &-s {padding-left: var(--spacing-s);}
+    &-m {padding-left: var(--spacing-m);}
+    &-l {padding-left: var(--spacing-l);}
+    &-xl {padding-left: var(--spacing-xl);}
+}
 
-.pt-5 { padding-top: 5px; }
-.pt-10 { padding-top: 10px; }
-.pt-15 { padding-top: 15px; }
-.pt-25 { padding-top: 25px; }
+.pr {
+    &-s {padding-right: var(--spacing-s);}
+    &-m {padding-right: var(--spacing-m);}
+    &-l {padding-right: var(--spacing-l);}
+    &-xl {padding-right: var(--spacing-xl);}
+}
 
-.pb-5 { padding-bottom: 5px; }
-.pb-10 { padding-bottom: 10px; }
-.pb-15 { padding-bottom: 15px; }
-.pb-25 { padding-bottom: 25px; }
+.mt {
+    &-s {margin-top: var(--spacing-s);}
+    &-m {margin-top: var(--spacing-m);}
+    &-l {margin-top: var(--spacing-l);}
+    &-xl {margin-top: var(--spacing-xl);}
+}
+
+.mb {
+    &-s {margin-bottom: var(--spacing-s);}
+    &-m {margin-bottom: var(--spacing-m);}
+    &-l {margin-bottom: var(--spacing-l);}
+    &-xl {margin-bottom: var(--spacing-xl);}
+}
+
+.ml {
+    &-s {margin-left: var(--spacing-s);}
+    &-m {margin-left: var(--spacing-m);}
+    &-l {margin-left: var(--spacing-l);}
+    &-xl {margin-left: var(--spacing-xl);}
+}
+
+.mr {
+    &-s {margin-right: var(--spacing-s);}
+    &-m {margin-right: var(--spacing-m);}
+    &-l {margin-right: var(--spacing-l);}
+    &-xl {margin-right: var(--spacing-xl);}
+}
 
 
 .btn {
@@ -82,7 +113,6 @@ img { -webkit-user-drag: none; }
     display: inline-flex;
     justify-content: center;
     align-items: center;
-
     height: 40px;
     padding: var(--spacing-s) 10px;
     font-size: var(--text-size-m);
@@ -90,11 +120,61 @@ img { -webkit-user-drag: none; }
     font-family: var(--text-family-default);
     line-height: var(--line-height-s);
     color: var(--content-color-secondary);
-
     cursor: default;
     -webkit-user-select: none;
     user-select: none;
     cursor: pointer;
+
+    &-secondary {
+        background-color: var(--background-color-tertiary);
+        min-width: 100px;
+        color: var(--content-color-secondary);
+    }
+
+    &-small {
+        height: var(--size-m);
+        padding: var(--spacing-s) 10px;
+        min-width: 64px;
+        font-size: var(--text-size-s);
+        line-height: var(--line-height-xs);
+        background-color: var(--background-color-tertiary);
+        font-weight: 400;
+    }
+}
+
+
+.input {
+    &-wrap {
+        width: 228px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-radius: var(--border-radius-default);
+        border: var(--border-width-default) var(--border-style-solid) var(--border-color-default);
+        background-color: var(--background-color-primary);
+        &:hover {
+            background-color: var(--background-color-tertiary);
+        }
+    }
+
+    &-inner {
+        position: relative;
+
+
+        input {
+            width: 100%;
+            height: var(--controls-size-default);
+            margin: 0;
+            padding: 0;
+
+            color: var(--content-color-primary);
+            font-size: var(--text-size-m);
+            line-height: var(--line-height-m);
+            font-family: var(--text-family-default);
+
+            border-width: 0;
+            background: transparent;
+        }
+    }
 }
 
 /** 快捷菜单 **/

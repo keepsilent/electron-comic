@@ -8,11 +8,51 @@
             </div>
             <div class="setting-menu">
                 <span :class="menu == 'general' ? 'active' : ''"  data-value="general" @click="onSwitchMenu">{{t('setting.general.title')}}</span>
-                <span :class="menu == 'themes' ? 'active' : ''" data-value="themes" @click="onSwitchMenu">{{t('setting.theme.title')}}</span>
+                <span :class="menu == 'theme' ? 'active' : ''" data-value="theme" @click="onSwitchMenu">{{t('setting.theme.title')}}</span>
+                <span :class="menu == 'shortcust' ? 'active' : ''" data-value="shortcust" @click="onSwitchMenu">{{t('setting.shortcust.title')}}</span>
                 <span :class="menu == 'about' ? 'active' : ''" data-value="about" @click="onSwitchMenu">{{t('setting.about.title')}}</span>
             </div>
+            <div v-if="menu == 'general'" class="setting-general">
 
-            <div v-if="menu == 'themes'" class="setting-themes">
+
+                <div class="item">
+                    <div class="title">
+                        <span>Screen</span>
+                        <Select :select="window" @select="onSelectOption"></Select>
+                    </div>
+
+                    <p class="subtitle">Set launch mode for screen. To window mode, set to window.</p>
+                </div>
+                <div class="item">
+                    <div class="title">
+                        <span>Language</span>
+                        <Select :select="language" @select="onSelectOption"></Select>
+                    </div>
+                    <p class="subtitle">Set use language, Choose better language for you.</p>
+                </div>
+                <div class="item">
+                    <div class="title">
+                        <span>Paging</span>
+                        <Select :select="pageing" @select="onSelectOption"></Select>
+                    </div>
+                    <p class="subtitle">Set loading paging num, Get a better browsing experience.</p>
+                </div>
+
+                <div class="item">
+                    <p class="title">Storage</p>
+                    <p class="subtitle pt-m" style="width: auto">Set the cache file path, Anything will be storage there.</p>
+                    <div class="file-box">
+                        <div class="input-wrap">
+                            <div class="input-inner">
+                                <input type="text" class="input-name" value="C:\Users\keepsilent\Downloads"  readonly="true">
+                            </div>
+                        </div>
+                        <span class="btn  btn-secondary btn-small">Choose</span>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="menu == 'theme'" class="setting-themes">
                 <p>{{t('setting.theme.explain')}}</p>
                 <div class="theme-box">
                     <div :class="theme == 'default' ? 'theme active' : 'theme'" data-value="default" @click="onSwitchTheme">
@@ -29,6 +69,31 @@
                         <div><i :class="theme == 'dark' ? 'iconfont icon-select' : 'iconfont icon-unselected'"></i><em>{{t('setting.theme.dark')}}</em></div>
                     </div>
                 </div>
+            </div>
+
+            <div v-if="menu == 'shortcust'" class="setting-shortcust">
+                <dl class="item">
+                    <dt>Interface</dt>
+                    <dd>
+                        <span class="name">Zoom In</span>
+                        <span class="value">Ctrl + +</span>
+                    </dd>
+                    <dd>
+                        <span class="name">Zoom Out</span>
+                        <span class="value">Ctrl + -</span>
+                    </dd>
+                    <dd>
+                        <span class="name">Reset Zoom</span>
+                        <span class="value">Ctrl + 0</span>
+                    </dd>
+                </dl>
+                <dl class="item">
+                    <dt>DevTools</dt>
+                    <dd>
+                        <span class="name">Console</span>
+                        <span class="value">Ctrl + Shift + I</span>
+                    </dd>
+                </dl>
             </div>
 
             <div v-if="menu == 'about'" class="setting-about">
@@ -55,8 +120,10 @@
 import {useI18n} from 'vue-i18n';
 import {ref, reactive, watch} from "vue";
 import {Base,Common} from "@renderer/utils";
-import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
+
+import Select from "./Select.vue";
 
 interface Props {
     show: boolean,
@@ -91,6 +158,36 @@ const about:About = reactive({
     ]
 })
 
+const window:SelectInter = reactive({
+    key: 'window',
+    name: '窗口',
+    value: 'window',
+    options: [
+        {name:'窗口',value: 'window'},
+        {name:'全屏',value: 'full screen'},
+    ]
+})
+const language:SelectInter = reactive({
+    key: 'language',
+    name: 'English',
+    value: 'English',
+    options: [
+        {name:'English',value: 'English'},
+        {name:'简体中文',value: 'Chinese'},
+    ]
+})
+
+const pageing:SelectInter = reactive({
+    key: 'pageing',
+    name: '20',
+    value: '20',
+    options: [
+        {name:'20',value: '20'},
+        {name:'50',value: '50'},
+        {name:'100',value: '100'}
+    ]
+})
+
 const onRedirect = function ({currentTarget: {dataset: {value}}}) {
     Base.redirect(value,'_blank');
 }
@@ -117,6 +214,18 @@ const onCancelConfirm = function () {
 
 const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
+}
+
+const onSelectOption = function (option) {
+    console.log('onSelectOption',option);
+    switch (option.key) {
+        case 'window':
+            window.name = option.name;
+            window.value = option.value;
+            break
+    }
+
+    console.log('w',window);
 }
 
 watch(() => props.show,(value)=>{
@@ -179,7 +288,7 @@ watch(() => props.show,(value)=>{
             margin-left: var(--spacing-s);
             font-size: var(--text-size-m);
             font-weight: var(--text-weight-medium);
-            opacity: 0.95;
+            opacity: 1;
         }
 
         .icon-close {
@@ -216,13 +325,18 @@ watch(() => props.show,(value)=>{
 
             margin: 0 var(--spacing-m);
             padding: var(--spacing-m) 0;
+            color: var(--content-color-secondary);
 
 
             text-align: center;
             cursor: pointer;
+            &:hover {
+                color: var(--content-color-primary);
+            }
         }
 
         .active {
+            color: var(--content-color-primary);
             &::after {
                 content: '';
                 position: absolute;
@@ -231,6 +345,30 @@ watch(() => props.show,(value)=>{
                 width: 100%;
                 border-bottom: var(--border-width-default) var(--border-style-solid) var(--base-color-brand);
                 z-index: 1;
+            }
+        }
+    }
+
+    &-general {
+        width: 450px;
+        padding: var(--spacing-l);
+
+        .item {
+            width: 400px;
+            margin-right: var(--spacing-l);
+            padding: 10px 15px;
+            .title {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                color: var(--content-color-primary);
+                font-weight: var(--text-weight-medium);
+            }
+
+            .subtitle {
+                width: 280px;
+                margin-top: -10px;
+                color: var(--content-color-tertiary);
             }
         }
     }
@@ -254,6 +392,7 @@ watch(() => props.show,(value)=>{
         .theme {
             padding: var(--spacing-xs) var(--spacing-xs) 2px var(--spacing-xs);
 
+            color: var(--content-color-primary);
             background-color: var(--background-color-tertiary);
             border-radius: var(--border-radius-default);
             cursor: pointer;
@@ -282,6 +421,30 @@ watch(() => props.show,(value)=>{
 
     }
 
+    &-shortcust {
+        margin-top: var(--spacing-xxl);
+        .item {
+
+            width: 600px;
+            margin-left: var(--spacing-xxl);
+            padding-bottom: var(--spacing-xl);
+            dt {
+                padding-bottom: var(--spacing-s);
+                color: var(--content-color-primary);
+                font-weight: var(--text-weight-medium);
+            }
+            dd {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                line-height: 2.5;
+
+                .value {
+                    width: 180px;
+                }
+            }
+        }
+    }
 
     &-about {
         color: rgb(33, 33, 33);
@@ -325,5 +488,15 @@ watch(() => props.show,(value)=>{
     opacity: 1;
 }
 
+.input-select-wrap {
+    width: 100px;
+}
 
+.file-box {
+    width:  400px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--spacing-s);
+}
 </style>

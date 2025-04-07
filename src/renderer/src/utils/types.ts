@@ -41,3 +41,11 @@ export interface InterimInter {
     show?:boolean,
     space?: boolean
 }
+
+
+export interface SelectInter {
+    key: string,
+    name: string,
+    value: string,
+    options: { name: string, value: string }[]
+}
