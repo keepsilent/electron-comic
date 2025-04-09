@@ -9,8 +9,9 @@ dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tf
     outline: 0;
     font-weight: inherit;
     font-style: inherit;
-    font-size: 100%;
-    font-family: inherit;
+    //font-size: 100%;
+    //font-family: inherit;
+    font-family: var(--text-family-default);
     vertical-align: baseline;
 }
 html,body {
@@ -135,7 +136,7 @@ img { -webkit-user-drag: none; }
         height: var(--size-m);
         padding: var(--spacing-s) 10px;
         min-width: 64px;
-        font-size: var(--text-size-s);
+        font-size: var(--text-size-m);
         line-height: var(--line-height-xs);
         background-color: var(--background-color-tertiary);
         font-weight: 400;
@@ -176,6 +177,7 @@ img { -webkit-user-drag: none; }
         }
     }
 }
+
 
 /** 快捷菜单 **/
 .quick-menu { display: none; position: fixed; top: 50%; left: 50%;  background: #FFF; z-index: 1; border-radius: 2px;  box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);}

@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -63,6 +63,15 @@ const createWindow = function(): void {
     ipcMain.on('minimize', () => mainWindow.minimize())
     ipcMain.on('restore', () => mainWindow.restore())
     ipcMain.on('close', () => mainWindow.close())
+    ipcMain.on('openDialog', (event) => {
+        console.log('xxx');
+        dialog.showOpenDialog({
+
+        }).then(result=>{
+            console.log(result);        //输出结果
+            result.filePaths.length>0 && ipcRenderer.send(result.filePaths);
+        })
+    })
     ipcMain.on('reset', () => {
         app.exit() //退出当前程序
         app.relaunch() //重新启动

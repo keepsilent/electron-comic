@@ -1,8 +1,8 @@
 <template>
-    <div class="input-select-wrap" v-outside>
-        <div class="input-select-inner">
+    <div class="input-select-wrap" v-outside :style="'width:'+select.width+'px'">
+        <div class="input-select-inner" >
             <div class="input-select-main" @click="onShowDropDownBox">
-                <input type="text" class="input-name" :value="select.name" readonly="true">
+                <input type="text" :value="select.name" readonly="true">
                 <i class="iconfont icon-return"></i>
             </div>
             <div v-if="page.drop" class="dropdown-menu">
@@ -77,7 +77,7 @@ const vOutside = {
 
     &-inner {
         position: relative;
-        padding: 8px 10px;
+        padding: 8px 12px;
 
         .dropdown-menu {
             position: absolute;
@@ -121,7 +121,9 @@ const vOutside = {
         overflow: hidden;
 
         .iconfont {
-            font-size: var(--text-size-m);
+            margin-left: var(--spacing-s);
+            margin-right: var(--spacing-xxs);
+            font-size: var(--text-size-xs);
             transform: rotate(270deg);
         }
 

@@ -14,6 +14,7 @@ export const usePageStore = defineStore('page',()=>{
     const path:object = ref([]);
     const scene:string = ref(null);
     const keyword:string = ref(null);
+    const maximize:number =ref(localStorage.getItem('maximize') || 0);
 
 
     const setStatusPath = function (value:string|object,type:string='catalogue'):void {
@@ -43,6 +44,7 @@ export const usePageStore = defineStore('page',()=>{
         num: num,
         scene: scene,
         keyword: keyword,
+        maximize: maximize,
         setStatusPath: setStatusPath
     }
 })

@@ -31,13 +31,14 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref, reactive, toRefs} from "vue";
+import {ref, reactive, toRefs,watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base} from "@renderer/utils";
 
 import {usePageStore} from '@renderer/stores/page'
 
 import Setting from "@renderer/components/Setting.vue";
+
 
 interface Maximize {
     name: string,
@@ -96,6 +97,9 @@ const onClear = function():void {
 
 
 const onIPC = function({currentTarget: {dataset: {key}}}): void {
+    window.electron.ipcRenderer.send('openDialog');
+
+    return false;
     switch (key) {
         case 'restore':
             maximize.name = t('button.maximize');
@@ -112,6 +116,16 @@ const onIPC = function({currentTarget: {dataset: {key}}}): void {
     }
 }
 
+
+watch(() => pageStore.maximize,(value)=>{
+    console.log('pageStore.maximize',value);
+    if(value == true) {
+        window.electron.ipcRenderer.send('maximize');
+        return false;
+    }
+    window.electron.ipcRenderer.send('restore');
+})
+
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {
         maximize.name = t('button.restore');
@@ -122,6 +136,8 @@ window.electron.ipcRenderer.on('maximize',(event,args)=> {
     maximize.name = t('button.maximize');
     maximize.value = 'maximize';
 })
+
+
 </script>
 <style lang="scss" scoped>
 @use "./index.scss";

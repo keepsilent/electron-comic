@@ -13,15 +13,15 @@
             <!-- 左侧菜单 -->
             <div class="aside-main">
                 <!-- 用户头像-->
-                <div class="user pt-25 tc">
+                <div class="user pt-xl mt-xl tc">
                     <div class="user-info">
                         <img class="avatar" :src="user.avatar" :alt="user.nicename" width="48" height="48">
-                        <h3 class="title mt-10">{{user.nicename}}</h3>
+                        <h3 class="title mt-s">{{user.nicename}}</h3>
                     </div>
 
                     <div class="user-menu">
                         <div class="user-menu-header">
-                            <h3 class="title mt-10">{{user.nicename}}</h3>
+                            <h3 class="title  mt-m">{{user.nicename}}</h3>
                             <dl class="level">
                                 <dt>
                                     <span>等级<i class="ml-5">{{user.level}}</i></span>
@@ -50,7 +50,7 @@
                 </div>
 
                 <!-- 菜单 -->
-                <div class="menu pt-25">
+                <div class="menu pt-xl">
                     <ul>
                         <li :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu"><i v-if="item.icon" :class="['iconfont',item.icon]" ></i>{{item.name}}</li>
                     </ul>

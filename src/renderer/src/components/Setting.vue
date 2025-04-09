@@ -13,41 +13,40 @@
                 <span :class="menu == 'about' ? 'active' : ''" data-value="about" @click="onSwitchMenu">{{t('setting.about.title')}}</span>
             </div>
             <div v-if="menu == 'general'" class="setting-general">
-
-
                 <div class="item">
                     <div class="title">
-                        <span>Screen</span>
+                        <span>{{t('setting.general.screen.title')}}</span>
                         <Select :select="window" @select="onSelectOption"></Select>
                     </div>
-
-                    <p class="subtitle">Set launch mode for screen. To window mode, set to window.</p>
+                    <p class="subtitle">{{t('setting.general.screen.subtitle')}}</p>
                 </div>
                 <div class="item">
                     <div class="title">
-                        <span>Language</span>
+                        <span>{{t('setting.general.language.title')}}</span>
                         <Select :select="language" @select="onSelectOption"></Select>
                     </div>
-                    <p class="subtitle">Set use language, Choose better language for you.</p>
+                    <p class="subtitle">{{t('setting.general.language.subtitle')}}</p>
                 </div>
                 <div class="item">
                     <div class="title">
-                        <span>Paging</span>
+                        <span>{{t('setting.general.paging.title')}}</span>
                         <Select :select="pageing" @select="onSelectOption"></Select>
                     </div>
-                    <p class="subtitle">Set loading paging num, Get a better browsing experience.</p>
+                    <p class="subtitle">{{t('setting.general.paging.subtitle')}}</p>
                 </div>
 
                 <div class="item">
-                    <p class="title">Storage</p>
-                    <p class="subtitle pt-m" style="width: auto">Set the cache file path, Anything will be storage there.</p>
+                    <p class="title">{{t('setting.general.storage.title')}}</p>
+                    <p class="subtitle pt-m" style="width: auto">{{t('setting.general.storage.subtitle')}}</p>
                     <div class="file-box">
                         <div class="input-wrap">
                             <div class="input-inner">
                                 <input type="text" class="input-name" value="C:\Users\keepsilent\Downloads"  readonly="true">
                             </div>
                         </div>
-                        <span class="btn  btn-secondary btn-small">Choose</span>
+                        <span class="btn  btn-secondary btn-small" @click="onSelectFile">
+                            {{t('setting.general.storage.button')}}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -72,6 +71,12 @@
             </div>
 
             <div v-if="menu == 'shortcust'" class="setting-shortcust">
+
+                <div class="title">
+                    <span>{{t('setting.shortcust.title')}}</span>
+                    <Switch :toggle="shortcuts"  @switch="onToggleSwitch"></Switch>
+                </div>
+
                 <dl class="item">
                     <dt>Interface</dt>
                     <dd>
@@ -118,12 +123,14 @@
 <script setup lang="ts">
 
 import {useI18n} from 'vue-i18n';
-import {ref, reactive, watch} from "vue";
+import {ref, reactive, onMounted, watch} from "vue";
 import {Base,Common} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
+import {usePageStore} from '@renderer/stores/page'
 
 import Select from "./Select.vue";
+import Switch from "./Switch.vue";
 
 interface Props {
     show: boolean,
@@ -140,9 +147,10 @@ interface About {
     links: { name: string, value: string }[]
 }
 
-const { t } = useI18n();
+const { t, locale} = useI18n();
 const emit = defineEmits(['cancel','setting'])
 const props = defineProps<Props>()
+const pageStore = usePageStore();
 const page:Page = reactive({show: true})
 const confirm:ConfirmInter = reactive({show: false});
 const menu:string = ref('general');
@@ -160,20 +168,23 @@ const about:About = reactive({
 
 const window:SelectInter = reactive({
     key: 'window',
-    name: '窗口',
-    value: 'window',
+    name: localStorage.getItem('maximize') == 1 ? t('setting.general.screen.maximize'): t('setting.general.screen.window'),
+    value: localStorage.getItem('maximize') == 1 ? 'maximize' : 'window',
+    width: 105,
     options: [
-        {name:'窗口',value: 'window'},
-        {name:'全屏',value: 'full screen'},
+        {name:t('setting.general.screen.window'),value: 'window'},
+        {name:t('setting.general.screen.maximize'),value: 'maximize'},
     ]
 })
+
 const language:SelectInter = reactive({
     key: 'language',
-    name: 'English',
-    value: 'English',
+    name: localStorage.getItem('locale')  == 'zh'? '简体中文': 'English',
+    value: localStorage.getItem('locale'),
+    width: 105,
     options: [
-        {name:'English',value: 'English'},
-        {name:'简体中文',value: 'Chinese'},
+        {name:'English',value: 'en'},
+        {name:'简体中文',value: 'zh'},
     ]
 })
 
@@ -181,11 +192,18 @@ const pageing:SelectInter = reactive({
     key: 'pageing',
     name: '20',
     value: '20',
+    width: 70,
     options: [
         {name:'20',value: '20'},
         {name:'50',value: '50'},
         {name:'100',value: '100'}
     ]
+})
+
+const shortcuts:SelectInter = reactive({
+    key: 'shortcuts',
+    value: true,
+    options:['ON','OFF']
 })
 
 const onRedirect = function ({currentTarget: {dataset: {value}}}) {
@@ -222,12 +240,54 @@ const onSelectOption = function (option) {
         case 'window':
             window.name = option.name;
             window.value = option.value;
+            changeWindow(option.value)
+            break
+        case 'language':
+            language.name = option.name;
+            language.value = option.value;
+            changeLanguage(option.value);
+            break
+    }
+    console.log('w',window);
+}
+
+const changeWindow = function (value:string) {
+    console.log('changeWindow',value);
+    pageStore.maximize = value == 'maximize' ? 1: 0;
+    localStorage.setItem('maximize', pageStore.maximize)
+}
+
+const changeLanguage = (value: string) => {
+    locale.value = value
+    localStorage.setItem('locale', value)
+}
+const onToggleSwitch = function (option) {
+    switch (option.key) {
+        case 'shortcusts':
+            shortcusts.value = option.value;
             break
     }
 
     console.log('w',window);
 }
 
+const onSelectFile = function () {
+    // 选取码表文件目录
+    // window.electron.ipcRenderer.on('ToolWindow:chooseDictFile', event => {
+    //     let dictFilePath = dialog.showOpenDialogSync(toolWindow,{
+    //         filters: [
+    //             { name: 'Text', extensions: ['text', 'txt', 'yaml'] },
+    //         ],
+    //         properties: ['openFile'] // 选择文件
+    //     })
+    //
+    // })
+
+    const result = window.electron.dialog.showOpenDialog({
+        properties: ['openFile'],
+    });
+
+}
 watch(() => props.show,(value)=>{
     menu.value = 'general';
     //延时显示，动画效果更佳
@@ -285,7 +345,9 @@ watch(() => props.show,(value)=>{
 
         color: var(--content-color-secondary);
         .title {
+            padding: var(--spacing-xs) 0;
             margin-left: var(--spacing-s);
+            color: var(--content-color-secondary);
             font-size: var(--text-size-m);
             font-weight: var(--text-weight-medium);
             opacity: 1;
@@ -293,14 +355,15 @@ watch(() => props.show,(value)=>{
 
         .icon-close {
             position: absolute;
-            top: 6px;
+            top: 7px;
             right: 10px;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
             text-align: center;
             font-size: var(--text-size-m);
+            font-weight: var(--text-weight-medium);
 
             &:hover {
                 color: var(--content-color-primary);
@@ -314,7 +377,7 @@ watch(() => props.show,(value)=>{
         display: flex;
         align-items: center;
         font-size: var(--text-size-m);
-        margin-top: var(--spacing-xs);
+        margin-top: var(--spacing-s);
         padding: 0  var(--spacing-m);
         border-bottom: var(--border-width-default) var(--border-style-solid) var(--border-color-default);
 
@@ -368,7 +431,8 @@ watch(() => props.show,(value)=>{
             .subtitle {
                 width: 280px;
                 margin-top: -10px;
-                color: var(--content-color-tertiary);
+                color: rgba(107,107,107,1);
+                line-height: 1.6;
             }
         }
     }
@@ -422,7 +486,22 @@ watch(() => props.show,(value)=>{
     }
 
     &-shortcust {
-        margin-top: var(--spacing-xxl);
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin: var(--spacing-s) var(--spacing-xxl)  var(--spacing-xxl);
+            padding: var(--spacing-xl) 0;
+            color: var(--content-color-primary);
+
+            font-size: var(--text-size-m);
+            line-height: var(--line-height-m);
+            font-weight: 600;
+            border-bottom: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
+        }
+
         .item {
 
             width: 600px;
@@ -437,6 +516,7 @@ watch(() => props.show,(value)=>{
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                color: rgba(107,107,107,1);
                 line-height: 2.5;
 
                 .value {
@@ -488,9 +568,9 @@ watch(() => props.show,(value)=>{
     opacity: 1;
 }
 
-.input-select-wrap {
-    width: 100px;
-}
+//.input-select-wrap {
+//    width: 90px;
+//}
 
 .file-box {
     width:  400px;

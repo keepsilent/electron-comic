@@ -74,7 +74,26 @@
 	"setting": {
 		"title": "SETTINGS",
 		"general": {
-			"title": "General"
+			"title": "General",
+			"screen": {
+				"title": "Screen",
+				"subtitle": "Set launch mode for screen. To window mode, set to window.",
+				"window": "Window",
+				"maximize": "Maximize"
+			},
+			"language": {
+				"title": "Language",
+				"subtitle": "Set use language, Choose better language for you."
+			},
+			"paging": {
+				"title": "Paging",
+				"subtitle": "Set loading paging num, Get a better browsing experience."
+			},
+			"storage": {
+				"title": "Storage",
+				"subtitle": "Set the cache file path, Anything will be storage there.",
+				"button": "Choose"
+			}
 		},
 		"theme": {
 			"title": "Themes",

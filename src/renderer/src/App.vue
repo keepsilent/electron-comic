@@ -50,6 +50,10 @@ window.electron.ipcRenderer.on('resize',(event,args)=> {
 
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     page.launch = false;
+
+    if(localStorage.getItem('maximize') == '1') {
+        window.electron.ipcRenderer.send('maximize');
+    }
 })
 </script>
 <style scoped lang="scss">
