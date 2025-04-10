@@ -141,6 +141,10 @@ img { -webkit-user-drag: none; }
         background-color: var(--background-color-tertiary);
         font-weight: 400;
     }
+
+    &:hover {
+        background-color: var(--background-color-secondary);
+    }
 }
 
 

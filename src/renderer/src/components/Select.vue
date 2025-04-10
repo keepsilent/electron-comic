@@ -138,9 +138,9 @@ const vOutside = {
             margin: 0;
             padding: 0;
 
-
             border-width: 0;
             background: transparent;
+            cursor: pointer;
         }
     }
 }
