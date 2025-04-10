@@ -41,10 +41,10 @@
                     <div class="file-box">
                         <div class="input-wrap">
                             <div class="input-inner">
-                                <input type="text" class="input-name" value="C:\Users\keepsilent\Downloads"  readonly="true">
+                                <input type="text" :value="general.path"  readonly="true">
                             </div>
                         </div>
-                        <span class="btn  btn-secondary btn-small" @click="onSelectFile">
+                        <span class="btn btn-secondary btn-small" @click="onSelectFile">
                             {{t('setting.general.storage.button')}}
                         </span>
                     </div>
@@ -72,33 +72,35 @@
 
             <div v-if="menu == 'shortcust'" class="setting-shortcust">
 
-                <div class="title">
+                <div class="setting-shortcust-header">
                     <span>{{t('setting.shortcust.title')}}</span>
                     <Switch :toggle="shortcuts"  @switch="onToggleSwitch"></Switch>
                 </div>
 
-                <dl class="item">
-                    <dt>Interface</dt>
-                    <dd>
-                        <span class="name">Zoom In</span>
-                        <span class="value">Ctrl + +</span>
-                    </dd>
-                    <dd>
-                        <span class="name">Zoom Out</span>
-                        <span class="value">Ctrl + -</span>
-                    </dd>
-                    <dd>
-                        <span class="name">Reset Zoom</span>
-                        <span class="value">Ctrl + 0</span>
-                    </dd>
-                </dl>
-                <dl class="item">
-                    <dt>DevTools</dt>
-                    <dd>
-                        <span class="name">Console</span>
-                        <span class="value">Ctrl + Shift + I</span>
-                    </dd>
-                </dl>
+                <div :class="shortcuts.value ? 'setting-shortcust-main' : 'setting-shortcust-main setting-shortcust-main__off'">
+                    <dl class="item">
+                        <dt>Interface</dt>
+                        <dd>
+                            <span class="name">Zoom In</span>
+                            <span class="value">Ctrl + +</span>
+                        </dd>
+                        <dd>
+                            <span class="name">Zoom Out</span>
+                            <span class="value">Ctrl + -</span>
+                        </dd>
+                        <dd>
+                            <span class="name">Reset Zoom</span>
+                            <span class="value">Ctrl + 0</span>
+                        </dd>
+                    </dl>
+                    <dl class="item">
+                        <dt>DevTools</dt>
+                        <dd>
+                            <span class="name">Console</span>
+                            <span class="value">Ctrl + Shift + I</span>
+                        </dd>
+                    </dl>
+                </div>
             </div>
 
             <div v-if="menu == 'about'" class="setting-about">
@@ -121,10 +123,9 @@
 </template>
 
 <script setup lang="ts">
-
 import {useI18n} from 'vue-i18n';
 import {ref, reactive, onMounted, watch} from "vue";
-import {Base,Common} from "@renderer/utils";
+import {Base,Config, Common} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
 import {usePageStore} from '@renderer/stores/page'
@@ -148,13 +149,16 @@ interface About {
 }
 
 const { t, locale} = useI18n();
-const emit = defineEmits(['cancel','setting'])
+const emit = defineEmits(['hide'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
 const page:Page = reactive({show: true})
 const confirm:ConfirmInter = reactive({show: false});
 const menu:string = ref('general');
 const theme:string = ref('default');
+const general:object = reactive({
+    path: Config.getStoragePath()
+})
 const about:About = reactive({
     title: import.meta.env.VITE_APP_TITLE,
     version: import.meta.env.VITE_APP_VERSION,
@@ -168,8 +172,8 @@ const about:About = reactive({
 
 const window:SelectInter = reactive({
     key: 'window',
-    name: localStorage.getItem('maximize') == 1 ? t('setting.general.screen.maximize'): t('setting.general.screen.window'),
-    value: localStorage.getItem('maximize') == 1 ? 'maximize' : 'window',
+    name: localStorage.getItem('cm_setting_maximize') == 'true' ? t('setting.general.screen.maximize'): t('setting.general.screen.window'),
+    value: localStorage.getItem('cm_setting_maximize') == 'true' ? 'maximize' : 'window',
     width: 105,
     options: [
         {name:t('setting.general.screen.window'),value: 'window'},
@@ -179,8 +183,8 @@ const window:SelectInter = reactive({
 
 const language:SelectInter = reactive({
     key: 'language',
-    name: localStorage.getItem('locale')  == 'zh'? '简体中文': 'English',
-    value: localStorage.getItem('locale'),
+    name: localStorage.getItem('cm_setting_locale') == 'zh'? '简体中文': 'English',
+    value: localStorage.getItem('cm_setting_locale') == 'zh' ? 'zh': 'em',
     width: 105,
     options: [
         {name:'English',value: 'en'},
@@ -190,8 +194,8 @@ const language:SelectInter = reactive({
 
 const pageing:SelectInter = reactive({
     key: 'pageing',
-    name: '20',
-    value: '20',
+    name: localStorage.getItem('cm_setting_pageing') || '20',
+    value: localStorage.getItem('cm_setting_pageing') || '20',
     width: 70,
     options: [
         {name:'20',value: '20'},
@@ -202,8 +206,8 @@ const pageing:SelectInter = reactive({
 
 const shortcuts:SelectInter = reactive({
     key: 'shortcuts',
-    value: true,
-    options:['ON','OFF']
+    value: localStorage.getItem('cm_setting_shortcuts') == 'false' ? false : true,
+    options:[t('button.on'),t('button.off')]
 })
 
 const onRedirect = function ({currentTarget: {dataset: {value}}}) {
@@ -235,7 +239,6 @@ const onOperateConfirm = function () {
 }
 
 const onSelectOption = function (option) {
-    console.log('onSelectOption',option);
     switch (option.key) {
         case 'window':
             window.name = option.name;
@@ -247,47 +250,53 @@ const onSelectOption = function (option) {
             language.value = option.value;
             changeLanguage(option.value);
             break
+        case 'pageing':
+            pageing.name = option.name;
+            pageing.value = option.value;
+            localStorage.setItem('cm_setting_pageing', option.value)
+            break
     }
-    console.log('w',window);
 }
 
 const changeWindow = function (value:string) {
-    console.log('changeWindow',value);
-    pageStore.maximize = value == 'maximize' ? 1: 0;
-    localStorage.setItem('maximize', pageStore.maximize)
+    const isMaximize = value == 'maximize' ? true: false;
+    localStorage.setItem('cm_setting_maximize', isMaximize)
+    if(isMaximize == 1) {
+        electron.ipcRenderer.send('maximize');
+        return false;
+    }
+
+    electron.ipcRenderer.send('restore');
 }
 
 const changeLanguage = (value: string) => {
     locale.value = value
-    localStorage.setItem('locale', value)
+    localStorage.setItem('cm_setting_locale', value)
 }
+
 const onToggleSwitch = function (option) {
     switch (option.key) {
-        case 'shortcusts':
-            shortcusts.value = option.value;
+        case 'shortcuts':
+            shortcuts.value = option.value;
+            localStorage.setItem('cm_setting_shortcuts', option.value)
             break
     }
-
-    console.log('w',window);
 }
 
 const onSelectFile = function () {
-    // 选取码表文件目录
-    // window.electron.ipcRenderer.on('ToolWindow:chooseDictFile', event => {
-    //     let dictFilePath = dialog.showOpenDialogSync(toolWindow,{
-    //         filters: [
-    //             { name: 'Text', extensions: ['text', 'txt', 'yaml'] },
-    //         ],
-    //         properties: ['openFile'] // 选择文件
-    //     })
-    //
-    // })
-
-    const result = window.electron.dialog.showOpenDialog({
-        properties: ['openFile'],
-    });
-
+    electron.ipcRenderer.send('openDialog',general.path);
 }
+
+electron.ipcRenderer.on('openDialog',(event,args)=> {
+    const {canceled,filePaths} = args;
+    if(canceled == true) {
+        return false;
+    }
+    const [path] = filePaths;
+    general.path = path;
+    localStorage.setItem('cm_settging_storage_path',path);
+})
+
 watch(() => props.show,(value)=>{
     menu.value = 'general';
     //延时显示，动画效果更佳
@@ -487,7 +496,7 @@ watch(() => props.show,(value)=>{
 
     &-shortcust {
 
-        .title {
+        &-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -502,26 +511,37 @@ watch(() => props.show,(value)=>{
             border-bottom: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
         }
 
-        .item {
+        &-main {
 
-            width: 600px;
-            margin-left: var(--spacing-xxl);
-            padding-bottom: var(--spacing-xl);
-            dt {
-                padding-bottom: var(--spacing-s);
-                color: var(--content-color-primary);
-                font-weight: var(--text-weight-medium);
-            }
-            dd {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                color: rgba(107,107,107,1);
-                line-height: 2.5;
+            .item {
+                width: 600px;
+                margin-left: var(--spacing-xxl);
+                padding-bottom: var(--spacing-xl);
 
-                .value {
-                    width: 180px;
+                dt {
+                    padding-bottom: var(--spacing-s);
+                    color: var(--content-color-primary);
+                    font-weight: var(--text-weight-medium);
                 }
+
+                dd {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    color: rgba(107, 107, 107, 1);
+                    line-height: 2.5;
+
+                    .value {
+                        width: 180px;
+                    }
+                }
+            }
+        }
+
+        &-main__off {
+            .item {
+                dt {color: var(--content-color-secondary)};
+                dd {color: var(--content-color-tertiary)};
             }
         }
     }

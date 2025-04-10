@@ -20,8 +20,10 @@
     <Launch :show="page.launch"></Launch>
 </template>
 <script setup lang="ts">
+import {useI18n} from "vue-i18n";
 import {reactive, watch} from "vue";
 import {storeToRefs} from 'pinia'
+import {Base} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
@@ -33,6 +35,7 @@ interface Page  {
     launch: boolean
 }
 
+const {locale} = useI18n();
 const pageStore = usePageStore();
 const {height} = storeToRefs(pageStore);
 const page:Page = reactive({launch: true})
@@ -51,7 +54,7 @@ window.electron.ipcRenderer.on('resize',(event,args)=> {
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     page.launch = false;
 
-    if(localStorage.getItem('maximize') == '1') {
+    if(localStorage.getItem('cm_setting_maximize') == 'true') {
         window.electron.ipcRenderer.send('maximize');
     }
 })

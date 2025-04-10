@@ -20,7 +20,7 @@ const messages: Record<string, MessageSchema> = {
     zh:zh,
 };
 
-const locale = localStorage.getItem('locale') || 'en';
+const locale = localStorage.getItem('cm_setting_locale') || 'en';
 
 const i18nOptions: I18nOptions = {
     locale: locale,

@@ -51,7 +51,7 @@ const router = useRouter();
 const pageStore = usePageStore();
 const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
-const setting:boolean = ref(true)
+const setting:boolean = ref(false)
 
 const onSearch = function({keyCode}):boolean|void {
     if(keyCode !== 13) {
@@ -94,12 +94,7 @@ const onClear = function():void {
     pageStore.keyword = '';
 }
 
-
-
 const onIPC = function({currentTarget: {dataset: {key}}}): void {
-    window.electron.ipcRenderer.send('openDialog');
-
-    return false;
     switch (key) {
         case 'restore':
             maximize.name = t('button.maximize');
@@ -117,14 +112,14 @@ const onIPC = function({currentTarget: {dataset: {key}}}): void {
 }
 
 
-watch(() => pageStore.maximize,(value)=>{
-    console.log('pageStore.maximize',value);
-    if(value == true) {
-        window.electron.ipcRenderer.send('maximize');
-        return false;
-    }
-    window.electron.ipcRenderer.send('restore');
-})
+// watch(() => pageStore.maximize,(value)=>{
+//     console.log('pageStore.maximize',value);
+//     if(value == true) {
+//         window.electron.ipcRenderer.send('maximize');
+//         return false;
+//     }
+//     window.electron.ipcRenderer.send('restore');
+// })
 
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {

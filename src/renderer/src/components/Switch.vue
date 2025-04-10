@@ -25,7 +25,7 @@ const emit = defineEmits(['switch'])
 const onToggleSwitch = function () {
     const { value } = props.toggle;
     props.toggle.value = !value;
-    emit('select',{key:props.toggle.key,value: !value})
+    emit('switch',{key:props.toggle.key,value: !value})
 }
 </script>
 

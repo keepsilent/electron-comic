@@ -63,13 +63,15 @@ const createWindow = function(): void {
     ipcMain.on('minimize', () => mainWindow.minimize())
     ipcMain.on('restore', () => mainWindow.restore())
     ipcMain.on('close', () => mainWindow.close())
-    ipcMain.on('openDialog', (event) => {
-        console.log('xxx');
+    ipcMain.on('openDialog', (event,value) => {
         dialog.showOpenDialog({
-
-        }).then(result=>{
-            console.log(result);        //输出结果
-            result.filePaths.length>0 && ipcRenderer.send(result.filePaths);
+            defaultPath: value,
+            buttonLabel: '确定',
+            properties: ['openDirectory','createDirectory'],
+        }).then(result => {
+            console.log(result);
+            mainWindow.webContents.send('openDialog', result)
+            //result.filePaths.length>0 && ipcRenderer.send(result.filePaths);
         })
     })
     ipcMain.on('reset', () => {
