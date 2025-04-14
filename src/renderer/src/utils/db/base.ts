@@ -80,25 +80,84 @@ class Database {
         });
     }
 
-    private initializeSchema(): Promise<void> {
-        let sql = `CREATE TABLE IF NOT EXISTS file (
-            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-           
-            name varchar(255) NOT NULL DEFAULT '',
-            author varchar(64) NOT NULL DEFAULT '',
-            type varchar(64) NOT NULL DEFAULT '',
-            path varchar(255) NOT NULL DEFAULT '',
-            size int(20) NOT NULL DEFAULT 0,
-            total varchar(64) NOT NULL DEFAULT 0,
-            status varchar(20)  NOT NULL DEFAULT 'normal'
-        )`
-        return this.query({sql: sql}).then(() => {
-            //console.log("Database schema initialized.");
-        }).catch((err) => {
-            //console.error("Error initializing database schema:", err);
-        });
+    private async initializeSchema(index:number=0): Promise<boolean> {
+        const options = {
+            'file': `CREATE TABLE IF NOT EXISTS file (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+                modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+
+                name varchar(255) NOT NULL DEFAULT '',
+                author varchar(64) NOT NULL DEFAULT '',
+                type varchar(64) NOT NULL DEFAULT '',
+                path varchar(255) NOT NULL DEFAULT '',
+                size int(20) NOT NULL DEFAULT 0,
+                total varchar(64) NOT NULL DEFAULT 0,
+                status varchar(20) NOT NULL DEFAULT 'normal'
+            )`,
+            'file_name': `CREATE INDEX IF NOT EXISTS name on file (name)`,
+            'filemeta': `CREATE TABLE IF NOT EXISTS filemeta (
+                meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                file_id int(20) NOT NULL DEFAULT 0,
+                meta_key varchar(64) NOT NULL DEFAULT '',
+                meta_value text NOT NULL DEFAULT ''
+            );`,
+            'filemeta_meta_key': `CREATE INDEX IF NOT EXISTS meta_key on filemeta (meta_key)`,
+            'filemeta_meta_value': `CREATE INDEX IF NOT EXISTS meta_value on filemeta (meta_value)`
+        }
+
+        const keys = Object.keys(options)
+        const key= keys[index];
+        const sql = options[key];
+
+        if(index == keys.length - 1) {
+            return false;
+        }
+
+        try {
+            const res = await this.query({sql: sql});
+            if(res.code == 200) {
+                //console.log(`Sql ${key} run success`);
+            }
+        } catch (err) {
+            console.error("Error initializing database schema:", err);
+        } finally {
+            await Database.instance.initializeSchema(index+1);
+        }
+
+        //
+        // for(let i in options) {
+        //     this.query({sql: options[i]})
+        // }
+
+        // let sql = `CREATE TABLE IF NOT EXISTS file (
+        //     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        //     date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+        //     modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+        //
+        //     name varchar(255) NOT NULL DEFAULT '',
+        //     author varchar(64) NOT NULL DEFAULT '',
+        //     type varchar(64) NOT NULL DEFAULT '',
+        //     path varchar(255) NOT NULL DEFAULT '',
+        //     size int(20) NOT NULL DEFAULT 0,
+        //     total varchar(64) NOT NULL DEFAULT 0,
+        //     status varchar(20)  NOT NULL DEFAULT 'normal'
+        // ); CREATE TABLE IF NOT EXISTS filemeta (
+        //     meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        //     file_id int(20) NOT NULL DEFAULT 0,
+        //     meta_key varchar(64) NOT NULL DEFAULT '',
+        //     meta_value text NOT NULL DEFAULT ''
+        // );`;
+
+        // CREATE INDEX name on file (name);
+        // CREATE INDEX meta_key on filemeta (meta_key);
+        // CREATE INDEX meta_value on filemeta (meta_value);
+
+        // return this.query({sql: sql}).then(() => {
+        //     console.log("Database schema initialized.");
+        // }).catch((err) => {
+        //     console.error("Error initializing database schema:", err);
+        // });
     }
 
     close(): Promise<void> {
