@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "604650",
+      "name": "Quit",
+      "font_class": "quit",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    },
+    {
+      "icon_id": "1440886",
+      "name": "Return Top",
+      "font_class": "return-top",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
+      "icon_id": "10014574",
+      "name": "Light Off",
+      "font_class": "light-off",
+      "unicode": "e6cc",
+      "unicode_decimal": 59084
+    },
+    {
+      "icon_id": "10014579",
+      "name": "Light On",
+      "font_class": "light-on",
+      "unicode": "e6ce",
+      "unicode_decimal": 59086
+    },
+    {
       "icon_id": "1280654",
       "name": "Arrow",
       "font_class": "arrow",
@@ -242,6 +270,13 @@
       "font_class": "setting",
       "unicode": "e653",
       "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "1299588",
+      "name": "Setting Fill",
+      "font_class": "setting-fill",
+      "unicode": "e654",
+      "unicode_decimal": 58964
     },
     {
       "icon_id": "1299762",

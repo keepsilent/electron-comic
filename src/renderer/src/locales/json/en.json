@@ -25,7 +25,8 @@
 		"minimize": "Minimize",
 		"restore": "Restore",
 		"on": "ON",
-		"off": "OFF"
+		"off": "OFF",
+		"reset": "Reset"
 	},
 	"details": {
 		"author": "Author",
@@ -35,7 +36,11 @@
 		},
 		"size": "Size",
 		"date": "Create Time",
-		"unknown": "Unknown"
+		"unknown": "Unknown",
+		"settings": "Settings",
+		"zoom": "Zoom",
+		"space": "Space",
+		"reset": "Reset Configuration"
 	},
 	"alert": {
 		"default": "Friendly Reminder",

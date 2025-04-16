@@ -107,6 +107,12 @@ img { -webkit-user-drag: none; }
     &-xl {margin-right: var(--spacing-xl);}
 }
 
+.none-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 
 .btn {
     box-sizing: border-box;
@@ -182,6 +188,44 @@ img { -webkit-user-drag: none; }
     }
 }
 
+/** 滑块 **/
+[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    outline: 0;
+    background-color: transparent;
+    width: 100%;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+        height: 3px;
+        background: var(--background-color-tertiary);
+        border-radius: var(--border-color-default);
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        margin-top: -8px;
+
+        border-radius: 50%;
+        background-color: var(--base-color-brand);
+        border: 3px solid #FFF;
+
+        cursor: pointer;
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+}
+
+[type="range" i]::-webkit-slider-container {
+    height: 20px;
+    overflow: hidden;
+}
 
 /** 快捷菜单 **/
 .quick-menu { display: none; position: fixed; top: 50%; left: 50%;  background: #FFF; z-index: 1; border-radius: 2px;  box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);}

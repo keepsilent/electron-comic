@@ -10,8 +10,6 @@ import {Base, DB, Time} from "@renderer/utils";
 
 export const isFileMetaExist = async function ({id, key}):Promise<Result> {
     const sql = `SELECT * FROM filemeta WHERE file_id = $id AND meta_key = $key LIMIT 1`;
-
-    console.log('id',id,key);
     const data:queryParam = {
         sql: sql,
         params: {$id: id, $key:key}
@@ -20,7 +18,7 @@ export const isFileMetaExist = async function ({id, key}):Promise<Result> {
 }
 
 export const getFileMetaValue = async function ({id, key}):Promise<Result> {
-    const sql = `SELECT * FROM file WHERE file_id = $id AND meta_key = $key LIMIT 1`;
+    const sql = `SELECT * FROM filemeta WHERE file_id = $id AND meta_key = $key LIMIT 1`;
     const data:queryParam = {
         sql: sql,
         params: {$id: id, $key:key}

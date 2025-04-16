@@ -35,14 +35,14 @@
                 </div>
             </div>
             <Empty :empty="empty"></Empty>
-            <div class="detail-main" >
 
-                <div v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px'}">
+            <div class="detail-main" >
+                <div v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
                     <template v-if="item.status == 'loading'">
                         <div class="loading">
                             <img src="@renderer/assets/images/common/loading.gif" width="200" height="200">
                         </div>
-                        <div class="title">Comic++{{item.status}}</div>
+                        <div class="title">Comic++</div>
                     </template>
 
                     <template v-if="item.status == 'finish'">
@@ -51,20 +51,16 @@
                         </div>
                     </template>
                 </div>
-
-<!--                <div class="cc-reader-image-box" id="cc-reader-item-{{index}}" data-url="{{item.url}}" data-type="{{item.type}}" data-status="{{item.status}}" data-mode="{{item.mode}}" style="{{space}}">-->
-<!--                    <div class="ddl-loading-spinner">-->
-<!--                        <img src="./dist/images/loading.gif" width="200" height="200">-->
-<!--                    </div>-->
-<!--                    <div class="ddl-logo">Comic++</div>-->
-<!--                </div>-->
             </div>
-            <div class="detail-page">
+
+            <!-- 分页数 -->
+            <div v-if="settings.page.show" class="detail-page none-select">
                 <span class="current">{{settings.page.num}}</span>
                 <em>/</em>
                 <span class="total">{{settings.page.total}}</span>
             </div>
 
+            <Menubar ref="menubar" :settings="settings" @update="onUpdateSettings"></Menubar>
         </div>
     </div>
 
@@ -75,7 +71,7 @@
 <script lang="ts" setup>
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
-import {ref, reactive, watch, onMounted, onUnmounted} from 'vue'
+import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
 import {Base,Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
@@ -84,11 +80,11 @@ import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "
 import {Archive} from 'libarchive.js/main.js';
 
 import Toolbar from "./components/toolbar.vue";
+import Menubar from "./components/menubar.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 import Loading from "@renderer/components/Loading.vue";
 import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
-
 
 const { t } = useI18n();
 const route = useRoute();
@@ -98,6 +94,7 @@ const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
 
 const scrollbar = ref(null);
+const menubar = ref(null);
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
 const confirm:ConfirmInter = reactive({});
 const file:FileInter = reactive({});
@@ -105,21 +102,21 @@ const interim:InterimInter = reactive({});
 const empty:EmptyInter = reactive({});
 const thumbnail = reactive([])
 const settings = reactive({
-    page: {num: 1, total: 1},
-    scrollTop: 0
+    page: {show: false, num: 1, total: 1},
+    scrollTop: 0,
+    zoom: import.meta.env.VITE_APP_COMIC_ZOOM,
+    space: import.meta.env.VITE_APP_COMIC_SPACE,
+    thumbnail:[]
 });
 
 onMounted(() => {
     init();
-
-
 })
 
-
-
-onUnmounted(() => {
-    updateSettings();
+onBeforeUnmount(() => {
+    updateFileSettings();
     scrollbar.value.removeEventListener("scroll", onScroll);
+    scrollbar.value.removeEventListener("click", onContent);
 });
 
 watch(() => page.init,(value) => {
@@ -127,17 +124,19 @@ watch(() => page.init,(value) => {
         return false;
     }
 
-    setTimeout(()=> {
+    setTimeout(  () => {
         prerenderThumbnail();
         scrollbar.value.addEventListener("scroll", onScroll);
-    },0)
+        scrollbar.value.addEventListener("click", onContent);
+    },4)
 })
+
+
 
 page.actions.onGoBack = function ():void {
     Common.cancelConfirm(confirm);
     router.back()
 }
-
 
 const init = function () {
     setArchive();
@@ -150,8 +149,7 @@ const setArchive = function () {
 
 const loadDetail = async function () {
     try {
-        //const {id} = route.query;
-        const  id = 1;
+        const {id} = route.query;
         const params = {id: id, status:'normal'}
         const res = await getFileInfo(params);
         if(res.code != 200 ) {
@@ -164,14 +162,13 @@ const loadDetail = async function () {
             return false;
         }
 
+
         resetFileData(res.data);
+        await getFileSettings();
         renderCover(file);
         renderContent(file)
         renderStatus(file);
         Common.lazyRenderPage(page);
-
-        updateSettings()
-
     } catch (err) {
         Base.printErrorLog('getFileInfo',err)
     }
@@ -188,6 +185,7 @@ const renderContent = function (file) {
     const subtitle = t('empty.inexistence.subtitle');
     Common.showEmpty(empty,title, subtitle)
 }
+
 const resetFileData = function (data):boolean {
     if(Base.isEmpty(data)) {
         return false
@@ -226,21 +224,34 @@ const readImageFile = async function (data):boolean {
     for(let i in data) {
         data[i].cover = (i == 0) ? await File.getBase64Image(data[i]) : '';
         data[i].alias = File.getFileAlias(data[i].name);
-        data[i].origin = { width: 700, height: 933}
-        data[i].width = 700;
-        data[i].height = 933;
+        data[i].origin = getThumbnailOrigin(i);
+        data[i].width = getThumbnailPreviewSizeEquation(data[i].origin.width);
+        data[i].height = getThumbnailPreviewSizeEquation(data[i].origin.height);
         data[i].status = 'loading';
     }
 
     Object.assign(thumbnail, data)
-    console.log('thumbnail',thumbnail);
-    setThumbnailPage(1, thumbnail.length)
+    setThumbnailPage()
     autoCreateCover();
 }
 
-const setThumbnailPage = function (num, total) {
-    settings.page.num = num;
-    settings.page.total = total;
+const getThumbnailOrigin = function (index) {
+    const {thumbnail} = settings;
+    const width = import.meta.env.VITE_APP_COMIC_WIDTH;
+    const height = import.meta.env.VITE_APP_COMIC_HEIGHT;
+
+    for(let i in thumbnail) {
+        if(index == thumbnail[i].index) {
+            return { type: 'real', width: thumbnail[i].width, height: thumbnail[i].height}
+        }
+    }
+
+    return { type: 'placeholder', width: width, height: height}
+}
+
+const setThumbnailPage = function () {
+    settings.page.show = true;
+    settings.page.total = Base.getDataLength(thumbnail);
 }
 
 const autoCreateCover = function () {
@@ -292,6 +303,7 @@ const onScroll = function (event) {
     const scrollTop = event.target.scrollTop;
     settings.scrollTop = scrollTop;
 
+    //onContent()
     renderThumbnail(scrollTop);
     renderThumbnailPage(scrollTop);
 }
@@ -303,8 +315,15 @@ const getThumbnailTotal = function () {
 const renderThumbnailPage = function (scrollTop) {
     const total = getThumbnailTotal();
     const offset = parseInt( window.screen.height / 2);
+
+    if (isScrollbarTouchBottom()) {
+        settings.page = { ...settings.page, num:　parseInt(total)+1}
+        return false;
+    }
+
     for(let i in thumbnail) {
         const position = getImageScrollPosition(i,total);
+
         if(scrollTop >= position.top - offset && scrollTop < position.bottom - offset && i != total ){
             settings.page = { ...settings.page, num:　parseInt(i)+1}
             break;
@@ -317,12 +336,57 @@ const renderThumbnailPage = function (scrollTop) {
     }
 }
 
+const isScrollbarTouchBottom = function () {
+    const scrollableElement = document.getElementById("scrollbar");
+    const elementHeight = scrollableElement.scrollHeight;
+    const visibleHeight = scrollableElement.clientHeight;
+    const scrollTop = scrollableElement.scrollTop;
+
+    if (scrollTop != 0 && scrollTop + visibleHeight >= elementHeight) { //元素触底了
+        return true;
+    }
+
+    return false;
+}
 
 const prerenderThumbnail = function () {
-    const index = 0
+    const {page, scrollTop} = settings
+    const index = parseInt(page.num) - 1;
+    const total = parseInt(page.total) - 1;
+
+    settings.page.num = page.num;
+
+    runPrerenderThumbnailScheme(index,total,scrollTop);
+    document.getElementById('scrollbar').scrollTop = scrollTop;
+}
+
+const runPrerenderThumbnailScheme = function (index, total, scrollTop) {
+    if(scrollTop == 0 && index == 0) {
+        showThumbnail(index);
+        return false;
+    }
+
+    if(index == 0 && index + 1 <= total) {
+        showThumbnail(index);
+        showThumbnail(index + 1);
+        return false;
+    }
+
+    if(index == total && index - 1 >= 0) {
+        showThumbnail(index);
+        showThumbnail(index - 1);
+        return false;
+    }
+
+    if(index - 1 >= 0) {
+        showThumbnail(index - 1);
+    }
+
+    if(index + 1 <= total) {
+        showThumbnail(index + 1);
+    }
+
     showThumbnail(index);
-    //{page: '', zoom: 100, position: ''}
-    //document.getElementById('scrollbar').scrollTop = 2000;
 }
 
 const renderThumbnail = function (scrollTop) {
@@ -336,7 +400,7 @@ const renderThumbnail = function (scrollTop) {
                 break;
             }
 
-            if(position.top == position.bottom && i == total && scrollTop >= position.bottom - window.screen.height / 2){
+            if(position.top == position.bottom && i == total){
                 showThumbnail(i);
                 break;
             }
@@ -356,17 +420,27 @@ const showThumbnail = async function (index) {
         status: 'finish'
     }
 
+    //已获取过图片真实大小
+    if(thumbnail[index].origin.type == 'real') {
+        return false;
+    }
+
+    setThumbnailPreviewSize(index)
+}
+
+const setThumbnailPreviewSize = function (index) {
     const img = new Image();
     img.src = thumbnail[index].cover;
     img.onload = function() {
         thumbnail[index] = {
             ...thumbnail[index],
             origin: {
+                type: 'real',
                 width: img.width,
                 height: img.height
             },
-            width: img.width * 100 / 100,
-            height: img.height * 100 / 100,
+            width: getThumbnailPreviewSizeEquation(img.width),
+            height: getThumbnailPreviewSizeEquation(img.height)
         }
     }
 
@@ -375,6 +449,10 @@ const showThumbnail = async function (index) {
     }
 }
 
+const getThumbnailPreviewSizeEquation = function (value):number {
+    const {zoom} = settings;
+    return value * zoom / 100
+}
 
 const getImageScrollPosition = function (i,total) {
     const next = (parseInt(i)+1) > total ? total : (parseInt(i)+1);
@@ -403,7 +481,63 @@ const getElementPagePosition = function(element) {
     return {x: left, y: top};
 }
 
-const updateSettings = async function ():boolean {
+const isExistFileSetttings = async function () {
+    if(Base.isEmpty(file)) {
+        return false;
+    }
+
+    try {
+        const {id} = file;
+        const params = {id: id, key: 'settings'}
+        const res = await isFileMetaExist(params);
+        if (res.code !== 200) {
+            return false;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            return false
+        }
+
+        return true;
+    } catch (err) {
+        Base.printErrorLog('isFileMetaExist',err);
+        return false;
+    }
+}
+
+const getFileSettings = async function() {
+    if(Base.isEmpty(file)) {
+        return false;
+    }
+
+    if(isExistFileSetttings() == false) {
+        return false;
+    }
+
+    try {
+        const {id} = file;
+        const params = {id: id, key: 'settings'}
+        const res = await getFileMetaValue(params);
+        if(res.code !== 200) {
+            return false;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            return false;
+        }
+
+        const {current, scrollTop, zoom, space, thumbnail} = JSON.parse(res.data[0].meta_value);
+        settings.page.num = current;
+        settings.scrollTop = scrollTop;
+        settings.zoom = zoom;
+        settings.space = space;
+        settings.thumbnail = JSON.parse(thumbnail);
+    } catch (err) {
+        Base.printErrorLog('getFileMetaValue',err);
+    }
+}
+
+const updateFileSettings = async function () {
     if(Base.isEmpty(file)) {
         return false;
     }
@@ -412,9 +546,10 @@ const updateSettings = async function ():boolean {
     const key = 'settings'
     const value = {
         current: settings.page.num,
-        position: settings.scrollTop,
-        zoom: 100,
-        space: 20
+        scrollTop: parseInt(settings.scrollTop),
+        zoom: settings.zoom,
+        space: settings.space,
+        thumbnail: JSON.stringify(getThumbnailCacheData())
     }
 
     try {
@@ -430,8 +565,43 @@ const updateSettings = async function ():boolean {
 
         await updateFileMetaValue({id: id, key: key, value: JSON.stringify(value)});
     } catch (err) {
-        Base.printErrorLog('updateSettings',err)
+        Base.printErrorLog('updateFileSettings',err)
     }
+}
+
+const getThumbnailCacheData = function ():object {
+    const data = [];
+    for(let i in thumbnail) {
+        if(thumbnail[i].origin.type == 'real') {
+            data.push({
+                index: i,
+                width:thumbnail[i].origin.width,
+                height: thumbnail[i].origin.height
+            })
+        }
+    }
+
+    return data;
+}
+
+const onUpdateSettings = function ({key,value}) {
+    console.log('onUpdateSettings',key,value);
+    switch (key) {
+        case 'space':
+            settings.space = value;
+            break
+        case 'zoom':
+            settings.zoom = value;
+            for(let i in thumbnail) {
+                thumbnail[i].width = getThumbnailPreviewSizeEquation(thumbnail[i].origin.width)
+                thumbnail[i].height = getThumbnailPreviewSizeEquation(thumbnail[i].origin.height)
+            }
+            break;
+    }
+}
+
+const onContent = function () {
+    menubar.value.onHideSetting();
 }
 </script>
 

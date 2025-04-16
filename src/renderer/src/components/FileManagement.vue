@@ -207,8 +207,8 @@ const onCancelConfirm = function () {
 
 const onRedirect = function ({currentTarget: {dataset: {id}}}) {
     const object = {
-        path: `/details`,
-        // path: `/reader`,
+        //path: `/details`,
+        path: `/reader`,
         query: {
             id: id
         }

@@ -24,11 +24,10 @@
 
     .file-path {
         display: flex;
-        align-items: center;
+        align-items: baseline;
 
         .item {
             cursor: pointer;
-
             &:hover {
                 color: var(--content-color-tertiary);
             }
@@ -38,10 +37,11 @@
             display: block;
             padding: 0 3px;
 
-
             color: #AAA;
-            font-size: 12px;
+            font-size: 10px;
+
             transform: rotate(180deg);
+            line-height: 1;
         }
     }
 

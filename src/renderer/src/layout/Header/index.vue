@@ -3,7 +3,7 @@
         <div class="header-inner">
             <div class="nav">
                 <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
-                <div class="search ml-10">
+                <div class="search ml-m">
                     <i class="iconfont icon-search"></i>
                     <input type="text" v-model="keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
                     <i v-if="keyword" class="iconfont icon-close ml-10" @click="onClear"></i>

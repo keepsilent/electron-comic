@@ -122,6 +122,9 @@ const capitalizeFirstLetter = function (str):string {
     return str[0].toUpperCase() + str.slice(1);
 }
 
+
+
+
 export default {
     isEmpty: isEmpty,
     isObject: isObject,
@@ -133,5 +136,5 @@ export default {
     redirect:　redirect,
     redirectByEvent: redirectByEvent,
 
-    capitalizeFirstLetter: capitalizeFirstLetter,
+    capitalizeFirstLetter: capitalizeFirstLetter
 }

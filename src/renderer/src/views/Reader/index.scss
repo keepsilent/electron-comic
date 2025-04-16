@@ -107,12 +107,11 @@
 
     &-main {
 
+        padding-bottom: var(--spacing-xl);
+
         .file-item {
             position: relative;
-            width: 700px;
-            height: 933px;
             margin: 0 auto;
-            margin-bottom: var(--spacing-s);
             background: var(--background-color-secondary);
             border-radius: var(--border-radius-default);
             box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);
@@ -166,26 +165,31 @@
                     object-fit: contain;
                 }
             }
-
-            //.title {
-            //    text-align: center;
-            //}
         }
-
     }
 
     &-page {
+        display: flex;
+        align-items: flex-end;
+
+
+
         position: fixed;
         left: 233px;
-        bottom: 40px;
+        bottom: var(--spacing-xxxl);
+
         color: var(--grey-30);
-        font-size: 30px;
+        font-size: 32px;
+        line-height: 1;
+
         .current {
             color: var(--grey-40);
             font-size: 36px;
+            opacity: 0.65;
         }
+
         em {
-            margin:  0 2px;
+            margin: 0 2px;
             font-style: normal;
         }
     }

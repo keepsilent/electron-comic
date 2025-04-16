@@ -1,0 +1,263 @@
+<template>
+    <div class="menu-wrap" @click.stop>
+        <div class="menu-inner">
+            <div class="menu-item">
+                <span class="iconfont icon-quit" @click="onGoBack"></span>
+            </div>
+<!--            <div class="menu-item">-->
+<!--                <span class="iconfont icon-light-on"></span>-->
+<!--            </div>-->
+            <div :class="settings.show ? 'menu-item active' : 'menu-item'">
+                <span class="iconfont icon-setting-fill" @click="onShowSetting"></span>
+                <template v-if="settings.show">
+                    <i class="arrow"></i>
+                    <div class="setting-wrap">
+                        <div class="setting-header">{{t('details.settings')}}</div>
+                        <div class="setting-main">
+                            <div class="file-setting">
+                                <div>
+                                    <label>{{t('details.zoom')}}</label>
+                                    <input v-model="settings.zoom" type="range" min="25" max="200"  step="1" data-key="zoom" @change="onChangeRange"/>
+                                    <span>{{settings.zoom}}%</span>
+                                </div>
+                                <div>
+                                    <label>{{t('details.space')}}</label>
+                                    <input v-model="settings.space" type="range" min="0" max="50"  step="1" data-key="space" @change="onChangeRange"/>
+                                    <span>{{settings.space}}px</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setting-footer">
+                            <span class="restore-btn" @click="onResetSetting">{{t('details.reset')}}</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="menu-item">
+                <span class="iconfont icon-return-top" @click="onReturnTop"></span>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import {useI18n} from 'vue-i18n';
+import {reactive, onMounted, watch} from "vue";
+import {useRouter,useRoute} from 'vue-router'
+import {Base, Common, File} from "@renderer/utils";
+import {debounce, throttle} from "@renderer/utils/throttle";
+import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+import {updateFileStatus} from "@renderer/api/file";
+import Confirm from "@renderer/components/Confirm.vue";
+
+interface Props {
+    settings: {
+        zoom:number|string,
+        space:number|string,
+        scrollTop: number|string,
+    }
+}
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+
+const emit = defineEmits(['update'])
+const props = defineProps<Props>()
+const page:PageInter = reactive({show: false, actions:{}})
+const confirm:ConfirmInter = reactive({show: false});
+const settings = reactive({show: false, zoom: 0, space: 0, scrollTop: 0});
+
+onMounted(() => {
+    settings.zoom = props.settings.zoom;
+    settings.space = props.settings.space;
+    settings.scrollTop = props.settings.scrollTop;
+})
+
+const onHideSetting = function () {
+    settings.show = false
+}
+
+const onShowSetting = function () {
+    settings.show = settings.show ?　false: true;
+}
+
+const onGoBack = async function () {
+    router.back();
+}
+
+const onChangeRange = debounce((event) => {
+    asyncUpdate(event.target.dataset.key);
+});
+
+
+const onResetSetting = throttle(() => {
+    const zoom = import.meta.env.VITE_APP_COMIC_ZOOM;
+    const space = import.meta.env.VITE_APP_COMIC_SPACE;
+    if(settings.zoom != zoom) {
+        settings.zoom = zoom;
+        asyncUpdate('zoom');
+    }
+
+    if(settings.space != space) {
+        settings.space = space;
+        asyncUpdate('space');
+    }
+})
+
+const asyncUpdate = function (key) {
+    if(Base.isEmpty(key)) {
+        return false;
+    }
+    const args = {key:key,value: settings[key]};
+    emit('update',args)
+}
+
+const onReturnTop = function () {
+    document.getElementById('scrollbar').scrollTop = 0;
+}
+
+watch(() => props.settings.zoom,(value)=>{
+    settings.zoom = value;
+})
+
+watch(() => props.settings.space,(value)=>{
+    settings.space = value;
+})
+
+defineExpose({ onHideSetting })
+</script>
+
+<style scoped lang="scss">
+.menu {
+
+    &-wrap {
+        position: fixed;
+        bottom: 5%;
+        right: 2.5%;
+        z-index: 1;
+    }
+
+    &-item {
+        position: relative;
+        margin-bottom: 10px;
+        padding: 4px;
+
+        border: solid 1px rgba(255,255,255,0.45);
+        border-radius: 100%;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+
+        .iconfont {
+            display: block;
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
+            color: rgba(0,0,0,0.35);
+            font-size: 24px;
+            text-align: center;
+            background: rgba(255,255,255,0.75);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.01);
+            border-radius: 100%;
+            cursor: pointer;
+        }
+
+        .arrow {
+            position: absolute;
+            right: 68px;
+            bottom: 18px;
+            border: solid 10px transparent;
+            border-left-color: rgba(255,255,255,0.9);
+            z-index: 2;
+        }
+
+        &.active,
+        &:hover {
+            border-color: rgba(255,165,0,0.15);
+
+            .iconfont {
+                color: #FFF;
+                background: var(--base-color-brand);
+                transition: background 100ms ease-in-out;
+            }
+        }
+        &:hover {
+            .iconfont {
+                opacity: 0.9;
+            }
+        }
+    }
+}
+
+.setting {
+    &-wrap {
+        position: absolute;
+        right: 88px;
+        bottom: -70px;
+        width: 320px;
+
+        background: rgba(255,255,255,0.9);
+        box-shadow: 1px 2px 10px rgba(0, 0, 0, .25);
+        border-radius: var(--border-radius-l);
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    &-header {
+        font-size: var(--text-size-l);
+        padding: var(--spacing-m) ;
+        color: var(--content-color-secondary);
+        background: var(--background-color-secondary);
+    }
+
+    &-main {
+        padding: 0 var(--spacing-m);
+
+        .file-setting {
+            div {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                padding: var(--spacing-m) var(--spacing-s);
+                border-bottom: solid 1px var(--border-color-default);
+                label {
+                    min-width: 30px;
+                    padding-right: var(--spacing-l);
+                }
+
+                span {
+                    display: block;
+                    min-width: 30px;
+                    padding-left: var(--spacing-l);
+                }
+
+                &:last-child {
+                    border-width: 0;
+                }
+            }
+        }
+    }
+
+    &-footer {
+        padding: 0 var(--spacing-m) var(--spacing-m);
+        .restore-btn {
+            display: block;
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            margin-top: 10px;
+            color:#FFF;
+            text-align: center;
+            background: var(--base-color-brand);
+            border-radius: var(--border-radius-default);
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.9;
+            }
+        }
+    }
+}
+
+
+</style>
