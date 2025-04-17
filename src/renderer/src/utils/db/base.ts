@@ -82,35 +82,55 @@ class Database {
 
     private async initializeSchema(index:number=0): Promise<boolean> {
         const options = {
-            'file': `CREATE TABLE IF NOT EXISTS file (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-                modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-
-                name varchar(255) NOT NULL DEFAULT '',
-                author varchar(64) NOT NULL DEFAULT '',
-                type varchar(64) NOT NULL DEFAULT '',
-                path varchar(255) NOT NULL DEFAULT '',
-                size int(20) NOT NULL DEFAULT 0,
-                total varchar(64) NOT NULL DEFAULT 0,
-                status varchar(20) NOT NULL DEFAULT 'normal'
-            )`,
-            'file_name': `CREATE INDEX IF NOT EXISTS name on file (name)`,
-            'filemeta': `CREATE TABLE IF NOT EXISTS filemeta (
-                meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                file_id int(20) NOT NULL DEFAULT 0,
-                meta_key varchar(64) NOT NULL DEFAULT '',
-                meta_value text NOT NULL DEFAULT ''
+            'cm_file': `CREATE TABLE IF NOT EXISTS cm_file (
+                file_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                file_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+                file_name TEXT NOT NULL DEFAULT '' ,
+                file_author VARCHAR(64) NOT NULL DEFAULT '',
+                file_intro TEXT NOT NULL DEFAULT '' ,
+                file_path TEXT NOT NULL DEFAULT '' ,
+                file_size VARCHAR(64) NOT NULL DEFAULT 0,
+                file_total VARCHAR(10) NOT NULL DEFAULT 0,
+                file_status VARCHAR(32) NOT NULL DEFAULT 'normal',
+                file_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+                file_mine_type VARCHAR(64) NOT NULL DEFAULT ''
             );`,
-            'filemeta_meta_key': `CREATE INDEX IF NOT EXISTS meta_key on filemeta (meta_key)`,
-            'filemeta_meta_value': `CREATE INDEX IF NOT EXISTS meta_value on filemeta (meta_value)`
+            'file_name': `CREATE INDEX IF NOT EXISTS file_name on cm_file (file_name)`,
+            'cm_filemeta': `CREATE TABLE IF NOT EXISTS cm_filemeta (
+                meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                file_id BIGINT(20) NOT NULL DEFAULT 0,
+                meta_key VARCHAR(255) NOT NULL DEFAULT '',
+                meta_value TEXT NOT NULL DEFAULT ''
+            );`,
+            'filemeta_meta_key': `CREATE INDEX IF NOT EXISTS meta_key on cm_filemeta (meta_key);`,
+            'filemeta_meta_value': `CREATE INDEX IF NOT EXISTS meta_value on cm_filemeta (meta_value);`,
+            'cm_terms': `CREATE TABLE IF NOT EXISTS cm_terms (
+                term_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                name VARCHAR(200) NOT NULL DEFAULT '',
+                slug VARCHAR(200) NOT NULL DEFAULT '',
+                term_group BIGINT(10) NOT NULL DEFAULT '0'
+            );`,
+            'cm_term_taxonomy': `CREATE TABLE IF NOT EXISTS cm_term_taxonomy (
+                term_taxonomy_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                term_id BIGINT(20) NOT NULL DEFAULT '0',
+                taxonomy VARCHAR(32) NOT NULL DEFAULT '',
+                description TEXT NOT NULL,
+                parent BIGINT(20) NOT NULL DEFAULT '0',
+                count BIGINT(20) NOT NULL DEFAULT '0'
+            );`,
+            'cm_term_relationships': `CREATE TABLE IF NOT EXISTS cm_term_relationships (
+                object_id BIGINT(20) NOT NULL, 
+                term_taxonomy_id BIGINT(20) NOT NULL DEFAULT '0',
+                term_order INT(11) NOT NULL DEFAULT '0',
+                PRIMARY KEY (object_id,term_taxonomy_id)
+            );`,
         }
 
         const keys = Object.keys(options)
         const key= keys[index];
         const sql = options[key];
 
-        if(index == keys.length - 1) {
+        if(index > keys.length - 1) {
             return false;
         }
 

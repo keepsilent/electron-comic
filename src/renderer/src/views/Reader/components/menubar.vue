@@ -47,8 +47,7 @@ import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
 import {debounce, throttle} from "@renderer/utils/throttle";
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
-import {updateFileStatus} from "@renderer/api/file";
-import Confirm from "@renderer/components/Confirm.vue";
+
 
 interface Props {
     settings: {
@@ -130,7 +129,6 @@ defineExpose({ onHideSetting })
 
 <style scoped lang="scss">
 .menu {
-
     &-wrap {
         position: fixed;
         bottom: 5%;
@@ -258,6 +256,4 @@ defineExpose({ onHideSetting })
         }
     }
 }
-
-
 </style>

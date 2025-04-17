@@ -3,15 +3,15 @@
         <div class="file-inner">
 
 
-            <div v-for="(item,index) in files" :key="index" class="file-item" :data-id="item.id" @click="onRedirect">
+            <div v-for="(item,index) in files" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
                 <div class="cover">
-                    <img :src="item.cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
+                    <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
 <!--                    <span class="type">ZIP</span>-->
 <!--                    <div class="mask">-->
 <!--                        <span class="num">{{item.total}}页</span>-->
 <!--                    </div>-->
                 </div>
-                <p class="title">{{item.name}}</p>
+                <p class="title">{{item.file_name}}</p>
 <!--                <p class="subtitle">-->
 <!--                    <span>{{item.date}}</span>-->
 <!--                    <span>{{item.total}}页</span>-->
@@ -97,10 +97,10 @@ const loadFileList = async function () {
         }
 
         for(let i in res.data) {
-            res.data[i].name = File.getFileAlias(res.data[i].name);
-            res.data[i].cover = await getCover(res.data[i]);
-            res.data[i].size = File.formatFileSize(res.data[i].size);
-            res.data[i].date = Time.formatDate(res.data[i].date,'YYYY/MM/DD');
+            res.data[i].file_name = File.getFileAlias(res.data[i].file_name);
+            res.data[i].file_cover = await getCover(res.data[i]);
+            res.data[i].file_size = File.formatFileSize(res.data[i].file_size);
+            res.data[i].file_date = Time.formatDate(res.data[i].file_date,'YYYY/MM/DD');
         }
 
         Object.assign(files,res.data);
@@ -110,9 +110,9 @@ const loadFileList = async function () {
 }
 
 
-const getCover = async function ({id}):void {
+const getCover = async function ({file_id}):void {
     try {
-        const path = File.getFileCoverById(id);
+        const path = File.getFileCoverById(file_id);
 
         if (File.isExists(path) == false) {
             return Common.getDefaultImage();
@@ -172,15 +172,15 @@ const onUpload = async function (event) {
     }
 }
 
-const uploadFile = async function ( file,extract) {
+const uploadFile = async function (file, extract) {
     try {
         const data= {
-            name: file.name,
-            author: '',
-            type: file.type,
-            size: file.size,
-            path: file.path,
-            total: File.getExtractFileTotal(extract),
+            'file_name': file.name,
+            'file_author': '',
+            'file_mine_type': file.type,
+            'file_size': file.size,
+            'file_path': file.path,
+            'file_total': File.getExtractFileTotal(extract),
         }
 
         const cover = await File.getExtractFileCover(extract);

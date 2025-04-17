@@ -13,6 +13,8 @@
 		"delete": "Delete",
 		"upload": "Upload",
 		"ok": "OK",
+		
+		"add": "Add",
 		"more": "More",
 		"rename": "Rename",
 		"increase": "Increase",
@@ -26,7 +28,8 @@
 		"restore": "Restore",
 		"on": "ON",
 		"off": "OFF",
-		"reset": "Reset"
+		"reset": "Reset",
+		"save": "Save"
 	},
 	"details": {
 		"author": "Author",
@@ -61,6 +64,42 @@
 		"inexistence": {
 			"title": "File could not be found",
 			"subtitle": "Is the project moved, renamed, or deleted, lf this problem persists, Please contact us."
+		}
+	},
+	"edit": {
+		"title": "Edit File Info",
+		"name": {
+			"title": "Name",
+			"placeholder": "Rename of the file to you remember it.",
+			"empty": "Please input the file name"
+		},
+		"author": {
+			"title": "Author",
+			"placeholder": "The file author is who?",
+			"empty": "Please input the file author"
+		},
+		"tags": {
+			"title": "Tags",
+			"placeholder": "Increase tags for the file",
+			"empty": "Please input the file tags",
+			"tips": "Tags are delimited by \", \" Be like: adventure, magic"
+		},
+		"languages": {
+			"title": "Languages",
+			"placeholder": "Increase languages for the file",
+			"empty": "Please input the file tags",
+			"tips": "Languages are delimited by \", \" Be like: adventure, magic"
+		},
+		"categories": {
+			"title": "Categories",
+			"placeholder": "Increase categories for the file",
+			"empty": "Please input the file tags",
+			"tips": "Categories are delimited by \", \" Be like: adventure, magic"
+		},
+		"intro": {
+			"title": "Intro",
+			"placeholder": "Can you intro for the file?",
+			"empty": "Please input the file intro"
 		}
 	},
 	"tool": {

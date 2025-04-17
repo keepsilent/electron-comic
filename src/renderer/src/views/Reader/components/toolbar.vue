@@ -5,7 +5,7 @@
             <div class="operate">
                 <span class="operate-btn forbiden" :title="$t('tool.increase')"><i class="iconfont icon-increase"></i><em>{{$t('button.increase')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
-                <span class="operate-btn" :title="$t('tool.edit')" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
+                <span class="operate-btn" :title="$t('tool.edit')" @click="onShowFileEdit" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.delete')" @click="onDeleteFile"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
             </div>
 
@@ -15,53 +15,60 @@
         </template>
     </div>
 
+
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
-import {reactive, watch} from "vue";
+import {ref, reactive, watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {updateFileStatus} from "@renderer/api/file";
+
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
     file: {
-        id:number,
-        date: string,
-        modified:string,
-        name: string,
-        author: string,
-        type: string,
-        path: string,
-        size:number,
-        total:number,
-        status: string
+        file_id:number,
+        file_date: string,
+        file_modified:string,
+        file_name: string,
+        file_author: string,
+        file_mine_type: string,
+        file_path: string,
+        file_size:number,
+        file_total:number,
+        file_status: string
     }
 }
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['cancel','confirm'])
+const emit = defineEmits(['operate','cancel','confirm'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
 const confirm:ConfirmInter = reactive({show: false});
+const edit:boolean = ref(true);
 
-page.actions.onDeleteFile = async function ():boolean {
+page.actions.onDeleteFile = async function () {
     try {
-        const {id} = props.file;
+        const {file_id, file_path} = props.file;
         // if (File.deleteFile(path) == false) {
         //     Common.showAlert(confirm,t("alert.content.delete.fail"));
         //     return false;
         // }
-        const params = { id: id, status: 'delete'};
+        const params = { id: file_id, status: 'delete'};
         const res = await updateFileStatus(params);
         if(res.code != 200) {
             return false;
         }
+
+        const cover_path = File.getFileCoverById(file_id);
+        File.deleteFile(file_path);
+        File.deleteFile(cover_path);
         router.back()
     } catch (err) {
         Base.printErrorLog('deleteFile',err);
@@ -71,13 +78,18 @@ page.actions.onDeleteFile = async function ():boolean {
 }
 
 const onOpenFolder = function () {
-    const path = props.file.path;
+    const path = props.file.file_path;
     if(!File.isExists(path)) {
         Common.showAlert(confirm,t("alert.content.inexistence"));
         return false;
     }
 
     window.electron.ipcRenderer.send('openpath', path);
+}
+
+const onShowFileEdit = function () {
+    emit('operate',{key:'edit', value: true})
+
 }
 
 const onDeleteFile = function () {
@@ -98,9 +110,7 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-
-
-watch(() => props.file.path,(value)=>{
+watch(() => props.file.file_path,(value)=>{
     page.show = !Base.isEmpty(value)
 })
 </script>

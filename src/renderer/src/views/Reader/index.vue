@@ -1,5 +1,5 @@
 <template>
-    <Toolbar :file="file"/>
+    <Toolbar :file="file" @operate="onOperateToolbar"/>
     <div v-if="page.init == false" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space">
         <div class="detail-inner">
             <div class="detail-header-skeleton">
@@ -22,13 +22,13 @@
     <div v-if="page.init" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space" id="scrollbar">
         <div class="detail-inner">
             <div class="detail-header">
-                <img class="cover" :src="file.cover" :alt="file.name" width="183" height="243" @error="setDefaultImage">
+                <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" @error="setDefaultImage">
                 <div class="info">
-                    <h3 class="title">{{file.alias}}</h3>
-                    <p>{{t('details.author')}}：{{file.author || t('details.unknown')}}</p>
-                    <p>{{t('details.size')}}：{{file.size}}</p>
+                    <h3 class="title">{{file.file_alias}}</h3>
+                    <p>{{t('details.author')}}：{{file.file_author || t('details.unknown')}}</p>
+                    <p>{{t('details.size')}}：{{file.file_size}}</p>
 <!--                    <p>{{t('details.include.title')}}：{{t('details.include.subtitle',{files:file.total,folders:0})}} </p>-->
-                    <p>{{t('details.date')}}：{{file.date}}</p>
+                    <p>{{t('details.date')}}：{{file.file_date}}</p>
                     <div class="tags">
                         <span>#热血</span><span>#科幻</span><span>#机甲</span>
                     </div>
@@ -65,6 +65,7 @@
     </div>
 
     <Loading :show="page.loading"></Loading>
+    <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit"></FileEdit>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
@@ -85,6 +86,7 @@ import Confirm from "@renderer/components/Confirm.vue";
 import Loading from "@renderer/components/Loading.vue";
 import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
+import FileEdit from "@renderer/components/FileEdit.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -95,6 +97,7 @@ const fs = require("fs") as typeof import("fs");
 
 const scrollbar = ref(null);
 const menubar = ref(null);
+const fileEdit:boolean = ref(false);
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
 const confirm:ConfirmInter = reactive({});
 const file:FileInter = reactive({});
@@ -108,6 +111,8 @@ const settings = reactive({
     space: import.meta.env.VITE_APP_COMIC_SPACE,
     thumbnail:[]
 });
+
+
 
 onMounted(() => {
     init();
@@ -131,8 +136,6 @@ watch(() => page.init,(value) => {
     },4)
 })
 
-
-
 page.actions.onGoBack = function ():void {
     Common.cancelConfirm(confirm);
     router.back()
@@ -152,6 +155,7 @@ const loadDetail = async function () {
         const {id} = route.query;
         const params = {id: id, status:'normal'}
         const res = await getFileInfo(params);
+
         if(res.code != 200 ) {
             Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onGoBack')
             return false;
@@ -162,6 +166,7 @@ const loadDetail = async function () {
             return false;
         }
 
+        console.log('x');
 
         resetFileData(res.data);
         await getFileSettings();
@@ -175,8 +180,8 @@ const loadDetail = async function () {
 }
 
 const renderContent = function (file) {
-    const {path} = file;
-    if(File.isExists(path)) {
+    const {file_path} = file;
+    if(File.isExists(file_path)) {
         renderFilesThumbnail(file);
         return false;
     }
@@ -192,20 +197,20 @@ const resetFileData = function (data):boolean {
     }
 
     Object.assign(file,data[0])
-    file.alias = File.getFileAlias(file.name);
-    file.size = File.formatFileSize(file.size);
-    file.date = Time.formatDate(file.date,'YYYY/MM/DD');
+    file.file_alias = File.getFileAlias(file.file_name);
+    file.file_size = File.formatFileSize(file.file_size);
+    file.file_date = Time.formatDate(file.file_date,'YYYY/MM/DD');
 }
 
 const renderStatus = function (file) {
-    pageStore.num = file.total;
-    pageStore.setStatusPath(file.path,'path');
+    pageStore.num = file.file_total;
+    pageStore.setStatusPath(file.file_path,'path');
 }
 
 const renderFilesThumbnail = async function (file:File):void {
     try {
-        const fileBuffer = fs.readFileSync(file.path);
-        const blob = new Blob([fileBuffer], {type: file.type});
+        const fileBuffer = fs.readFileSync(file.file_path);
+        const blob = new Blob([fileBuffer], {type: file.file_mine_type});
 
         const archive = await Archive.open(blob);
         const extract = await archive.extractFiles();
@@ -255,24 +260,24 @@ const setThumbnailPage = function () {
 }
 
 const autoCreateCover = function () {
-    const {id} = file;
+    const {file_id} = file;
     const cover = thumbnail[0].cover
-    const path = File.getFileCoverById(id);
+    const path = File.getFileCoverById(file_id);
 
     if (File.isExists(path)) {
         return false;
     }
 
-    file.cover = cover;
-    File.createCoverByBase64(id, cover);
+    file.file_cover = cover;
+    File.createCoverByBase64(file_id, cover);
 }
 
-const renderCover = async function ({id}):void {
+const renderCover = async function ({file_id}):void {
     try {
-        const path = File.getFileCoverById(id);
+        const path = File.getFileCoverById(file_id);
 
-        if (File.isExists(path) == false && File.isExists(file.path) == false) {
-            file.cover = Common.getDefaultImage()
+        if (File.isExists(path) == false && File.isExists(file.file_path) == false) {
+            file.file_cover = Common.getDefaultImage()
             return false;
         }
 
@@ -280,8 +285,9 @@ const renderCover = async function ({id}):void {
             return false;
         }
 
+
         const fileBuffer = fs.readFileSync(path);
-        file.cover = await File.getBase64Image(fileBuffer);
+        file.file_cover = await File.getBase64Image(fileBuffer);
     } catch (err) {
         Base.printErrorLog('loadCover readFileSync',err)
     }
@@ -515,8 +521,8 @@ const getFileSettings = async function() {
     }
 
     try {
-        const {id} = file;
-        const params = {id: id, key: 'settings'}
+        const {file_id} = file;
+        const params = {id: file_id, key: 'settings'}
         const res = await getFileMetaValue(params);
         if(res.code !== 200) {
             return false;
@@ -542,7 +548,7 @@ const updateFileSettings = async function () {
         return false;
     }
 
-    const {id} = file
+    const {file_id} = file
     const key = 'settings'
     const value = {
         current: settings.page.num,
@@ -553,17 +559,17 @@ const updateFileSettings = async function () {
     }
 
     try {
-        const res = await isFileMetaExist({id: id,key: key});
+        const res = await isFileMetaExist({id: file_id,key: key});
         if(res.code !== 200) {
             return false;
         }
 
         if(Base.isEmpty(res.data)) {
-            await addFileMeta({file_id: id, meta_key: key, meta_value:JSON.stringify(value)});
+            await addFileMeta({file_id: file_id, meta_key: key, meta_value:JSON.stringify(value)});
             return false
         }
 
-        await updateFileMetaValue({id: id, key: key, value: JSON.stringify(value)});
+        await updateFileMetaValue({id: file_id, key: key, value: JSON.stringify(value)});
     } catch (err) {
         Base.printErrorLog('updateFileSettings',err)
     }
@@ -602,6 +608,18 @@ const onUpdateSettings = function ({key,value}) {
 
 const onContent = function () {
     menubar.value.onHideSetting();
+}
+
+const onOperateToolbar = function (args) {
+    switch (args.key) {
+        case 'edit':
+            fileEdit.value = args.value;
+            break
+    }
+}
+
+const onCancelFileEdit = function () {
+    fileEdit.value = false;
 }
 </script>
 

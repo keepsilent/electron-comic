@@ -394,10 +394,10 @@ const isExists = function (path:string):boolean {
 const deleteFile = function (path:string):boolean{
     try {
         fs.unlinkSync(path);
-        return  true
+        return true;
     } catch (err) {
         Base.printErrorLog('unlinkSync',err)
-        return  false;
+        return false;
     }
 }
 
