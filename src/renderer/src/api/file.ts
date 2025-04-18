@@ -26,6 +26,19 @@ export const getFileInfo = async function ({id}):Promise<Result> {
     return await DB.query(data);
 }
 
+export const getFileTaxonomy = async function ({file_id, taxonomy}):Promise<Result> {
+    const sql = `SELECT cm_term_taxonomy.term_taxonomy_id, name, taxonomy, count FROM cm_file 
+            JOIN cm_term_relationships ON cm_term_relationships.object_id = cm_file.file_id  
+            JOIN cm_term_taxonomy ON cm_term_taxonomy.term_taxonomy_id = cm_term_relationships.term_taxonomy_id  
+            JOIN cm_terms ON cm_terms.term_id = cm_term_taxonomy.term_id 
+            WHERE file_id = $file_id AND taxonomy = $taxonomy`;
+    const data:queryParam = {
+        sql: sql,
+        params: {$file_id: file_id, $taxonomy : taxonomy }
+    }
+    return await DB.query(data);
+}
+
 export const getFileList = async function ({keyword, page,pagesize}):Promise<Result> {
     let where = `WHERE file_status='normal'`;
     if(keyword) {

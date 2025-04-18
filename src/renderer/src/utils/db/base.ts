@@ -95,7 +95,7 @@ class Database {
                 file_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
                 file_mine_type VARCHAR(64) NOT NULL DEFAULT ''
             );`,
-            'file_name': `CREATE INDEX IF NOT EXISTS file_name on cm_file (file_name)`,
+            'file_name': `CREATE INDEX IF NOT EXISTS file_name on cm_file (file_name);`,
             'cm_filemeta': `CREATE TABLE IF NOT EXISTS cm_filemeta (
                 meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 file_id BIGINT(20) NOT NULL DEFAULT 0,
@@ -114,7 +114,7 @@ class Database {
                 term_taxonomy_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 term_id BIGINT(20) NOT NULL DEFAULT '0',
                 taxonomy VARCHAR(32) NOT NULL DEFAULT '',
-                description TEXT NOT NULL,
+                description TEXT NOT NULL DEFAULT '' ,
                 parent BIGINT(20) NOT NULL DEFAULT '0',
                 count BIGINT(20) NOT NULL DEFAULT '0'
             );`,
@@ -144,34 +144,6 @@ class Database {
         } finally {
             await Database.instance.initializeSchema(index+1);
         }
-
-        //
-        // for(let i in options) {
-        //     this.query({sql: options[i]})
-        // }
-
-        // let sql = `CREATE TABLE IF NOT EXISTS file (
-        //     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        //     date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-        //     modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-        //
-        //     name varchar(255) NOT NULL DEFAULT '',
-        //     author varchar(64) NOT NULL DEFAULT '',
-        //     type varchar(64) NOT NULL DEFAULT '',
-        //     path varchar(255) NOT NULL DEFAULT '',
-        //     size int(20) NOT NULL DEFAULT 0,
-        //     total varchar(64) NOT NULL DEFAULT 0,
-        //     status varchar(20)  NOT NULL DEFAULT 'normal'
-        // ); CREATE TABLE IF NOT EXISTS filemeta (
-        //     meta_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        //     file_id int(20) NOT NULL DEFAULT 0,
-        //     meta_key varchar(64) NOT NULL DEFAULT '',
-        //     meta_value text NOT NULL DEFAULT ''
-        // );`;
-
-        // CREATE INDEX name on file (name);
-        // CREATE INDEX meta_key on filemeta (meta_key);
-        // CREATE INDEX meta_value on filemeta (meta_value);
 
         // return this.query({sql: sql}).then(() => {
         //     console.log("Database schema initialized.");
@@ -250,6 +222,32 @@ class Database {
             });
         });
     }
+
+    transaction(fn): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
+            this.db.run('BEGIN', async (err) => {
+                if (err) {
+                    reject(Database.instance.dataFormat(500,err));
+                    return false;
+                }
+
+                try {
+                    const res = await fn();
+                    if(res == false) {
+                        this.db.run('ROLLBACK'); // 回滚事务
+                        reject(Database.instance.dataFormat(500,err));
+                        return
+                    }
+
+                    this.db.run('COMMIT');  // 提交事务
+                    resolve(Database.instance.dataFormat(200,'success'));
+                } catch(err) {
+                    this.db.run('ROLLBACK'); // 回滚事务
+                    reject(Database.instance.dataFormat(500,err));
+                }
+            });
+        });
+    }
 }
 
 // Wrap database calls to ensure initialization
@@ -275,4 +273,9 @@ export const sqUpdate = async (param: updateParam) => {
 export const sqDelete = async (param: deleteParam) => {
     const db = await getDatabase();
     return db.delete(param);
+};
+
+export const sqTransaction = async (fn) => {
+    const db = await getDatabase();
+    return db.transaction(fn);
 };

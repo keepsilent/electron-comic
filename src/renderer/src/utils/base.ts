@@ -123,11 +123,43 @@ const capitalizeFirstLetter = function (str):string {
 }
 
 
+/**
+ * 值是否在数组里
+ * @method inArray
+ * @param {Object} data
+ * @param {String} key
+ * @param {Any} value
+ * @return {Boolean}
+ */
+const inArray = function (arr, key, value):boolean {
+    for(let i in arr) {
+        if(arr[i][key] == value) {
+            return true
+        }
+    }
 
+    return false;
+}
+
+/**
+ * 数组去重
+ * @method unique
+ * @param {Object} arr
+ * @return {Object}
+ */
+const unique = function (arr):object {
+    if(isEmpty(arr)) {
+        return []
+    }
+
+    return Array.from(new Set(arr))
+}
 
 export default {
     isEmpty: isEmpty,
     isObject: isObject,
+    inArray: inArray,
+    unique: unique,
 
     getDataLength: getDataLength,
     getObjectFirstKey: getObjectFirstKey,

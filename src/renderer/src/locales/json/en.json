@@ -33,6 +33,12 @@
 	},
 	"details": {
 		"author": "Author",
+		"artists": "Artists",
+		"uploaded": "Uploaded",
+		"pages": "Pages",
+		"tags": "Tags",
+		"categories": "Categories",
+		"languages": "Languages",
 		"include": {
 			"title": "Include",
 			"subtitle": "{files} files, {folders} folders"
@@ -73,28 +79,29 @@
 			"placeholder": "Rename of the file to you remember it.",
 			"empty": "Please input the file name"
 		},
-		"author": {
-			"title": "Author",
+		"artists": {
+			"title": "Artists",
 			"placeholder": "The file author is who?",
-			"empty": "Please input the file author"
+			"empty": "Please input the file artists",
+			"tips": "Artists are delimited by \", \" Be like: Tom, Jerry"
 		},
 		"tags": {
 			"title": "Tags",
 			"placeholder": "Increase tags for the file",
 			"empty": "Please input the file tags",
-			"tips": "Tags are delimited by \", \" Be like: adventure, magic"
+			"tips": "Tags are delimited by \", \" Be like: Adventure, Magic, Cure"
 		},
 		"languages": {
 			"title": "Languages",
 			"placeholder": "Increase languages for the file",
 			"empty": "Please input the file tags",
-			"tips": "Languages are delimited by \", \" Be like: adventure, magic"
+			"tips": "Languages are delimited by \", \" Be like: English, Chinese"
 		},
 		"categories": {
 			"title": "Categories",
 			"placeholder": "Increase categories for the file",
 			"empty": "Please input the file tags",
-			"tips": "Categories are delimited by \", \" Be like: adventure, magic"
+			"tips": "Categories are delimited by \", \" Be like: Manga, Comic"
 		},
 		"intro": {
 			"title": "Intro",

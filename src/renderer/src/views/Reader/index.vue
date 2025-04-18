@@ -25,12 +25,54 @@
                 <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" @error="setDefaultImage">
                 <div class="info">
                     <h3 class="title">{{file.file_alias}}</h3>
-                    <p>{{t('details.author')}}：{{file.file_author || t('details.unknown')}}</p>
-                    <p>{{t('details.size')}}：{{file.file_size}}</p>
-<!--                    <p>{{t('details.include.title')}}：{{t('details.include.subtitle',{files:file.total,folders:0})}} </p>-->
-                    <p>{{t('details.date')}}：{{file.file_date}}</p>
-                    <div class="tags">
-                        <span>#热血</span><span>#科幻</span><span>#机甲</span>
+                    <div v-if="file.file_tags.length > 0" class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.tags')}}：</label>
+                            <span class="item" v-for="(item,index) in file.file_tags" :key="key">
+                                <em>{{item.name}}</em>
+                                <i>{{item.count}}</i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-if="file.file_artists.length > 0" class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.artists')}}：</label>
+                            <span class="item" v-for="(item,index) in file.file_artists" :key="key">
+                                <em>{{item.name}}</em>
+                                <i>{{item.count}}</i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-if="file.file_languages.length > 0" class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.languages')}}：</label>
+                            <span class="item" v-for="(item,index) in file.file_languages" :key="key">
+                                <em>{{item.name}}</em>
+                                <i>{{item.count}}</i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-if="file.file_categories.length > 0" class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.categories')}}：</label>
+                            <span class="item" v-for="(item,index) in file.file_categories" :key="key">
+                                <em>{{item.name}}</em>
+                                <i>{{item.count}}</i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.pages')}}：{{file.file_total}}</label>
+                        </div>
+                    </div>
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.uploaded')}}：{{file.file_date}}</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,9 +118,10 @@ import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
 import {Base,Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
-import {getFileInfo} from "@renderer/api/file";
+import {getFileInfo, getFileTaxonomy} from "@renderer/api/file";
 import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
+
 
 import Toolbar from "./components/toolbar.vue";
 import Menubar from "./components/menubar.vue";
@@ -191,7 +234,7 @@ const renderContent = function (file) {
     Common.showEmpty(empty,title, subtitle)
 }
 
-const resetFileData = function (data):boolean {
+const resetFileData = async function (data):boolean {
     if(Base.isEmpty(data)) {
         return false
     }
@@ -200,6 +243,29 @@ const resetFileData = function (data):boolean {
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(file.file_size);
     file.file_date = Time.formatDate(file.file_date,'YYYY/MM/DD');
+
+    file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
+    file.file_artists = await loadFileTaxonomy(file.file_id,'artist');
+    file.file_categories = await loadFileTaxonomy(file.file_id,'category');
+    file.file_languages = await loadFileTaxonomy(file.file_id,'language');
+
+    console.log('file.file_artists',file.file_artists);
+}
+
+const loadFileTaxonomy = async function (file_id, taxonomy) {
+    try {
+        const params = {file_id: file_id, taxonomy: taxonomy}
+        const res = await getFileTaxonomy(params)
+        if(res.code != 200) {
+            return []
+        }
+
+        console.log('loadFileTaxonomy', res.data, params);
+        return res.data || [];
+    } catch (err) {
+        console.log('err',err);
+        return []
+    }
 }
 
 const renderStatus = function (file) {

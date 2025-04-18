@@ -14,29 +14,52 @@
                     </div>
                     <div class="input-wrap input-l">
                         <div class="input-inner">
-                            <input v-model="file.alias" :placeholder="t('edit.name.placeholder')" type="text" value="">
+                            <input v-model="file.file_alias" type="text" :placeholder="t('edit.name.placeholder')">
                         </div>
                     </div>
                 </div>
 
                 <div class="item">
-                    <label>{{t('edit.author.title')}}: </label>
-                    <div class="input-wrap input-xxm">
-                        <div class="input-inner">
-                            <input v-model="file.author" :placeholder="t('edit.author.placeholder')" type="text" value="">
-                        </div>
+                    <div class="item-header">
+                        <label>{{t('edit.artists.title')}}:</label>
+                        <Tooltips :content="t('edit.artists.tips')">
+                            <i class="iconfont icon-problem"></i>
+                        </Tooltips>
                     </div>
-                </div>
-
-                <div class="item">
-                    <label>{{t('edit.tags.title')}}: <i class="iconfont icon-problem"></i></label>
-                    <div class="item-right">
-                        <div class="input-wrap input-l">
-                            <div class="input-inner">
-                                <input v-model="file.tags" :placeholder="t('edit.tags.placeholder')"  type="text" value="">
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-main">
+                            <div class="input-wrap input-xxm">
+                                <div class="input-inner">
+                                    <input v-model="page.artists" type="text" :placeholder="t('edit.artists.placeholder')">
+                                </div>
                             </div>
+                            <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('artists')">{{t('button.increase')}}</span>
                         </div>
-                        <p class="mt-s">{{t('edit.tags.tips')}}</p>
+                        <div class="taxonomy-footer">
+                            <span v-for="(item,index) in file.file_artists" :key="index" @click="onRemoveTermRelationships(index,'artists')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-header">
+                        <label>{{t('edit.tags.title')}}:</label>
+                        <Tooltips :content="t('edit.tags.tips')">
+                            <i class="iconfont icon-problem"></i>
+                        </Tooltips>
+                    </div>
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-main">
+                            <div class="input-wrap input-xxm">
+                                <div class="input-inner">
+                                    <input v-model="page.tags" type="text" :placeholder="t('edit.tags.placeholder')">
+                                </div>
+                            </div>
+                            <span class="btn btn-secondary btn-small ml-m" @click="onIncrease('tags')">{{t('button.increase')}}</span>
+                        </div>
+                        <div class="taxonomy-footer">
+                            <span v-for="(item,index) in file.file_tags" :key="index" @click="onRemoveTermRelationships(index,'tags')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                        </div>
                     </div>
                 </div>
 
@@ -47,33 +70,43 @@
                             <i class="iconfont icon-problem"></i>
                         </Tooltips>
                     </div>
-                    <div class="category-wrap">
-
-                        <div class="category-main">
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-main">
                             <div class="input-wrap input-xxm">
                                 <div class="input-inner">
-                                    <input v-model="file.tags" :placeholder="t('edit.categories.placeholder')"  type="text" value="">
+                                    <input v-model="page.categories" type="text" :placeholder="t('edit.categories.placeholder')">
                                 </div>
                             </div>
-                            <span class="btn btn-secondary btn-small ml-m" @click="onClose">{{t('button.increase')}}</span>
+                            <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('categories')">{{t('button.increase')}}</span>
                         </div>
-
-                        <div class="category-footer">
-                            <span><i class="iconfont icon-close"></i><em>热血</em></span>
-                            <span><i class="iconfont icon-close"></i><em>热血</em></span>
+                        <div class="taxonomy-footer">
+                            <span v-for="(item,index) in file.file_categories" :key="index"  @click="onRemoveTermRelationships(index,'categories')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
                         </div>
                     </div>
                 </div>
 
+
+
+
                 <div class="item">
-                    <label>{{t('edit.languages.title')}}: <i class="iconfont icon-problem"></i></label>
-                    <div>
-                        <div class="input-wrap input-l">
-                            <div class="input-inner">
-                                <input v-model="file.tags" :placeholder="t('edit.languages.placeholder')"  type="text" value="">
+                    <div class="item-header">
+                        <label>{{t('edit.languages.title')}}:</label>
+                        <Tooltips :content="t('edit.languages.tips')">
+                            <i class="iconfont icon-problem"></i>
+                        </Tooltips>
+                    </div>
+                    <div class="taxonomy-wrap">
+                        <div class="taxonomy-main">
+                            <div class="input-wrap input-xxm">
+                                <div class="input-inner">
+                                    <input v-model="page.languages" type="text" :placeholder="t('edit.languages.placeholder')">
+                                </div>
                             </div>
+                            <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('languages')">{{t('button.increase')}}</span>
                         </div>
-                        <p class="mt-s">{{t('edit.languages.tips')}}</p>
+                        <div class="taxonomy-footer">
+                            <span v-for="(item,index) in file.file_languages" :key="index"  @click="onRemoveTermRelationships(index,'languages')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                        </div>
                     </div>
                 </div>
 
@@ -107,38 +140,48 @@ import {useI18n} from 'vue-i18n';
 import {ref, reactive, onMounted, watch} from "vue";
 import {Base,Config, Common} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
+import {isTermExist, getTermByName, increaseTerm, increaseTermRelationships, removeTermRelationships} from "@renderer/api/terms";
+import {debounce, throttle} from "@renderer/utils/throttle";
+
 import Confirm from "@renderer/components/Confirm.vue";
 import Tooltips from "@renderer/components/Tooltips.vue";
 import {usePageStore} from '@renderer/stores/page'
 
 import Select from "./Select.vue";
 import Switch from "./Switch.vue";
+import {c} from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 
 interface Props {
     show: boolean,
     file: {
-        id:number,
-        date: string,
-        modified:string,
-        name: string,
-        author: string,
-        type: string,
-        path: string,
-        size:number,
-        total:number,
-        status: string
+        file_id:number,
+        file_date: string,
+        file_modified:string,
+        file_name: string,
+        file_author: string,
+        file_type: string,
+        file_path: string,
+        file_size:number,
+        file_total:number,
+        file_status: string,
+        file_categories: object,
+        file_artists: object
     }
 }
 
 interface Page {
-    show:boolean
+    show:boolean,
+    categories: string,
+    tags: string,
+    languages: string,
+    artists: string
 }
 
 const { t } = useI18n();
 const emit = defineEmits(['cancel'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
-const page:Page = reactive({show: true})
+const page:Page = reactive({show: true,categories: '', tags: '', languages: '', artists: ''})
 const confirm:ConfirmInter = reactive({show: false});
 
 const onClose = function () {
@@ -168,7 +211,7 @@ const onSelectOption = function (option) {
     }
 }
 
-onMounted(()=>{
+onMounted(() => {
     page.show = props.show
 })
 
@@ -181,6 +224,109 @@ const onToggleSwitch = function (option) {
     }
 }
 
+const onIncrease = throttle(async (key) => {
+    console.log('key',key);
+    const value = page[key];
+
+    if(Base.isEmpty(value)) {
+        return false;
+    }
+
+    const { file_id: object_id} = props.file;
+    const arr = Base.unique(value.replaceAll('，',',').split(','));
+    const data = getCanIncreaseData(arr,key);
+
+    for(let i in data) {
+        let name = data[i].trim();
+        let taxonomy = getTaxonomyBykey(key);
+        let success = await insertTermRelationships(object_id, name, taxonomy);
+
+        if(!success) {
+            continue;
+        }
+
+        const term = await getTerm(name,taxonomy)
+        props.file['file_'+key].push(term);
+    }
+
+    page[key] = '';
+})
+
+const getTaxonomyBykey = function (key:string) {
+    const map = {
+        'tags':'tag',
+        'artists': 'artist',
+        'categories': 'category',
+        'languages': 'language'
+    }
+
+    return map[key];
+}
+
+const getCanIncreaseData = function (arr:object, key:string):object {
+    const tmp = [];
+    const data = props.file['file_'+key] || [];
+    for(let i in arr) {
+        if(!Base.isEmpty(arr[i]) && !Base.inArray(data,'name',arr[i])) {
+            tmp.push(arr[i]);
+        }
+    }
+
+    return tmp;
+}
+
+const insertTermRelationships =  async function (object_id, name, taxonomy):Promise<Boolean> {
+    try {
+        const params = {name: name, taxonomy: taxonomy};
+        const res = await isTermExist(params);
+        if (res.code != 200) {
+            return false;
+        }
+
+        let relationships = { code: 500 };
+        if(res.data.length == 0) { //如果没有,插入数据, 添加关系,统计数+1
+            relationships = await increaseTerm(object_id, name, taxonomy);
+        } else {  //如果有,查看是否有关系,没有：添加关系，统计数+1; 有:不操作
+            relationships = await increaseTermRelationships(object_id, name, taxonomy);
+        }
+
+        return relationships.code == 200 ? true : false;
+    } catch (err) {
+        return false;
+    }
+}
+
+
+const onRemoveTermRelationships = throttle(async (index, key) => {
+    try {
+        const { file_id: object_id} = props.file;
+        const {term_taxonomy_id} = props.file['file_'+key][index];
+        const res = await removeTermRelationships(object_id, term_taxonomy_id);
+
+        if(res.code != 200) {
+            return false;
+        }
+
+        props.file['file_'+key].splice(index,1);
+
+    } catch (err) {
+        Base.printErrorLog('removeTermRelationships',err)
+    }
+});
+
+const getTerm = async function (name,taxonomy) {
+    try {
+        const params = {name: name, taxonomy: taxonomy};
+        const res = await getTermByName(params);
+        if (res.code != 200) {
+            return {};
+        }
+
+        return res.data[0];
+    } catch (err) {
+        return {}
+    }
+}
 
 watch(() => props.show,(value)=>{
     setTimeout(()=> {page.show = value},10)
@@ -281,20 +427,22 @@ watch(() => props.show,(value)=>{
                 }
             }
 
-            .category {
+            .taxonomy {
                 &-main {
                     display: flex;
                     align-items: center;
+
                 }
 
                 &-footer {
-                    display: flex;
-                    align-items: center;
-                    margin-top: var(--spacing-s);
+
+                    display: inline-block;
 
                     span {
+                        float: left;
                         display: flex;
                         align-items: center;
+                        margin-top: var(--spacing-s);
                         margin-right: var(--spacing-m);
 
                         .iconfont {

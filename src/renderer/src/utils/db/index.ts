@@ -26,6 +26,14 @@ const update = (param: updateParam) => {
     return import('./base').then((module) => module.sqUpdate(param));
 }
 
+const transaction = (fn) => {
+    if(mode === 'render') {
+        return window.electronAPI.sqTransaction(fn);
+    }
+
+    return import('./base').then((module) => module.sqTransaction(fn));
+}
+
 const clean = (param: deleteParam) => {
     if(mode === 'render') {
         return window.electronAPI.sqDelete(param);
@@ -38,7 +46,8 @@ export default {
     query: query,
     insert: insert,
     update: update,
-    delete: clean
+    delete: clean,
+    transaction:transaction
 }
 
 
