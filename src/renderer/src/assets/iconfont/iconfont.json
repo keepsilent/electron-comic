@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "29943",
+      "name": "Close Fill",
+      "font_class": "close-fill",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "88609",
+      "name": "Copy",
+      "font_class": "copy",
+      "unicode": "e706",
+      "unicode_decimal": 59142
+    },
+    {
+      "icon_id": "240132",
+      "name": "Radio Box",
+      "font_class": "radio-box",
+      "unicode": "e75b",
+      "unicode_decimal": 59227
+    },
+    {
+      "icon_id": "240141",
+      "name": "Radio Box Fill",
+      "font_class": "radio-box-fill",
+      "unicode": "e763",
+      "unicode_decimal": 59235
+    },
+    {
       "icon_id": "604650",
       "name": "Quit",
       "font_class": "quit",
@@ -146,25 +174,11 @@
       "unicode_decimal": 58934
     },
     {
-      "icon_id": "1280510",
-      "name": "select",
-      "font_class": "select",
-      "unicode": "e637",
-      "unicode_decimal": 58935
-    },
-    {
       "icon_id": "1280535",
       "name": "Visible",
       "font_class": "visible",
       "unicode": "e63b",
       "unicode_decimal": 58939
-    },
-    {
-      "icon_id": "1280540",
-      "name": "Delete-2",
-      "font_class": "delete-2",
-      "unicode": "e63c",
-      "unicode_decimal": 58940
     },
     {
       "icon_id": "1280559",

@@ -83,6 +83,21 @@ export const updateFileStatus = async function ({id, status}):Promise<Result> {
     return await DB.update(data);
 }
 
+
+export const updateFileInfo = async function ({file_id, file_name, file_intro, file_path}):Promise<Result> {
+    const data:queryParam = {
+        table: 'cm_file',
+        data: {
+            'file_name': file_name,
+            'file_intro': file_intro,
+            'file_path': file_path
+        },
+        condition: `file_id = ${file_id}`
+    }
+
+    return await DB.update(data);
+}
+
 export const deleteFile = async function ({id, status}):Promise<Result> {
     const data:deleteParam = {
         table: 'cm_file',

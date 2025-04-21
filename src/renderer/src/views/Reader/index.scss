@@ -84,25 +84,49 @@
             position: relative;
             width: 100%;
 
-            h3 {
-                padding-bottom: 8px;
-                font-size: 20px;
+            .title,.subtitle {
+                width: 65%;
+                padding-bottom: var(--spacing-s);
+                //color: var(--content-color-secondary);
+                font-size: var(--text-size-xl);
+                font-weight: bolder;
+
+
+                .icon-copy {
+                    color: var(--content-color-tertiary);
+                    font-weight: normal;
+                    cursor: pointer;
+
+                    &:hover {
+                        color: var(--content-color-secondary);
+                    }
+                }
+            }
+
+            .no {
+                font-size: var(--text-size-l);
+                padding-bottom: var(--spacing-s);
+                span {
+                    color: var(--content-color-tertiary);
+                }
             }
 
             .taxonomy {
                 &-wrap {}
                 &-inner {
+
                     display: inline-block;
                     align-items: center;
-                    width: 60%;
+                    width: 65%;
                     label { float: left;  margin-top: 6px}
                     .item {
                         float: left;
                         margin-top: 6px;
                         padding: var(--spacing-xxs) 0;
                         margin-right: var(--spacing-s);
-                        background:var(--background-color-secondary);
+                        background: var(--background-color-tertiary);
                         border-radius: var(--border-radius-default);
+                        cursor: pointer;
 
                         em {
                             padding-left: var(--spacing-xs);
@@ -115,7 +139,8 @@
                             padding-left: var(--spacing-xs);
                             padding-right: var(--spacing-xs);
                             color: var(--content-color-secondary);
-                            background:var(--background-color-tertiary);
+
+                            background: var(--highlight-background-color-tertiary);
                             border-top-right-radius: var(--border-radius-default);
                             border-bottom-right-radius: var(--border-radius-default);
                         }

@@ -155,20 +155,25 @@ img { -webkit-user-drag: none; }
         font-weight: 400;
     }
 
+
+    &:hover {
+        background-color: var(--background-color-secondary);
+    }
+
     &-primary {
         background-color: var(--base-color-brand);
         min-width: 64px;
         color:#FFF;
-    }
-
-    &:hover {
-        background-color: var(--background-color-secondary);
+        &:hover {
+            background: var(--highlight-background-color-brand);
+        }
     }
 }
 
 
 .input {
     &-wrap {
+        position: relative;
         width: 228px;
         padding-left: 10px;
         padding-right: 10px;
@@ -176,12 +181,31 @@ img { -webkit-user-drag: none; }
         border: var(--border-width-default) var(--border-style-solid) var(--border-color-default);
         background-color: var(--background-color-primary);
         &:hover {
+
             background-color: var(--background-color-tertiary);
+
+            .icon-close-fill {
+                display: block;
+            }
+        }
+
+        .icon-close-fill {
+            display: none;
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            color: var(--grey-40);
+            cursor: pointer;
+            z-index: 1;
+            &:hover {
+                color: var(--red-40);
+            }
         }
     }
 
     &-inner {
         position: relative;
+        padding-right: 15px;
 
         input,textarea {
             width: 100%;

@@ -6,16 +6,12 @@
             <div v-for="(item,index) in files" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
                 <div class="cover">
                     <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
-<!--                    <span class="type">ZIP</span>-->
-<!--                    <div class="mask">-->
-<!--                        <span class="num">{{item.total}}页</span>-->
-<!--                    </div>-->
                 </div>
+                <span class="type">ZIP</span>
+<!--                <div class="mask">-->
+<!--                    <p class="title">{{item.file_name}}</p>-->
+<!--                </div>-->
                 <p class="title">{{item.file_name}}</p>
-<!--                <p class="subtitle">-->
-<!--                    <span>{{item.date}}</span>-->
-<!--                    <span>{{item.total}}页</span>-->
-<!--                </p>-->
             </div>
 
 
@@ -250,18 +246,16 @@ watch(() => pageStore.keyword,(value)=>{
 
     &-item {
         //width: 216px;
+        position: relative;
+
         width: 183px;
         cursor: pointer;
         overflow: hidden;
 
-
         .cover {
             position: relative;
-            //width: 216px;
-            //height: 287px;
             width: 183px;
             height: 243px;
-
 
             background: #FFF;
             border-radius: var(--border-radius-default);
@@ -272,53 +266,46 @@ watch(() => pageStore.keyword,(value)=>{
                 height: 100%;
                 object-fit: contain;
             }
-            .mask {
-                position: absolute;
-                right: 0;
-                bottom: 0;
-                font-size: 26px;
-                line-height: 24px;
-                padding: 0 8px 6px 0;
-                color: #fff;
-                background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, .5)));
-                background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
-                background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, .5) 100%);
-                background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
-                width: 100%;
-                text-align: right;
-                z-index: 4;
-
-                font-style: italic;
-                font-family: DIN-BoldItalic;
-            }
-            .type {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                padding: 2px 8px;
-                border-radius: 5px;
-                background: #FFF;
-            }
-
-            //.num {
-            //    position: absolute;
-            //    bottom: 5px;
-            //    right: 10px;
-            //
-            //    color: #FFF;
-            //    font-size: 24px;
-            //    font-weight: bolder;
-            //    font-style: italic;
-            //    font-family: DIN-BoldItalic;
-            //}
         }
 
-        .title {
-            padding: 5px 0;
+        .mask {
+            position: absolute;
+            right: 0;
+            bottom: 0;
 
-            color: #333;
-            font-size: var(--text-size-l);
-            height: calc(2* (var(--text-size-l) * 1.4));
+            width: 100%;
+            padding-top: var(--spacing-xs);
+            padding-bottom: var(--spacing-xs);
+
+            background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, .5)));
+            background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
+            background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, .5) 100%);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .5));
+            border-bottom-left-radius: var(--border-radius-default);
+            border-bottom-right-radius: var(--border-radius-default);
+            z-index: 1;
+            .title {
+                padding: 0 var(--spacing-s);
+
+                color: #fff;
+                font-size: var(--text-size-m);
+
+                //height: calc(2* (var(--text-size-l) * 1.4));
+
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+            }
+
+        }
+        .title {
+            padding: var(--spacing-xxs) 0;
+
+            color: var(--content-color-secondary);
+            font-size: var(--text-size-m);
+
+            height: calc( 2 * (var(--text-size-m) * 1.5));
 
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -326,10 +313,13 @@ watch(() => pageStore.keyword,(value)=>{
             overflow: hidden;
         }
 
-        .subtitle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .type {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 2px 8px;
+            border-radius: 5px;
+            background: #FFF;
         }
     }
 

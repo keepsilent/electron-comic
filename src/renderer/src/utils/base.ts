@@ -1,3 +1,6 @@
+import useClipboard from 'vue-clipboard3'
+const { toClipboard } = useClipboard();
+
 /**
  * 是否为空
  * @method isEmpty
@@ -131,7 +134,7 @@ const capitalizeFirstLetter = function (str):string {
  * @param {Any} value
  * @return {Boolean}
  */
-const inArray = function (arr, key, value):boolean {
+const inArray = function (arr:object, key:string, value:any):boolean {
     for(let i in arr) {
         if(arr[i][key] == value) {
             return true
@@ -147,7 +150,7 @@ const inArray = function (arr, key, value):boolean {
  * @param {Object} arr
  * @return {Object}
  */
-const unique = function (arr):object {
+const unique = function (arr:object):object {
     if(isEmpty(arr)) {
         return []
     }
@@ -155,11 +158,27 @@ const unique = function (arr):object {
     return Array.from(new Set(arr))
 }
 
+
+/**
+ * 复制文本到剪贴板
+ * @method copy
+ * @param event
+ */
+const copy = async function (event:object):Promise<Void> {
+    const text = event.target.dataset.text;
+    try {
+        await toClipboard(text)
+    } catch (err) {
+        printErrorLog('toClipboard',err)
+    }
+}
+
 export default {
     isEmpty: isEmpty,
     isObject: isObject,
     inArray: inArray,
     unique: unique,
+    copy: copy,
 
     getDataLength: getDataLength,
     getObjectFirstKey: getObjectFirstKey,

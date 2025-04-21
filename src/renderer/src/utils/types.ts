@@ -17,16 +17,18 @@ export interface ConfirmInter {
 
 
 export interface FileInter {
-    id:number,
-    date: string,
-    modified:string,
-    name: string,
-    author: string,
-    type: string,
-    path: string,
-    size:number,
-    total:number,
-    status: string
+    file_id:number,
+    file_date: string,
+    file_name: string,
+    file_alias: string,
+    file_author: string,
+    file_intro: string,
+    file_path: string,
+    file_size: string,
+    file_total: number,
+    file_status: string,
+    file_modified: string,
+    file_mine_type: string
 }
 
 

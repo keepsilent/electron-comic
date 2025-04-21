@@ -24,11 +24,17 @@
             <div class="detail-header">
                 <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" @error="setDefaultImage">
                 <div class="info">
-                    <h3 class="title">{{file.file_alias}}</h3>
+                    <h3 class="title">
+                        {{file.file_alias}}
+                        <i class="iconfont icon-copy" :title="$t('button.copy')" :data-text="file.file_alias" @click="onCopy"></i>
+                    </h3>
+<!--                    <p class="subtitle">[BG本田] シンタロ-がストッキングオナニ-する話 [英訳]</p>-->
+                    <p class="no"><span>#</span>{{file.file_id}}</p>
+
                     <div v-if="file.file_tags.length > 0" class="taxonomy-wrap">
                         <div class="taxonomy-inner">
                             <label>{{t('details.tags')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_tags" :key="key">
+                            <span class="item" v-for="(item,index) in file.file_tags" :key="index">
                                 <em>{{item.name}}</em>
                                 <i>{{item.count}}</i>
                             </span>
@@ -38,7 +44,7 @@
                     <div v-if="file.file_artists.length > 0" class="taxonomy-wrap">
                         <div class="taxonomy-inner">
                             <label>{{t('details.artists')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_artists" :key="key">
+                            <span class="item" v-for="(item,index) in file.file_artists" :key="index">
                                 <em>{{item.name}}</em>
                                 <i>{{item.count}}</i>
                             </span>
@@ -48,7 +54,7 @@
                     <div v-if="file.file_languages.length > 0" class="taxonomy-wrap">
                         <div class="taxonomy-inner">
                             <label>{{t('details.languages')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_languages" :key="key">
+                            <span class="item" v-for="(item,index) in file.file_languages" :key="index">
                                 <em>{{item.name}}</em>
                                 <i>{{item.count}}</i>
                             </span>
@@ -58,7 +64,7 @@
                     <div v-if="file.file_categories.length > 0" class="taxonomy-wrap">
                         <div class="taxonomy-inner">
                             <label>{{t('details.categories')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_categories" :key="key">
+                            <span class="item" v-for="(item,index) in file.file_categories" :key="index">
                                 <em>{{item.name}}</em>
                                 <i>{{item.count}}</i>
                             </span>
@@ -71,7 +77,12 @@
                     </div>
                     <div class="taxonomy-wrap">
                         <div class="taxonomy-inner">
-                            <label>{{t('details.uploaded')}}：{{file.file_date}}</label>
+                            <label>{{t('details.uploaded')}}：{{file.file_modified}}</label>
+                        </div>
+                    </div>
+                    <div v-if="file.file_intro" class="taxonomy-wrap">
+                        <div class="taxonomy-inner">
+                            <label>{{t('details.intro')}}：{{file.file_intro}}</label>
                         </div>
                     </div>
                 </div>
@@ -107,7 +118,7 @@
     </div>
 
     <Loading :show="page.loading"></Loading>
-    <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit"></FileEdit>
+    <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit" @update="onUpdateFileEdit"></FileEdit>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
@@ -116,12 +127,21 @@ import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
-import {Base,Common, File,Time} from "@renderer/utils";
+import {Alphabet, Base,Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import {getFileInfo, getFileTaxonomy} from "@renderer/api/file";
 import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
 
+
+// let str = 'こんにちは';
+// let test = Alphabet.getFirstChar(str);
+// console.warn('getFirstString', test);
+
+console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('Keepsilent'));
+console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('窦'));
+console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('です'));
+console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('한국'));
 
 import Toolbar from "./components/toolbar.vue";
 import Menubar from "./components/menubar.vue";
@@ -137,7 +157,6 @@ const router = useRouter();
 
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
-
 const scrollbar = ref(null);
 const menubar = ref(null);
 const fileEdit:boolean = ref(false);
@@ -154,8 +173,6 @@ const settings = reactive({
     space: import.meta.env.VITE_APP_COMIC_SPACE,
     thumbnail:[]
 });
-
-
 
 onMounted(() => {
     init();
@@ -242,14 +259,14 @@ const resetFileData = async function (data):boolean {
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(file.file_size);
-    file.file_date = Time.formatDate(file.file_date,'YYYY/MM/DD');
+    file.file_modified = Time.formatDate(file.file_modified,'YYYY/MM/DD');
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
     file.file_artists = await loadFileTaxonomy(file.file_id,'artist');
     file.file_categories = await loadFileTaxonomy(file.file_id,'category');
     file.file_languages = await loadFileTaxonomy(file.file_id,'language');
 
-    console.log('file.file_artists',file.file_artists);
+    //console.log('file.file_artists',file.file_artists);
 }
 
 const loadFileTaxonomy = async function (file_id, taxonomy) {
@@ -260,10 +277,10 @@ const loadFileTaxonomy = async function (file_id, taxonomy) {
             return []
         }
 
-        console.log('loadFileTaxonomy', res.data, params);
+        //console.log('loadFileTaxonomy', res.data, params);
         return res.data || [];
     } catch (err) {
-        console.log('err',err);
+        Base.printErrorLog('getFileTaxonomy',err)
         return []
     }
 }
@@ -686,6 +703,15 @@ const onOperateToolbar = function (args) {
 
 const onCancelFileEdit = function () {
     fileEdit.value = false;
+}
+
+const onUpdateFileEdit = function (data) {
+    console.log('onUpdateFileEdit',data);
+
+}
+
+const onCopy = function (event) {
+    Base.copy(event);
 }
 </script>
 

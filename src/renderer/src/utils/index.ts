@@ -1,3 +1,4 @@
+import Alphabet from './alphabet'
 import Base from './base'
 import Common from './common'
 import Config from './config'
@@ -7,6 +8,7 @@ import Time from './time'
 import DB from './db/index'
 
 export {
+    Alphabet,
     Base,
     Common,
     Config,

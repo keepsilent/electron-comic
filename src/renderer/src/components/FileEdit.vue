@@ -14,8 +14,9 @@
                     </div>
                     <div class="input-wrap input-l">
                         <div class="input-inner">
-                            <input v-model="file.file_alias" type="text" :placeholder="t('edit.name.placeholder')">
+                            <input v-model="page.alias" type="text" :placeholder="t('edit.name.placeholder')">
                         </div>
+                        <i v-if="page.alias" data-key="alias" @click="onInputClear" class="iconfont icon-close-fill"></i>
                     </div>
                 </div>
 
@@ -32,11 +33,12 @@
                                 <div class="input-inner">
                                     <input v-model="page.artists" type="text" :placeholder="t('edit.artists.placeholder')">
                                 </div>
+                                <i v-if="page.artists" data-key="artists" @click="onInputClear" class="iconfont icon-close-fill"></i>
                             </div>
                             <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('artists')">{{t('button.increase')}}</span>
                         </div>
                         <div class="taxonomy-footer">
-                            <span v-for="(item,index) in file.file_artists" :key="index" @click="onRemoveTermRelationships(index,'artists')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                            <span v-for="(item,index) in file.file_artists" :key="index"><i class="iconfont icon-close-fill" @click="onRemoveTermRelationships(index,'artists')"></i><em>{{item.name}}</em></span>
                         </div>
                     </div>
                 </div>
@@ -54,11 +56,12 @@
                                 <div class="input-inner">
                                     <input v-model="page.tags" type="text" :placeholder="t('edit.tags.placeholder')">
                                 </div>
+                                <i v-if="page.tags" data-key="tags" @click="onInputClear" class="iconfont icon-close-fill"></i>
                             </div>
                             <span class="btn btn-secondary btn-small ml-m" @click="onIncrease('tags')">{{t('button.increase')}}</span>
                         </div>
                         <div class="taxonomy-footer">
-                            <span v-for="(item,index) in file.file_tags" :key="index" @click="onRemoveTermRelationships(index,'tags')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                            <span v-for="(item,index) in file.file_tags" :key="index" ><i class="iconfont icon-close-fill" @click="onRemoveTermRelationships(index,'tags')"></i><em>{{item.name}}</em></span>
                         </div>
                     </div>
                 </div>
@@ -76,17 +79,15 @@
                                 <div class="input-inner">
                                     <input v-model="page.categories" type="text" :placeholder="t('edit.categories.placeholder')">
                                 </div>
+                                <i v-if="page.categories" data-key="categories" @click="onInputClear" class="iconfont icon-close-fill"></i>
                             </div>
                             <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('categories')">{{t('button.increase')}}</span>
                         </div>
                         <div class="taxonomy-footer">
-                            <span v-for="(item,index) in file.file_categories" :key="index"  @click="onRemoveTermRelationships(index,'categories')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                            <span v-for="(item,index) in file.file_categories" :key="index"><i class="iconfont icon-close-fill" @click="onRemoveTermRelationships(index,'categories')"></i><em>{{item.name}}</em></span>
                         </div>
                     </div>
                 </div>
-
-
-
 
                 <div class="item">
                     <div class="item-header">
@@ -101,11 +102,12 @@
                                 <div class="input-inner">
                                     <input v-model="page.languages" type="text" :placeholder="t('edit.languages.placeholder')">
                                 </div>
+                                <i v-if="page.languages" data-key="languages" @click="onInputClear" class="iconfont icon-close-fill"></i>
                             </div>
                             <span class="btn btn-secondary btn-small ml-m"  @click="onIncrease('languages')">{{t('button.increase')}}</span>
                         </div>
                         <div class="taxonomy-footer">
-                            <span v-for="(item,index) in file.file_languages" :key="index"  @click="onRemoveTermRelationships(index,'languages')"><i class="iconfont icon-close"></i><em>{{item.name}}</em></span>
+                            <span v-for="(item,index) in file.file_languages" :key="index" ><i class="iconfont icon-close-fill" @click="onRemoveTermRelationships(index,'languages')"></i><em>{{item.name}}</em></span>
                         </div>
                     </div>
                 </div>
@@ -116,7 +118,7 @@
                     </div>
                     <div class="input-wrap input-l" >
                         <div class="input-inner">
-                            <textarea v-model="file.intro" :placeholder="t('edit.intro.placeholder')" rows="5" maxlength="120"></textarea>
+                            <textarea v-model="page.intro" :placeholder="t('edit.intro.placeholder')" rows="5" maxlength="120"></textarea>
                         </div>
                     </div>
                 </div>
@@ -126,7 +128,7 @@
                 <div></div>
                 <div>
                     <span class="btn btn-secondary btn-small mr-l" @click="onClose">{{t('button.cancel')}}</span>
-                    <span class="btn btn-primary btn-small" @click="">{{t('button.save')}}</span>
+                    <span class="btn btn-primary btn-small" @click="onSave">{{t('button.save')}}</span>
                 </div>
             </div>
         </div>
@@ -137,19 +139,17 @@
 
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
-import {ref, reactive, onMounted, watch} from "vue";
-import {Base,Config, Common} from "@renderer/utils";
+import { reactive, onMounted, watch} from "vue";
+const fs = require("fs") as typeof import("fs");
+import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
+import {updateFileInfo} from "@renderer/api/file";
 import {isTermExist, getTermByName, increaseTerm, increaseTermRelationships, removeTermRelationships} from "@renderer/api/terms";
 import {debounce, throttle} from "@renderer/utils/throttle";
 
 import Confirm from "@renderer/components/Confirm.vue";
 import Tooltips from "@renderer/components/Tooltips.vue";
 import {usePageStore} from '@renderer/stores/page'
-
-import Select from "./Select.vue";
-import Switch from "./Switch.vue";
-import {c} from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 
 interface Props {
     show: boolean,
@@ -165,7 +165,9 @@ interface Props {
         file_total:number,
         file_status: string,
         file_categories: object,
-        file_artists: object
+        file_artists: object,
+        file_alias:string,
+        file_intro:string
     }
 }
 
@@ -178,11 +180,15 @@ interface Page {
 }
 
 const { t } = useI18n();
-const emit = defineEmits(['cancel'])
+const emit = defineEmits(['cancel','update'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
-const page:Page = reactive({show: true,categories: '', tags: '', languages: '', artists: ''})
+const page:Page = reactive({show: true, alias: '',intro: '', categories: '', tags: '', languages: '', artists: ''})
 const confirm:ConfirmInter = reactive({show: false});
+
+onMounted(() => {
+    page.show = props.show
+})
 
 const onClose = function () {
     emit('cancel')
@@ -196,36 +202,7 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-const onSelectOption = function (option) {
-    switch (option.key) {
-        case 'window':
-            break
-        case 'language':
-
-
-            break
-        case 'pageing':
-
-            localStorage.setItem('cm_setting_pageing', option.value)
-            break
-    }
-}
-
-onMounted(() => {
-    page.show = props.show
-})
-
-const onToggleSwitch = function (option) {
-    switch (option.key) {
-        case 'shortcuts':
-            // shortcuts.value = option.value;
-            // localStorage.setItem('cm_setting_shortcuts', option.value)
-            break
-    }
-}
-
-const onIncrease = throttle(async (key) => {
-    console.log('key',key);
+const onIncrease = throttle(async (key:string) => {
     const value = page[key];
 
     if(Base.isEmpty(value)) {
@@ -275,7 +252,7 @@ const getCanIncreaseData = function (arr:object, key:string):object {
     return tmp;
 }
 
-const insertTermRelationships =  async function (object_id, name, taxonomy):Promise<Boolean> {
+const insertTermRelationships =  async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
     try {
         const params = {name: name, taxonomy: taxonomy};
         const res = await isTermExist(params);
@@ -297,7 +274,7 @@ const insertTermRelationships =  async function (object_id, name, taxonomy):Prom
 }
 
 
-const onRemoveTermRelationships = throttle(async (index, key) => {
+const onRemoveTermRelationships = throttle(async (index:number, key:string) => {
     try {
         const { file_id: object_id} = props.file;
         const {term_taxonomy_id} = props.file['file_'+key][index];
@@ -314,7 +291,7 @@ const onRemoveTermRelationships = throttle(async (index, key) => {
     }
 });
 
-const getTerm = async function (name,taxonomy) {
+const getTerm = async function (name:string,taxonomy:string) {
     try {
         const params = {name: name, taxonomy: taxonomy};
         const res = await getTermByName(params);
@@ -328,8 +305,86 @@ const getTerm = async function (name,taxonomy) {
     }
 }
 
-watch(() => props.show,(value)=>{
+const onSave = throttle( async () => {
+    const { alias, intro} = page;
+    const {file_id, file_alias, file_path} = props.file;
+    const ext = File.getFileExt(file_path);
+    const new_file_path = file_path.replace(file_alias+'.'+ext, alias.trim()+'.'+ext)
+    const reg = /[/\\?%*:|"<>]/g;
+
+    if(Base.isEmpty(alias)) {
+        Common.showAlert(confirm, t('edit.name.empty'));
+        return false;
+    }
+
+    if(file_path != new_file_path) {
+        if(!File.isExists(file_path)) {
+            Common.showAlert(confirm,t("alert.content.inexistence"));
+            return false;
+        }
+
+        if(File.isExists(new_file_path)) {
+            Common.showAlert(confirm,`${alias} ${t("edit.save.file_exits")}`);
+            return false;
+        }
+
+        if(reg.test(alias)) {
+            Common.showAlert(confirm,t("alert.content.rename"));
+            return false;
+        }
+    }
+
+    try {
+        const params = {
+            file_id: file_id,
+            file_name: alias + '.' + ext,
+            file_intro: intro,
+            file_path: file_path == new_file_path ? file_path : new_file_path
+        }
+        const res = await updateFileInfo(params)
+        if(res.code != 200) {
+            return false
+        }
+
+        props.file.file_name = params.file_name;
+        props.file.file_alias = alias;
+        props.file.file_intro = intro;
+
+        if(file_path != new_file_path) {
+            props.file.file_path = new_file_path;
+            fs.renameSync(file_path, new_file_path);
+        }
+
+        emit('update',props.file);
+        emit('cancel')
+    } catch (err) {
+        Base.printErrorLog('updateFileInfo',err);
+    }
+})
+
+const onInputClear = function ({currentTarget: {dataset: {key}}}) {
+    console.log('key',key);
+    page[key] = ''
+}
+
+watch(() => props.show,(value) => {
     setTimeout(()=> {page.show = value},10)
+    if(value == true) {
+        page.alias = props.file.file_alias;
+        page.intro = props.file.file_intro;
+        page.categories = '';
+        page.tags = '';
+        page.languages = '';
+        page.artists = '';
+    }
+})
+
+watch(() => props.file.file_alias,(value) => {
+    page.alias = value
+})
+
+watch(() => props.file.file_intro,(value) => {
+    page.intro = value
 })
 </script>
 
@@ -414,7 +469,7 @@ watch(() => props.show,(value)=>{
         padding: var(--spacing-l);
 
         .item {
-            padding-bottom: var(--spacing-l);
+            padding-bottom: var(--spacing-s);
 
             &-header {
                 position: relative;
@@ -446,22 +501,13 @@ watch(() => props.show,(value)=>{
                         margin-right: var(--spacing-m);
 
                         .iconfont {
-                            display: block;
-                            width: 15px;
-                            height: 15px;
-                            line-height: 16px;
                             margin-right: var(--spacing-xs);
+                            color: var(--grey-40);
+                            font-size: 16px;
 
-                            color: #FFF;
-                            font-size: 9px;
-                            text-align: center;
-
-                            background: var(--grey-40);
-                            border-radius: 100%;
                             cursor: pointer;
-
                             &:hover {
-                                background: var(--red-40);
+                                color: var(--red-40);
                             }
                         }
                     }
@@ -476,6 +522,7 @@ watch(() => props.show,(value)=>{
     &-footer {
         display: flex;
         justify-content: space-between;
+        margin-top: -8px;
         padding: 0  var(--spacing-l) var(--spacing-l);
     }
 }

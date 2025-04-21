@@ -29,7 +29,8 @@
 		"on": "ON",
 		"off": "OFF",
 		"reset": "Reset",
-		"save": "Save"
+		"save": "Save",
+		"copy": "Copy"
 	},
 	"details": {
 		"author": "Author",
@@ -49,12 +50,14 @@
 		"settings": "Settings",
 		"zoom": "Zoom",
 		"space": "Space",
-		"reset": "Reset Configuration"
+		"reset": "Reset Configuration",
+		"intro": "Intro"
 	},
 	"alert": {
 		"default": "Friendly Reminder",
 		"content": {
 			"inexistence":"The file could not be found. Is the project moved, renamed, or deleted?",
+			"rename": "File names cannot contain any of the following characters: \\ / : *? \\ \"\" < > |",
 			"delete": {
 				"fail": "File deletion failure"
 			}
@@ -107,6 +110,9 @@
 			"title": "Intro",
 			"placeholder": "Can you intro for the file?",
 			"empty": "Please input the file intro"
+		},
+		"save": {
+			"file_exits": "has been used"
 		}
 	},
 	"tool": {
