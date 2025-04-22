@@ -143,7 +143,7 @@ import { reactive, onMounted, watch} from "vue";
 const fs = require("fs") as typeof import("fs");
 import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
-import {updateFileInfo} from "@renderer/api/file";
+import {updateFileInfoRecord} from "@renderer/api/file";
 import {isTermExist, getTermByName, increaseTerm, increaseTermRelationships, removeTermRelationships} from "@renderer/api/terms";
 import {debounce, throttle} from "@renderer/utils/throttle";
 
@@ -305,11 +305,19 @@ const getTerm = async function (name:string,taxonomy:string) {
     }
 }
 
+const getNewFilePath = function (file_path:string, file_alias:string, alias:string):string {
+    const ext = File.getFileExt(file_path);
+    return file_path.replace(file_alias+'.'+ext, alias.trim()+'.'+ext);
+}
+
+
+
 const onSave = throttle( async () => {
-    const { alias, intro} = page;
+    const {alias, intro} = page;
     const {file_id, file_alias, file_path} = props.file;
     const ext = File.getFileExt(file_path);
-    const new_file_path = file_path.replace(file_alias+'.'+ext, alias.trim()+'.'+ext)
+    const new_file_path = getNewFilePath(file_path, file_alias, alias);
+    const exists = File.isExists(file_path);
     const reg = /[/\\?%*:|"<>]/g;
 
     if(Base.isEmpty(alias)) {
@@ -318,18 +326,13 @@ const onSave = throttle( async () => {
     }
 
     if(file_path != new_file_path) {
-        if(!File.isExists(file_path)) {
-            Common.showAlert(confirm,t("alert.content.inexistence"));
-            return false;
-        }
-
-        if(File.isExists(new_file_path)) {
-            Common.showAlert(confirm,`${alias} ${t("edit.save.file_exits")}`);
-            return false;
-        }
-
         if(reg.test(alias)) {
             Common.showAlert(confirm,t("alert.content.rename"));
+            return false;
+        }
+
+        if(exists && File.isExists(new_file_path)) {
+            Common.showAlert(confirm,`${alias} ${t("edit.save.file_exits")}`);
             return false;
         }
     }
@@ -339,22 +342,19 @@ const onSave = throttle( async () => {
             file_id: file_id,
             file_name: alias + '.' + ext,
             file_intro: intro,
-            file_path: file_path == new_file_path ? file_path : new_file_path
+            old_file_path: file_path,
+            new_file_path: new_file_path,
         }
-        const res = await updateFileInfo(params)
+        const res = await updateFileInfoRecord(params);
         if(res.code != 200) {
+            Common.showAlert(confirm,t("edit.anomaly"));
             return false
         }
 
         props.file.file_name = params.file_name;
+        props.file.file_path = new_file_path;
         props.file.file_alias = alias;
         props.file.file_intro = intro;
-
-        if(file_path != new_file_path) {
-            props.file.file_path = new_file_path;
-            fs.renameSync(file_path, new_file_path);
-        }
-
         emit('update',props.file);
         emit('cancel')
     } catch (err) {
@@ -363,7 +363,6 @@ const onSave = throttle( async () => {
 })
 
 const onInputClear = function ({currentTarget: {dataset: {key}}}) {
-    console.log('key',key);
     page[key] = ''
 }
 

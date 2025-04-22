@@ -5,8 +5,9 @@ import type {
     deleteParam,
     Result
 } from "@renderer/utils/db/base";
-import {Base, DB, Time} from "@renderer/utils";
+import {Base, DB, File, Time} from "@renderer/utils";
 
+const fs = require("fs") as typeof import("fs");
 
 export const isFileExist = async function ({name, type}):Promise<Result> {
     const sql = `SELECT * FROM cm_file WHERE file_name = $name AND file_mine_type = $type LIMIT 1`;
@@ -105,4 +106,43 @@ export const deleteFile = async function ({id, status}):Promise<Result> {
     }
 
     return await DB.delete(data);
+}
+
+
+const rename = function (oldPath:string,newPath:string):boolean {
+    try {
+        fs.renameSync(oldPath, newPath);
+        return true
+    } catch (err) {
+        return false;
+    }
+}
+
+export const updateFileInfoRecord = async function ({file_id, file_name, file_intro, old_file_path, new_file_path}):Promise<Boolean> {
+    return await DB.transaction(async () => {
+        try {
+            const params = {
+                file_id: file_id,
+                file_name: file_name,
+                file_intro: file_intro,
+                file_path: old_file_path == new_file_path ? old_file_path : new_file_path
+            }
+
+            const res = await updateFileInfo(params)
+            if(res.code != 200) {
+                return false
+            }
+
+            if(File.isExists(old_file_path) && old_file_path != new_file_path) {
+                if(rename(old_file_path, new_file_path) == false) {
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (err) {
+            Base.printErrorLog('updateFileInfoRecord',err);
+            return false
+        }
+    });
 }

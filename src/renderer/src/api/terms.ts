@@ -5,8 +5,7 @@ import type {
     deleteParam,
     Result
 } from "@renderer/utils/db/base";
-import {Base, DB, Time} from "@renderer/utils";
-
+import {Alphabet, Base, DB, Time} from "@renderer/utils";
 
 
 export const isTermExist = async function ({name,taxonomy}):Promise<Result> {
@@ -84,10 +83,9 @@ export const addTermRelationships = async function (data:{ [key: string]: any })
     return await DB.insert(params);
 }
 
-
-const addTermRecord = async function (name):Promise<Number> {
+const addTermRecord = async function (name:string):Promise<Number> {
     try {
-        const params = {name: name}
+        const params = {name: name, term_group: Alphabet.getFirstCharMatchAscii(name)}
         const res = await addTerm(params);
         if(res.code != 200) {
             return 0
@@ -125,7 +123,7 @@ const addTermRelationshipsRecord = async function (object_id:number, term_taxono
 
         return true
     } catch (err) {
-        Base.printErrorLog('addTermTaxonomy',err);
+        Base.printErrorLog('addTermRelationships',err);
         return false
     }
 }
@@ -140,13 +138,12 @@ const updateTaxonomyCountRecord = async function (term_taxonomy_id:number, count
 
         return true
     } catch (err) {
-        Base.printErrorLog('updateTaxonomyCount',err);
+        Base.printErrorLog('updateTaxonomyCountRecord',err);
         return false
     }
 }
 
-
-export const increaseTerm = async function (object_id, name, taxonomy):Promise<Boolean> {
+export const increaseTerm = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
     return await DB.transaction(async () => {
         try {
             const params = {name: name, taxonomy: taxonomy};
@@ -172,12 +169,13 @@ export const increaseTerm = async function (object_id, name, taxonomy):Promise<B
 
             return updateTaxonomyCountRecord(term_taxonomy_id, 1);
         } catch (err) {
+            Base.printErrorLog('increaseTerm',err)
             return false;
         }
     });
 }
 
-export const increaseTermRelationships = async function (object_id, name, taxonomy):Promise<Boolean> {
+export const increaseTermRelationships = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
     return await DB.transaction(async () => {
         try {
             const params = {name: name, taxonomy: taxonomy};
@@ -205,6 +203,7 @@ export const increaseTermRelationships = async function (object_id, name, taxono
             }
             return updateTaxonomyCountRecord(term_taxonomy_id, count + 1);
         } catch (err) {
+            Base.printErrorLog('increaseTermRelationships',err)
             return false
         }
     });
@@ -219,7 +218,7 @@ export const deleteTermRelationships = async function ({object_id, term_taxonomy
     return await DB.delete(data);
 }
 
-export const removeTermRelationships = async function (object_id, term_taxonomy_id):Promise<Boolean> {
+export const removeTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean> {
     return await DB.transaction(async () => {
         try {
             const params = {term_taxonomy_id: term_taxonomy_id};
@@ -246,7 +245,7 @@ export const removeTermRelationships = async function (object_id, term_taxonomy_
 
             return updateTaxonomyCountRecord(term_taxonomy_id, count - 1 < 0 ? 0 : count - 1);
         } catch (err) {
-            console.log('er',err);
+            Base.printErrorLog('removeTermRelationships',err)
             return false
         }
     });

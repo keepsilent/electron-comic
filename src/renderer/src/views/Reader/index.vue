@@ -133,16 +133,6 @@ import {getFileInfo, getFileTaxonomy} from "@renderer/api/file";
 import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
 
-
-// let str = 'こんにちは';
-// let test = Alphabet.getFirstChar(str);
-// console.warn('getFirstString', test);
-
-console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('Keepsilent'));
-console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('窦'));
-console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('です'));
-console.log('getFirstCharMatchLetter',Alphabet.getFirstCharMatchLetter('한국'));
-
 import Toolbar from "./components/toolbar.vue";
 import Menubar from "./components/menubar.vue";
 import Confirm from "@renderer/components/Confirm.vue";
@@ -701,13 +691,19 @@ const onOperateToolbar = function (args) {
     }
 }
 
-const onCancelFileEdit = function () {
+const onCancelFileEdit = function ():void {
     fileEdit.value = false;
 }
 
-const onUpdateFileEdit = function (data) {
+const onUpdateFileEdit = function (data:object):boolean {
+    if(Base.isEmpty(data)) {
+        return false;
+    }
+    file.file_name = data.file_name;
+    file.file_path = data.file_path;
+    file.file_alias = data.file_alias;
+    file.file_intro = data.file_intro;
     console.log('onUpdateFileEdit',data);
-
 }
 
 const onCopy = function (event) {
