@@ -27,7 +27,13 @@ export default defineConfig({
         },
         plugins: [vue()]
     },
-    server: {
-        port: 3000,
+    server: { //不支持使用代理
+        host: '0.0.0.0',
+        port: 80,
+        '/api2': {
+            target: 'https://yunchu-test.fanyide.cn',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api2/, '')
+        }
     },
 })

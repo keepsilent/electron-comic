@@ -30,15 +30,11 @@ const proxy = {
     host: '127.0.0.1',
     port: 8080
 }
-//https://nhentai.net/search/?q=%5BBG+Honda%5D+Ruuindo+Oogazumu+de+Amaiki+Tatakikoma+reru+Hanashi
+
+
 const catchPage = async function () {
     try {
-        // const res = await axios.get(crawler.url, {
-        //     proxy: proxy,
-        //     headers: {'Content-type': 'application/json; charset=UTF-8'},
-        // });
-
-        const res = await axios.get('https://nhentai.net/api/galleries/search?query=keep&page=1&sort=date');
+        const res = await axios.get(crawler.url);
         console.log('res',res);
         if(res.status != 200) {
             return false;
@@ -46,7 +42,6 @@ const catchPage = async function () {
 
 
         return res.data;
-
     } catch (err) {
         file.insertLogRecord('crawler',err,{'scene':crawler.scene});
         return '';
@@ -74,8 +69,13 @@ const setSearchOptions = function () {
     crawler.source = options.source;
     switch (crawler.source) {
         case 'nhentai':
-            crawler.url = 'https://nhentai.net/'
-            //crawler.url = 'https://e-hentai.org/'
+            //crawler.url = 'https://nhentai.net/'
+            crawler.url = 'https://e-hentai.org/'
+            crawler.url = 'https://nhentai.net/api/galleries/search?query=[Zerodo]&page=1&sort=date';
+            //crawler.url = 'https://developers.weixin.qq.com/community/develop/doc/0002e6a2008da86bef5b79f9c51009';
+             //crawler.url = 'https://www.bing.com/?FORM=Z9FD1'
+            //crawler.url = 'https://www.bilibili.com';
+            //crawler.url = 'https://www.baidu.com';
            // crawler.url = searchMap[options.source] + '%5BBG+Honda%5D+Ruuindo+Oogazumu+de+Amaiki+Tatakikoma+reru+Hanashi';
            // crawler.url = searchMap[options.source]
             break
