@@ -3,7 +3,9 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-const createWindow = function(): void {
+//app.commandLine.appendSwitch('disable-site-isolation-trials');
+
+const createWindow = async function(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 662,
@@ -20,9 +22,22 @@ const createWindow = function(): void {
             preload: join(__dirname, '../preload/index.js'), // 预加载脚本路径
             sandbox: false, // 禁用沙盒模式
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
         }
     })
+
+    //充许 iframe 访问第三方url
+    // mainWindow.webContents.session.webRequest.onHeadersReceived({ urls: [ "*://*/*" ] },
+    //     (d, c)=>{
+    //         if(d.responseHeaders['X-Frame-Options']){
+    //             delete d.responseHeaders['X-Frame-Options'];
+    //         } else if(d.responseHeaders['x-frame-options']) {
+    //             delete d.responseHeaders['x-frame-options'];
+    //         }
+    //
+    //         c({cancel: false, responseHeaders: d.responseHeaders});
+    //     }
+    // );
 
     mainWindow.webContents.openDevTools({mode:'detach'});
 
