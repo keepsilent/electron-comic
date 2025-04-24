@@ -2,7 +2,8 @@
     <div class="header">
         <div class="header-inner">
             <div class="nav">
-                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
+                <span class="iconfont icon-toggle-left2 toggle-btn" ></span>
+<!--                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>-->
                 <div class="search ml-m">
                     <i class="iconfont icon-search"></i>
                     <input type="text" v-model="keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">

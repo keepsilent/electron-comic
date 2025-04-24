@@ -25,7 +25,7 @@
                 <div class="info">
                     <h3 class="title">
                         {{file.file_alias}}
-                        <i class="iconfont icon-copy" :title="$t('button.copy')" :data-text="file.file_alias" @click="onCopy"></i>
+                        <i class="iconfont icon-copy" style="font-weight: normal" :title="$t('button.copy')" :data-text="file.file_alias" @click="onCopy"></i>
                     </h3>
 <!--                    <p class="subtitle">[BG本田] シンタロ-がストッキングオナニ-する話 [英訳]</p>-->
                     <p class="no"><span>#</span>{{file.file_id}}</p>
@@ -88,7 +88,7 @@
             </div>
             <Empty :empty="empty"></Empty>
 
-            <div class="detail-main" >
+            <div class="detail-main">
                 <div v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
                     <template v-if="item.status == 'loading'">
                         <div class="loading">
@@ -104,6 +104,8 @@
                     </template>
                 </div>
             </div>
+
+            <div v-if="thumbnail.length > 0" class="detail-footer mt-m">Σ(ﾟдﾟ;) {{t('details.end')}}</div>
 
             <!-- 分页数 -->
             <div v-if="settings.page.show" class="detail-page none-select">
@@ -127,7 +129,8 @@ import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
 import {Alphabet, Base,Common, File,Time} from "@renderer/utils";
-import {usePageStore} from '@renderer/stores/page'
+import {usePageStore} from '@renderer/stores/page';
+import {useFileStore} from '@renderer/stores/file';
 import {getFileInfo, getFileTaxonomy} from "@renderer/api/file";
 import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
@@ -145,6 +148,7 @@ const route = useRoute();
 const router = useRouter();
 
 const pageStore = usePageStore();
+const fileStore = useFileStore();
 const fs = require("fs") as typeof import("fs");
 const scrollbar = ref(null);
 const menubar = ref(null);
@@ -164,19 +168,19 @@ const settings = reactive({
 });
 
 
-import axios from "axios";
+// import axios from "axios";
 onMounted(async () => {
     init();
 
-    axios.get('https://nhentai.net/api/galleries/search?query=[Zerodo]&page=1&sort=date')
-        .then(function (res) {
-            // 获取网页数据
-            console.log(res);
-
-        })
-        .catch(function (err) {
-            console.log('failed', err);
-        });
+    // axios.get('https://nhentai.net/api/galleries/search?query=[Zerodo]&page=1&sort=date')
+    //     .then(function (res) {
+    //         // 获取网页数据
+    //         console.log(res);
+    //
+    //     })
+    //     .catch(function (err) {
+    //         console.log('failed', err);
+    //     });
 })
 
 onBeforeUnmount(() => {
@@ -227,7 +231,7 @@ const loadDetail = async function () {
             return false;
         }
 
-        console.log('x');
+        //console.log('x');
 
         resetFileData(res.data);
         await getFileSettings();
@@ -287,6 +291,8 @@ const loadFileTaxonomy = async function (file_id, taxonomy) {
 }
 
 const renderStatus = function (file) {
+    fileStore.info = file;
+    fileStore.id = file.file_id;
     pageStore.num = file.file_total;
     pageStore.setStatusPath(file.file_path,'path');
 }

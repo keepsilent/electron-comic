@@ -65,7 +65,7 @@ const pageStore = usePageStore();
 const page = reactive({height: Config.getMainHeight(pageStore.height)});
 const empty:Empty = reactive({icon: 'icon-file-fill',title: '漫画库为空',subtitle:'您的漫画库空荡荡～'})
 
-pageStore.setStatusPath('Comic');
+pageStore.setStatusPath('From: New');
 //pageStore.setStatusPath(['C:','Users','keepsilent','Downloads'],'path');
 watch(() => pageStore.height,(value)=>{
     page.height = Config.getMainHeight(value);

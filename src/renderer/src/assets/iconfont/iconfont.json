@@ -6,6 +6,195 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "38795563",
+      "name": "toggle-left",
+      "font_class": "toggle-left2",
+      "unicode": "e64d",
+      "unicode_decimal": 58957
+    },
+    {
+      "icon_id": "38795564",
+      "name": "toggle-right",
+      "font_class": "toggle-right2",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    },
+    {
+      "icon_id": "11903650",
+      "name": "toggle-left",
+      "font_class": "toggle-left1",
+      "unicode": "e6f6",
+      "unicode_decimal": 59126
+    },
+    {
+      "icon_id": "11903653",
+      "name": "toggle-right",
+      "font_class": "toggle-right1",
+      "unicode": "e6f7",
+      "unicode_decimal": 59127
+    },
+    {
+      "icon_id": "15838497",
+      "name": "lock",
+      "font_class": "lock",
+      "unicode": "e676",
+      "unicode_decimal": 58998
+    },
+    {
+      "icon_id": "15838529",
+      "name": "sign-out",
+      "font_class": "sign-out",
+      "unicode": "e67d",
+      "unicode_decimal": 59005
+    },
+    {
+      "icon_id": "15838542",
+      "name": "toggle-left",
+      "font_class": "toggle-left",
+      "unicode": "e681",
+      "unicode_decimal": 59009
+    },
+    {
+      "icon_id": "15838543",
+      "name": "toggle-right",
+      "font_class": "toggle-right",
+      "unicode": "e682",
+      "unicode_decimal": 59010
+    },
+    {
+      "icon_id": "15838546",
+      "name": "unlock",
+      "font_class": "unlock",
+      "unicode": "e683",
+      "unicode_decimal": 59011
+    },
+    {
+      "icon_id": "15838547",
+      "name": "user",
+      "font_class": "user",
+      "unicode": "e684",
+      "unicode_decimal": 59012
+    },
+    {
+      "icon_id": "15838561",
+      "name": "arrow-left-bold",
+      "font_class": "arrow-left-bold",
+      "unicode": "e685",
+      "unicode_decimal": 59013
+    },
+    {
+      "icon_id": "38402346",
+      "name": "Subfield Left",
+      "font_class": "subfield-left",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "38402347",
+      "name": "Subfield full",
+      "font_class": "subfield-full",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "30446",
+      "name": "Discover",
+      "font_class": "discover",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    },
+    {
+      "icon_id": "61146",
+      "name": "We Fill",
+      "font_class": "we-fill",
+      "unicode": "e6f4",
+      "unicode_decimal": 59124
+    },
+    {
+      "icon_id": "61147",
+      "name": "We",
+      "font_class": "we",
+      "unicode": "e6f5",
+      "unicode_decimal": 59125
+    },
+    {
+      "icon_id": "748115",
+      "name": "Parody Fill",
+      "font_class": "parody-fill",
+      "unicode": "e7a9",
+      "unicode_decimal": 59305
+    },
+    {
+      "icon_id": "748116",
+      "name": "Parody",
+      "font_class": "parody",
+      "unicode": "e7aa",
+      "unicode_decimal": 59306
+    },
+    {
+      "icon_id": "33518",
+      "name": "Discover Fill",
+      "font_class": "discover-fill",
+      "unicode": "e6ba",
+      "unicode_decimal": 59066
+    },
+    {
+      "icon_id": "90849",
+      "name": "New Fill",
+      "font_class": "new-fill",
+      "unicode": "e71d",
+      "unicode_decimal": 59165
+    },
+    {
+      "icon_id": "90850",
+      "name": "New",
+      "font_class": "new",
+      "unicode": "e71e",
+      "unicode_decimal": 59166
+    },
+    {
+      "icon_id": "212330",
+      "name": "Tag Fill",
+      "font_class": "tag-fill",
+      "unicode": "e751",
+      "unicode_decimal": 59217
+    },
+    {
+      "icon_id": "212331",
+      "name": "Tag",
+      "font_class": "tag",
+      "unicode": "e752",
+      "unicode_decimal": 59218
+    },
+    {
+      "icon_id": "212332",
+      "name": "Group",
+      "font_class": "group",
+      "unicode": "e753",
+      "unicode_decimal": 59219
+    },
+    {
+      "icon_id": "1133854",
+      "name": "Artist Fill",
+      "font_class": "artist-fill",
+      "unicode": "e7cc",
+      "unicode_decimal": 59340
+    },
+    {
+      "icon_id": "1133855",
+      "name": "Artist",
+      "font_class": "artist",
+      "unicode": "e7cd",
+      "unicode_decimal": 59341
+    },
+    {
+      "icon_id": "1980226",
+      "name": "Group Fill",
+      "font_class": "group-fill",
+      "unicode": "e7f5",
+      "unicode_decimal": 59381
+    },
+    {
       "icon_id": "29943",
       "name": "Close Fill",
       "font_class": "close-fill",

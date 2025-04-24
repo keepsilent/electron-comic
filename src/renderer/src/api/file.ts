@@ -18,6 +18,15 @@ export const isFileExist = async function ({name, type}):Promise<Result> {
     return await DB.query(data);
 }
 
+export const getRandomFileInfo = async function ({id}):Promise<Result> {
+    const sql = `SELECT * FROM cm_file WHERE file_id != $id AND file_status = 'normal' ORDER BY RANDOM() LIMIT 1`;
+    const data:queryParam = {
+        sql: sql,
+        params: {$id: id}
+    }
+    return await DB.query(data);
+}
+
 export const getFileInfo = async function ({id}):Promise<Result> {
     const sql = `SELECT * FROM cm_file WHERE file_id = $id LIMIT 1`;
     const data:queryParam = {
@@ -26,6 +35,7 @@ export const getFileInfo = async function ({id}):Promise<Result> {
     }
     return await DB.query(data);
 }
+
 
 export const getFileTaxonomy = async function ({file_id, taxonomy}):Promise<Result> {
     const sql = `SELECT cm_term_taxonomy.term_taxonomy_id, name, taxonomy, count FROM cm_file 

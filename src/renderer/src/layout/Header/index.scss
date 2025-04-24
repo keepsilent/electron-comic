@@ -30,12 +30,12 @@
         -webkit-app-region: no-drag;
         app-region: no-drag;
 
-        .icon-return {
+        .toggle-btn {
             height: var(--size-m);
             width: var(--size-m);
             line-height: var(--line-height-xxl);
 
-            color: var(--content-color-secondary);
+            color: var(--content-color-tertiary);
             font-size: var(--text-size-xl);
             text-align: center;
 
@@ -43,8 +43,9 @@
             border-radius: var(--border-radius-default);
 
             &:hover,&:active {
-                color: var(--content-color-primary);
-                background: var(--highlight-background-color-secondary);
+                color: var(--content-color-secondary);
+                //background: var(--highlight-background-color-secondary);
+                background: var(--background-color-tertiary);
             }
         }
     }
@@ -155,7 +156,8 @@
 
                 &:hover, &:active {
                     color: var(--content-color-primary);
-                    background: var(--highlight-background-color-secondary);
+                    //background: var(--highlight-background-color-secondary);
+                    background: var(--background-color-tertiary);
                     opacity: 1;
                 }
             }
@@ -176,7 +178,8 @@
                 cursor: pointer;
 
                 &:hover {
-                    background: var(--highlight-background-color-secondary);
+                    //background: var(--highlight-background-color-secondary);
+                    background: var(--background-color-tertiary);
                 }
 
                 &:last-child:hover {

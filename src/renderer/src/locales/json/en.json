@@ -32,6 +32,21 @@
 		"save": "Save",
 		"copy": "Copy"
 	},
+	"aside": {
+		"menu": {
+			"new": "New",
+			"random": "Random",
+			"tags": "Tags",
+			"artists": "Artists",
+			"categories": "Categories",
+			"parodies": "Parodies",
+			"groups": "Groups"
+		},
+		"random": {
+			"empty": "No found file",
+			"anomaly": "Accidents occur randomly"
+		}
+	},
 	"details": {
 		"author": "Author",
 		"artists": "Artists",
@@ -51,7 +66,8 @@
 		"zoom": "Zoom",
 		"space": "Space",
 		"reset": "Reset Configuration",
-		"intro": "Intro"
+		"intro": "Intro",
+		"end": "The End."
 	},
 	"alert": {
 		"default": "Friendly Reminder",

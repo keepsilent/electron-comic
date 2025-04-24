@@ -213,11 +213,17 @@
         }
     }
 
+    &-footer {
+        padding-bottom: var(--spacing-xl);
+        color: var(--content-color-tertiary);
+        font-size: var(--text-size-l);
+        line-height: 1;
+        text-align: center;
+    }
+
     &-page {
         display: flex;
         align-items: flex-end;
-
-
 
         position: fixed;
         left: 233px;

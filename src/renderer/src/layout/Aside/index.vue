@@ -51,9 +51,10 @@
 
                 <!-- 菜单 -->
                 <div class="menu pt-xl">
-                    <ul>
-                        <li :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu"><i v-if="item.icon" :class="['iconfont',item.icon]" ></i>{{item.name}}</li>
-                    </ul>
+                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu">
+                        <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill': 'iconfont '+item.icon"></i>
+                        <em>{{item.name}}</em>
+                    </div>
                 </div>
             </div>
 
@@ -63,19 +64,35 @@
                     <img :src="banner.image" :alt="banner.name" :data-url="banner.url" data-target="_blank" width="100%" @click="onRedirectByEvent">
                     <span class="tips">广告</span>
                 </div>
+                <div class="line"></div>
+                <div class="subfield">
+                    <span class="active"><i class="iconfont icon-subfield-left"></i></span>
+                    <span><i class="iconfont icon-subfield-full"></i></span>
+                </div>
             </div>
         </div>
     </div>
+    <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
 <script setup lang="ts">
-import {ref,reactive} from "vue";
+import {useI18n} from "vue-i18n";
+import {ref,reactive,watch} from "vue";
 import { useRouter } from 'vue-router'
-import {Base,User} from "@renderer/utils";
+import {Base,Common,User} from "@renderer/utils";
+import {usePageStore} from '@renderer/stores/page'
+import {useFileStore} from '@renderer/stores/file'
+import {debounce, throttle} from "@renderer/utils/throttle";
+import {getRandomFileInfo} from "@renderer/api/file";
+import {ConfirmInter, FileInter, PageInter} from "@renderer/utils/types";
+
+import Confirm from "@renderer/components/Confirm.vue";
+
 interface Menu {
     current: number,
     data: object
 }
+
 interface Banner {
     name: string,
     image: string,
@@ -89,17 +106,20 @@ interface User {
     exp:number
 }
 
+const { t } = useI18n();
 const router = useRouter()
-const menu:Menu = reactive({ current: 1,
+const pageStore = usePageStore();
+const fileStore = useFileStore();
+const file:FileInter = reactive({file_id: 0})
+const menu:Menu = reactive({ current: 0,
     data:[
-        {name: '最近使用',url: '',icon: 'icon-time'},
-        {name: '全部文件',url: '',icon: 'icon-file'},
-        {name: '图片',url: '',icon: ''},
-        {name: '漫画',url: '/',icon: ''},
-        {name: '视频',url: '',icon: ''},
-        {name: '书籍',url: '',icon: ''},
-        {name: '文档',url: '',icon: ''},
-        {name: '回收站',url: '/recycle',icon: 'icon-delete'},
+        {name: t('aside.menu.new'), key:'new', url: '/',icon: 'icon-new'},
+        {name: t('aside.menu.random'), key:'random', url: '',icon: 'icon-discover'},
+        {name: t('aside.menu.tags'), key:'tags', url: '',icon: 'icon-tag'},
+        {name: t('aside.menu.artists'), key:'artists', url: '',icon: 'icon-artist'},
+        {name: t('aside.menu.categories'), key:'categories', url: '',icon: 'icon-we'},
+        {name: t('aside.menu.parodies') ,key:'parodies', url: '',icon: 'icon-parody'},
+        {name: t('aside.menu.groups'), key:'groups', url: '',icon: 'icon-group'}
     ]
 })
 
@@ -115,7 +135,8 @@ const user:User = reactive({
     level: 5,
     exp: 10000,
 })
-
+const confirm:ConfirmInter = reactive({});
+const page:PageInter = reactive({init: false, loading: false, actions: {}});
 
 const getUserLevelExp = function (level):number {
     return User.getUserLevelExp(level);
@@ -123,25 +144,73 @@ const getUserLevelExp = function (level):number {
 const getUserExpProgress = function (level,exp):number {
     return User.getUserExpProgress(level,exp);
 }
-const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):void {
-    const {url} = menu.data[index];
+
+const loadRandomFileInfo = debounce(async () => {
+    try {
+
+        const params = {id: file.file_id}
+        const res = await getRandomFileInfo(params);
+
+        if(res.code != 200) {
+            return false;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            Common.showAlert(confirm,t('aside.random.empty'));
+            return false;
+        }
+
+        const object = {
+            path: `/reader`,
+            query:  {id: res.data[0].file_id}
+        }
+
+        router.push(object)
+    } catch (err) {
+        Base.printErrorLog('getRandomFileInfo',err)
+        Common.showAlert(confirm,t('aside.random.anomaly'));
+    }
+})
+
+
+const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):boolean {
+    const {key,url} = menu.data[index];
 
     menu.current = index;
+    if(key == 'random') {
+        console.log('key',key);
+        loadRandomFileInfo();
+        return false;
+    }
+
+
     console.log('url',url);
    // Base.redirect(url)
 
-    router.push({
-        path: url,
-        query:{ //query是个配置项
-            age:20
-        }
-    })
+    const query = { //query是个配置项
+        age:20
+    }
+    router.push({path: url, query: query})
     //this.$router.push({ name:‘hello’, query:{ name:‘word’, age:‘11’ } })
 }
 
 const onRedirectByEvent = function (event) {
     Base.redirectByEvent(event)
 }
+
+const onCancelConfirm = function () {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function () {
+    Common.operateConfirm(confirm, page);
+}
+
+watch(() => fileStore.id,(value)=>{
+    console.log('fileStore',value);
+    file.file_id = value;
+   // status.path = analyzePath(value);
+})
 
 </script>
 <style lang="scss" scoped>
