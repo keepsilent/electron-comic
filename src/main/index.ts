@@ -23,6 +23,7 @@ const createWindow = async function(): void {
             sandbox: false, // 禁用沙盒模式
             nodeIntegration: true,
             contextIsolation: false,
+            webSecurity: false, //关闭web权限检查，允许跨域
         }
     })
 

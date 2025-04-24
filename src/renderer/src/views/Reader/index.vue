@@ -164,49 +164,11 @@ const settings = reactive({
 });
 
 
-
 import axios from "axios";
-
-
-const cp = require("child_process") as typeof import("child_process");
 onMounted(async () => {
     init();
-    //
-    // console.log('__dirname',__dirname);
-    // const url = './resources/crawler/index.ts';
-    // cp.spawn('node', [url],
-    //     { stdio: 'inherit' }
-    // );
-    // console.log('child_process',cp)
 
-    // const service = axios.create({
-    //    // baseURL: '/api',
-    //     timeout: 50000,
-    //     headers: {
-    //         'Content-Type': 'application/x-www-form-urlencoded'
-    //     }
-    // });
-    //
-    // service.get('/api/galleries/search?query=[Zerodo]%20Joushiki%20Kaihen%20Application&page=1&sort=date')
-    //     .then(function (res) {
-    //         // 获取网页数据
-    //         console.log(res);
-    //
-    //     })
-    //     .catch(function (err) {
-    //         console.log('failed', err);
-    //     });
-
-
-    const service2 = axios.create({
-        //baseURL: '/api2',
-        timeout: 50000,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    });
-
-    service2.get('/api2/auth/code')
+    axios.get('https://nhentai.net/api/galleries/search?query=[Zerodo]&page=1&sort=date')
         .then(function (res) {
             // 获取网页数据
             console.log(res);
@@ -215,116 +177,6 @@ onMounted(async () => {
         .catch(function (err) {
             console.log('failed', err);
         });
-
-    // const request = axios.create({
-    //     baseURL: '/',
-    //     headers: {
-    //         'Content-Type': 'application/x-www-form-urlencoded'
-    //     },
-    //     responseType: 'text',
-    //     timeout: 120000, // request timeout
-    // })
-    //
-    // request.get('/auth/code')
-    //     .then(function (res) {
-    //         // 获取网页数据
-    //         console.log(res.data);
-    //     })
-    //     .catch(function (err) {
-    //         console.log('failed', err);
-    //     });
-
-    // axios.get('/api/auth/code')
-    //     .then(function (res) {
-    //         // 获取网页数据
-    //         console.log(res.data);
-    //     })
-    //     .catch(function (err) {
-    //         console.log('failed', err);
-    //     });
-
-    // const service = axios.create({
-    //     baseURL: '/',
-    //     timeout: 50000,
-    //     headers: {
-    //         'Content-Type': 'application/json;charset=utf-8',
-    //         'Access-Control-Allow-Origin' : '*',
-    //         'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
-    //     }
-    // });
-
-    // service.get('/galleries/search?query=[Zerodo]%20Joushiki%20Kaihen%20Application&page=1&sort=date')
-    //     .then(function (res) {
-    //         // 获取网页数据
-    //         console.log(res.data);
-    //     })
-    //     .catch(function (err) {
-    //         console.log('failed', err);
-    //     });
-
-
-
-
-// Or import puppeteer from 'puppeteer-core';
-
-
-    // const browser = await puppeteer.launch();
-    // const page = await browser.newPage();
-
-// Navigate the page to a URL.
-    //await page.goto('https://developer.chrome.com/');
-
-
-//     await browser.close();
-
-    // var Nightmare = require("nightmare") as typeof import("nightmare");
-    // var nightmare = Nightmare({ show: true });
-    //
-    // nightmare.goto('https://www.bidu.com')
-    //     .end(() => 'some value')
-    //     .then(function (result) {
-    //         console.log(result);
-    //     })
-    //     .catch(function (error) {
-    //         console.error('Search failed:', error);
-    //     });
-
-    // nightmare.goto('https://duckduckgo.com')
-    //     .type('#search_form_input_homepage', 'github nightmare')
-    //     .click('#search_button_homepage')
-    //     .wait('#zero_click_wrapper .c-info__title a')
-    //     .evaluate(function () {
-    //         return document.querySelector('#zero_click_wrapper .c-info__title a').href;
-    //     })
-    //     .end()
-    //     .then(function (result) {
-    //         console.log(result);
-    //     })
-    //     .catch(function (error) {
-    //         console.error('Search failed:', error);
-    //     });
-
-    // var iframe = document.createElement("iframe");
-    // iframe.id = 'iframe';
-    // //iframe.src = "https://nhentai.net/g/568663/";
-    // iframe.src = "https://www.bilibili.com/";
-    //
-    // iframe.src = 'https://e-hentai.org';
-    //
-    // if (iframe.attachEvent){
-    //     iframe.attachEvent("onload", function(){
-    //        // alert("Local iframe is now loaded.");
-    //         console.log('Local iframe is now loaded1');
-    //     });
-    // } else {
-    //     iframe.onload = function(){
-    //         console.log('Local iframe is now loaded2');
-    //         // var iframe2 = document.getElementById('iframe');
-    //         // var iframeDocument = iframe2.contentDocument || iframe2.contentWindow.document;
-    //         // console.log('iframeDocument',iframeDocument);
-    //     };
-    // }
-    // document.body.appendChild(iframe);
 })
 
 onBeforeUnmount(() => {
