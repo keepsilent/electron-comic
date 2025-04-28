@@ -117,7 +117,7 @@
                         <label>{{t('edit.intro.title')}}:</label>
                     </div>
                     <div class="input-wrap input-l" >
-                        <div class="input-inner">
+                        <div class="input-inner input-textarea">
                             <textarea v-model="page.intro" :placeholder="t('edit.intro.placeholder')" rows="5" maxlength="120"></textarea>
                         </div>
                     </div>
@@ -252,7 +252,7 @@ const getCanIncreaseData = function (arr:object, key:string):object {
     return tmp;
 }
 
-const insertTermRelationships =  async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
+const insertTermRelationships = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
     try {
         const params = {name: name, taxonomy: taxonomy};
         const res = await isTermExist(params);
@@ -309,8 +309,6 @@ const getNewFilePath = function (file_path:string, file_alias:string, alias:stri
     const ext = File.getFileExt(file_path);
     return file_path.replace(file_alias+'.'+ext, alias.trim()+'.'+ext);
 }
-
-
 
 const onSave = throttle( async () => {
     const {alias, intro} = page;

@@ -36,6 +36,7 @@ import {ref, reactive, watch, onMounted} from 'vue'
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {Base, Common, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
+import {getNhentaiList} from "@renderer/api/nhentai";
 import {usePageStore} from '@renderer/stores/page'
 
 import Loading from "./Loading.vue";
@@ -172,7 +173,6 @@ const uploadFile = async function (file, extract) {
     try {
         const data= {
             'file_name': file.name,
-            'file_author': '',
             'file_mine_type': file.type,
             'file_size': file.size,
             'file_path': file.path,
@@ -185,7 +185,10 @@ const uploadFile = async function (file, extract) {
             return false
         }
 
-        File.createCoverByBase64(res.data, cover)
+        const file_id = res.data;
+        data.file_id = file_id;
+        await getNhentaiList(data);
+        File.createCoverByBase64(file_id, cover)
         loadFileList();
         console.log('addSingleFile res',res);
     } catch (err) {

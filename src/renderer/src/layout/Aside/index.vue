@@ -71,10 +71,10 @@
                 </div>
                 <div class="line"></div>
                 <div class="layout">
-                    <tempalte v-if="aside.layout == 'two'">
+                    <template v-if="aside.layout == 'two'">
                         <span :class="{'active': aside.layout == 'one'}" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
                         <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
-                    </tempalte>
+                    </template>
                     <template v-else>
                         <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
                         <span :class="{'active': aside.layout == 'two'}" @click="onPageLayout('two')"><i class="iconfont icon-layout-double"></i></span>

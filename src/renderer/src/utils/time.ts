@@ -50,20 +50,29 @@ const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss')
     const now = new Date().getTime();   //获取当前时间毫秒
     const value = now - parseInt(timeStamp); //时间差
 
+    const day = Math.floor(value / (1000 * 60 * 60) / 24);
     const hour = Math.floor(value / (1000 * 60 * 60));
     const minute = Math.floor(value / (1000 * 60));
     const second = Math.floor(value / 1000);
 
-    if (hour >= 1 && hour <= 12) {
-        return parseInt(hour) + '小时前';
+    if (day >= 1 && day <= 3) {
+        return `${day} day, ${hour - day * 24} hours ago`;
+    }
+
+    if (hour >= 1 && hour <= 23) {
+        return `${hour} hours, ${minute - hour * 60} minutes ago`;
     }
 
     if (minute >= 1 && minute <= 59) {
-        return parseInt(minute) + '分钟前';
+        return `${minute} minutes ago`;
     }
 
-    if(second >= 0 && second <= 59) {
-        return '刚刚';
+    if(second >= 4 && second <= 59) {
+        return `${second} seconds ago`;
+    }
+
+    if(second >= 0 && second <= 3) {
+        return 'just now';
     }
 
     return formatDate(timeStamp, format);

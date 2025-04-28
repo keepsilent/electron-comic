@@ -86,7 +86,6 @@ class Database {
                 file_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 file_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
                 file_name TEXT NOT NULL DEFAULT '' ,
-                file_author VARCHAR(64) NOT NULL DEFAULT '',
                 file_intro TEXT NOT NULL DEFAULT '' ,
                 file_path TEXT NOT NULL DEFAULT '' ,
                 file_size VARCHAR(64) NOT NULL DEFAULT 0,

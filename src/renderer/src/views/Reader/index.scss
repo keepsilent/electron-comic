@@ -87,66 +87,71 @@
             .title,.subtitle {
                 width: 65%;
                 padding-bottom: var(--spacing-s);
-                //color: var(--content-color-secondary);
+                color: var(--content-color-primary);
                 font-size: var(--text-size-xl);
-                font-weight: bolder;
 
-
-                .icon-copy {
-                    color: var(--content-color-tertiary);
-                    font-weight: normal;
-                    cursor: pointer;
-
-                    &:hover {
-                        color: var(--content-color-secondary);
-                    }
+                //.icon-copy {
+                //    color: var(--content-color-tertiary);
+                //    font-weight: normal;
+                //    cursor: pointer;
+                //
+                //    &:hover {
+                //        color: var(--content-color-secondary);
+                //    }
+                //}
+                :deep(span) {
+                    color: var(--content-color-secondary);
                 }
+            }
+
+            .subtitle {
+                font-size: var(--text-size-l);
             }
 
             .no {
                 font-size: var(--text-size-l);
-                padding-bottom: var(--spacing-s);
+                padding-bottom: var(--spacing-xxs);
+
                 span {
                     color: var(--content-color-tertiary);
                 }
             }
 
             .taxonomy {
-                &-wrap {}
-                &-inner {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
 
-                    display: inline-block;
-                    align-items: center;
-                    width: 65%;
-                    label { float: left;  margin-top: 6px}
-                    .item {
-                        float: left;
-                        margin-top: 6px;
+                width: 65%;
+
+                label { margin-top: 6px}
+                .item {
+                    margin-top: 6px;
+                    padding: var(--spacing-xxs) 0;
+                    margin-right: var(--spacing-s);
+                    background: var(--background-color-tertiary);
+                    border-radius: var(--border-radius-default);
+                    cursor: pointer;
+
+                    em {
+                        padding-left: var(--spacing-xs);
+                        padding-right: var(--spacing-xs);
+                    }
+
+                    i {
+                        margin-left: var(--spacing-xxs);
                         padding: var(--spacing-xxs) 0;
-                        margin-right: var(--spacing-s);
-                        background: var(--background-color-tertiary);
-                        border-radius: var(--border-radius-default);
-                        cursor: pointer;
+                        padding-left: var(--spacing-xs);
+                        padding-right: var(--spacing-xs);
+                        color: var(--content-color-secondary);
 
-                        em {
-                            padding-left: var(--spacing-xs);
-                            padding-right: var(--spacing-xs);
-                        }
-
-                        i {
-                            margin-left: var(--spacing-xxs);
-                            padding: var(--spacing-xxs) 0;
-                            padding-left: var(--spacing-xs);
-                            padding-right: var(--spacing-xs);
-                            color: var(--content-color-secondary);
-
-                            background: var(--highlight-background-color-tertiary);
-                            border-top-right-radius: var(--border-radius-default);
-                            border-bottom-right-radius: var(--border-radius-default);
-                        }
+                        background: var(--highlight-background-color-tertiary);
+                        border-top-right-radius: var(--border-radius-default);
+                        border-bottom-right-radius: var(--border-radius-default);
                     }
                 }
             }
+
         }
     }
 

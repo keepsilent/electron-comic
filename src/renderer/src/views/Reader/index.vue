@@ -23,66 +23,56 @@
             <div class="detail-header">
                 <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" @error="setDefaultImage">
                 <div class="info">
-                    <h3 class="title">
-                        {{file.file_alias}}
-                        <i class="iconfont icon-copy" style="font-weight: normal" :title="$t('button.copy')" :data-text="file.file_alias" @click="onCopy"></i>
-                    </h3>
-<!--                    <p class="subtitle">[BG本田] シンタロ-がストッキングオナニ-する話 [英訳]</p>-->
-                    <p class="no"><span>#</span>{{file.file_id}}</p>
 
-                    <div v-if="file.file_tags.length > 0" class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.tags')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_tags" :key="index">
-                                <em>{{item.name}}</em>
-                                <i>{{item.count}}</i>
-                            </span>
-                        </div>
-                    </div>
 
-                    <div v-if="file.file_artists.length > 0" class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.artists')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_artists" :key="index">
-                                <em>{{item.name}}</em>
-                                <i>{{item.count}}</i>
-                            </span>
-                        </div>
+<!--                   <i class="iconfont icon-copy" style="font-weight: normal" :title="$t('button.copy')" :data-text="file.file_alias" @click="onCopy"></i>-->
+
+                    <p class="title" v-html="formatTitle(file.file_alias)"></p>
+                    <p v-if="meta.title.show" class="subtitle" v-html="formatTitle(meta.title.title)"></p>
+                    <p v-if="meta.id.show" class="no" ><span>#</span>{{meta.id.id}}</p>
+
+                    <div v-if="file.file_tags.length > 0" class="taxonomy">
+                        <label>{{t('details.tags')}}：</label>
+                        <span class="item" v-for="(item,index) in file.file_tags" :key="index">
+                            <em>{{item.name}}</em>
+                            <i>{{item.count}}</i>
+                        </span>
                     </div>
 
-                    <div v-if="file.file_languages.length > 0" class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.languages')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_languages" :key="index">
-                                <em>{{item.name}}</em>
-                                <i>{{item.count}}</i>
-                            </span>
-                        </div>
+                    <div v-if="file.file_artists.length > 0" class="taxonomy">
+                        <label>{{t('details.artists')}}：</label>
+                        <span class="item" v-for="(item,index) in file.file_artists" :key="index">
+                            <em>{{item.name}}</em>
+                            <i>{{item.count}}</i>
+                        </span>
                     </div>
 
-                    <div v-if="file.file_categories.length > 0" class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.categories')}}：</label>
-                            <span class="item" v-for="(item,index) in file.file_categories" :key="index">
-                                <em>{{item.name}}</em>
-                                <i>{{item.count}}</i>
-                            </span>
-                        </div>
+                    <div v-if="file.file_languages.length > 0" class="taxonomy">
+                        <label>{{t('details.languages')}}：</label>
+                        <span class="item" v-for="(item,index) in file.file_languages" :key="index">
+                            <em>{{item.name}}</em>
+                            <i>{{item.count}}</i>
+                        </span>
                     </div>
-                    <div class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.pages')}}：{{file.file_total}}</label>
-                        </div>
+
+                    <div v-if="file.file_categories.length > 0" class="taxonomy">
+                        <label>{{t('details.categories')}}：</label>
+                        <span class="item" v-for="(item,index) in file.file_categories" :key="index">
+                            <em>{{item.name}}</em>
+                            <i>{{item.count}}</i>
+                        </span>
                     </div>
-                    <div class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.uploaded')}}：{{file.file_modified}}</label>
-                        </div>
+
+                    <div class="taxonomy">
+                        <label>{{t('details.pages')}}：{{file.file_total}}</label>
                     </div>
-                    <div v-if="file.file_intro" class="taxonomy-wrap">
-                        <div class="taxonomy-inner">
-                            <label>{{t('details.intro')}}：{{file.file_intro}}</label>
-                        </div>
+
+                    <div class="taxonomy">
+                        <label>{{t('details.uploaded')}}：{{file.file_modified}}</label>
+                    </div>
+
+                    <div v-if="file.file_intro" class="taxonomy">
+                        <label>{{t('details.intro')}}：{{file.file_intro}}</label>
                     </div>
                 </div>
             </div>
@@ -159,29 +149,23 @@ const file:FileInter = reactive({});
 const interim:InterimInter = reactive({});
 const empty:EmptyInter = reactive({});
 const thumbnail = reactive([])
+const meta = reactive({id: {show: false}, title: {show: false}});
+
 const settings = reactive({
-    page: { show: false, num: 1, total: 1, layout: Common.getLayoutFold(pageStore.layout,'detail-page') },
+    page: {
+        show: false,
+        num: 1,
+        total: 1,
+        layout: Common.getLayoutFold(pageStore.layout,'detail-page')
+    },
     scrollTop: 0,
     zoom: import.meta.env.VITE_APP_COMIC_ZOOM,
     space: import.meta.env.VITE_APP_COMIC_SPACE,
     thumbnail:[],
-
 });
 
-
-// import axios from "axios";
 onMounted(async () => {
     init();
-
-    // axios.get('https://nhentai.net/api/galleries/search?query=[Zerodo]&page=1&sort=date')
-    //     .then(function (res) {
-    //         // 获取网页数据
-    //         console.log(res);
-    //
-    //     })
-    //     .catch(function (err) {
-    //         console.log('failed', err);
-    //     });
 })
 
 onBeforeUnmount(() => {
@@ -235,8 +219,6 @@ const loadDetail = async function () {
             return false;
         }
 
-        //console.log('x');
-
         resetFileData(res.data);
         await getFileSettings();
         renderCover(file);
@@ -268,14 +250,94 @@ const resetFileData = async function (data):boolean {
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(file.file_size);
-    file.file_modified = Time.formatDate(file.file_modified,'YYYY/MM/DD');
+    file.file_modified = getTimeAgo(file.file_modified,'YYYY/MM/DD');
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
     file.file_artists = await loadFileTaxonomy(file.file_id,'artist');
     file.file_categories = await loadFileTaxonomy(file.file_id,'category');
     file.file_languages = await loadFileTaxonomy(file.file_id,'language');
 
-    //console.log('file.file_artists',file.file_artists);
+    await setFileMetaId(file.file_id);
+    await setFileMetaTitle(file.file_id,file.file_alias);
+}
+
+const setFileMetaId = async function (file_id):Promise<boolean> {
+    const res = await getFileMeta(file_id,'id');
+    if(Base.isEmpty(res)) {
+        return false
+    }
+
+    meta.id = {
+        id: res.id,
+        source: res.source,
+        show: true,
+    }
+}
+
+const setFileMetaTitle = async function (file_id, file_name):Promise<boolean> {
+    const res = await getFileMeta(file_id,'title');
+    if(Base.isEmpty(res)) {
+        return false
+    }
+
+    const language = getFileTitleLanguage(res.title, file_name);
+    const subtitle = getFileSubtitle(res.title, language);
+
+    meta.title = {
+        title: subtitle,
+        source: res.source,
+        show: subtitle ? true: false
+    }
+
+    formatTitle(subtitle);
+}
+
+const getFileTitleLanguage = function (data:object, name:string):string {
+    const reg = /[/\\?%*:|"<>]/g;
+    for(let i in data) {
+        if(data[i] == name) {
+            return i;
+        }
+
+        //移除文件夹不支持字符
+        if(data[i].replaceAll(reg,'') == name.replaceAll(reg,'')) {
+            return i;
+        }
+
+        //移除文件夹不支持字符 && 移除空格
+        if(data[i].replaceAll(reg,'').replaceAll("\s*", "") == name.replaceAll(reg,'').replaceAll("\s*", "")) {
+            return i;
+        }
+    }
+
+    return ''
+}
+
+const formatTitle = function (title:string):string {
+    if(Base.isEmpty(title)) {
+        return title
+    }
+
+    title = title.replaceAll(/[\(]/g,'<span>(')
+    title = title.replaceAll(/[\[]/g,'<span>[')
+
+    title = title.replaceAll(/[\)]/g,')</span>')
+    title = title.replaceAll(/[\]]/g,']</span>')
+    return title;
+}
+
+const getFileSubtitle = function (data:object, type:string):string {
+    if(Base.isEmpty(type)) {
+        return '';
+    }
+
+    for(let i in data) {
+        if(i != type) {
+            return data[i];
+        }
+    }
+
+    return ''
 }
 
 const loadFileTaxonomy = async function (file_id, taxonomy) {
@@ -315,7 +377,7 @@ const renderFilesThumbnail = async function (file:File):void {
     }
 }
 
-const readImageFile = async function (data):boolean {
+const readImageFile = async function (data):Promise<boolean> {
     if(Base.isEmpty(data)) {
         return false;
     }
@@ -605,6 +667,24 @@ const isExistFileSetttings = async function () {
     }
 }
 
+const getFileMeta = async function(id:number, key:string) {
+    try {
+        const params = {id: id, key: key }
+        const res = await getFileMetaValue(params);
+        if(res.code !== 200) {
+            return '';
+        }
+
+        if(Base.isEmpty(res.data)) {
+            return '';
+        }
+
+        return JSON.parse(res.data[0].meta_value);
+    } catch (err) {
+        return ''
+    }
+}
+
 const getFileSettings = async function() {
     if(Base.isEmpty(file)) {
         return false;
@@ -729,6 +809,43 @@ const onUpdateFileEdit = function (data:object):boolean {
 
 const onCopy = function (event) {
     Base.copy(event);
+}
+
+const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+    if (Base.isEmpty(date)) {
+        return '';
+    }
+
+    const timeStamp = Time.dateToTimestamp(date);
+    const now = new Date().getTime();   //获取当前时间毫秒
+    const value = now - parseInt(timeStamp); //时间差
+
+    const day = Math.floor(value / (1000 * 60 * 60) / 24);
+    const hour = Math.floor(value / (1000 * 60 * 60));
+    const minute = Math.floor(value / (1000 * 60));
+    const second = Math.floor(value / 1000);
+
+    if (day >= 1 && day <= 6) {
+        return t('time.day',{day:day, hour:hour - day * 24});
+    }
+
+    if (hour >= 1 && hour <= 23) {
+        return t('time.hour',{hour:hour, minute:minute - hour * 60});
+    }
+
+    if (minute >= 1 && minute <= 59) {
+        return t('time.minute',{minute:minute});
+    }
+
+    if(second >= 4 && second <= 59) {
+        return t('time.second',{second:second})
+    }
+
+    if(second >= 0 && second <= 3) {
+        return t('time.now');
+    }
+
+    return Time.formatDate(timeStamp, format);
 }
 
 watch(() => pageStore.layout,(value)=>{
