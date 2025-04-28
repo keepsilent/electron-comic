@@ -1,9 +1,9 @@
 <template>
     <div class="header">
-        <div class="header-inner">
-            <div class="nav">
-                <span class="iconfont icon-toggle-left2 toggle-btn" ></span>
-<!--                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>-->
+        <div :class="['header-inner',page.layout]">
+            <div class="nav ml-m">
+<!--                <span class="iconfont icon-toggle-left toggle-btn" ></span>-->
+                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
                 <div class="search ml-m">
                     <i class="iconfont icon-search"></i>
                     <input type="text" v-model="keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
@@ -34,7 +34,7 @@
 import {useI18n} from "vue-i18n";
 import {ref, reactive, toRefs,watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
-import {Base} from "@renderer/utils";
+import {Base,Common} from "@renderer/utils";
 
 import {usePageStore} from '@renderer/stores/page'
 
@@ -53,6 +53,9 @@ const pageStore = usePageStore();
 const keyword:string = ref(null);
 const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
 const setting:boolean = ref(false)
+const page = reactive({
+    layout: Common.getLayoutFold(pageStore.layout,'header-inner'),
+})
 
 const onSearch = function({keyCode}):boolean|void {
     if(keyCode !== 13) {
@@ -112,6 +115,9 @@ const onIPC = function({currentTarget: {dataset: {key}}}): void {
     }
 }
 
+watch(() => pageStore.layout,(value)=>{
+    page.layout = Common.getLayoutFold(value,'header-inner');
+})
 
 // watch(() => pageStore.maximize,(value)=>{
 //     console.log('pageStore.maximize',value);

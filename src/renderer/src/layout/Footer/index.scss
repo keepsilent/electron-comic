@@ -16,10 +16,19 @@
         justify-content: space-between;
 
         padding: 0 10px;
-        margin-left: 208px;
+        margin-left: 203px;
 
         color: var(--content-color-secondary);
         font-size: var(--text-size-m);
+        transition: margin-left var(--transition-delay-default) var(--transition-timing-default);
+    }
+
+    &-inner__fold {
+        margin-left: 0;
+    }
+
+    &-inner__fold-2 {
+        margin-left: 76px;
     }
 
     .file-path {

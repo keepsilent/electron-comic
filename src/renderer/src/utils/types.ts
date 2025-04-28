@@ -2,6 +2,8 @@ export interface PageInter {
     show?: boolean,
     init?: boolean,
     loading?: boolean,
+    layout?: string,
+    aside?: string,
     actions?: object
 }
 

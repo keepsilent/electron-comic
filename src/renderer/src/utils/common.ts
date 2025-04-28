@@ -168,6 +168,20 @@ const getDefaultImage = function (type:string = ''):string {
     return img;
 }
 
+const getLayoutFold = function (value, key) {
+    let fold = '';
+    switch (value) {
+        case 'one':
+            fold = key+'__fold';
+            break
+        case 'two':
+            fold = key+'__fold-2';
+            break
+    }
+
+    return fold;
+}
+
 export default {
     showLoading: showLoading,
     hideLoading: hideLoading,
@@ -183,4 +197,5 @@ export default {
     lazyRenderPage: lazyRenderPage,
     setArchive:setArchive,
     getDefaultImage: getDefaultImage,
+    getLayoutFold: getLayoutFold,
 }

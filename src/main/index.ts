@@ -10,8 +10,8 @@ const createWindow = async function(): void {
     const mainWindow = new BrowserWindow({
         width: 662,
         height: 442,
-        minWidth: 1165,
-        minHeight: 678,
+        minWidth: 1122,
+        minHeight: 752,
 
         frame: false, //无边框
         show: false, // 初始时不显示窗口

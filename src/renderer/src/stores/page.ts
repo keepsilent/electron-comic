@@ -14,6 +14,8 @@ export const usePageStore = defineStore('page',()=>{
     const path:object = ref([]);
     const scene:string = ref(null);
     const keyword:string = ref(null);
+    const layout:string = ref(localStorage.getItem('cm_setting_layout') || 'three');
+    const aside:string = ref(localStorage.getItem('cm_setting_aside') || 'unfold');
     //const maximize:number = ref(localStorage.getItem('maximize') || 0);
 
 
@@ -44,6 +46,8 @@ export const usePageStore = defineStore('page',()=>{
         num: num,
         scene: scene,
         keyword: keyword,
+        layout: layout,
+        aside: aside,
         //maximize: maximize,
         setStatusPath: setStatusPath
     }

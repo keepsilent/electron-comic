@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4833690 */
-  src: url('iconfont.woff2?t=1745478745017') format('woff2'),
-       url('iconfont.woff?t=1745478745017') format('woff'),
-       url('iconfont.ttf?t=1745478745017') format('truetype');
+  src: url('iconfont.woff2?t=1745564070487') format('woff2'),
+       url('iconfont.woff?t=1745564070487') format('woff'),
+       url('iconfont.ttf?t=1745564070487') format('truetype');
 }
 
 .iconfont {
@@ -13,20 +13,48 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-toggle-left2:before {
+.icon-layout-three:before {
+  content: "\e6a7";
+}
+
+.icon-layout-double:before {
+  content: "\e6aa";
+}
+
+.icon-layout-single:before {
+  content: "\e6ab";
+}
+
+.icon-upload:before {
+  content: "\e75d";
+}
+
+.icon-round-right:before {
+  content: "\e65b";
+}
+
+.icon-warn-fill:before {
+  content: "\e663";
+}
+
+.icon-warn:before {
+  content: "\e666";
+}
+
+.icon-home:before {
+  content: "\e6b8";
+}
+
+.icon-home-fill:before {
+  content: "\e6bb";
+}
+
+.icon-toggle-left:before {
   content: "\e64d";
 }
 
-.icon-toggle-right2:before {
+.icon-toggle-right:before {
   content: "\e64f";
-}
-
-.icon-toggle-left1:before {
-  content: "\e6f6";
-}
-
-.icon-toggle-right1:before {
-  content: "\e6f7";
 }
 
 .icon-lock:before {
@@ -37,32 +65,12 @@
   content: "\e67d";
 }
 
-.icon-toggle-left:before {
-  content: "\e681";
-}
-
-.icon-toggle-right:before {
-  content: "\e682";
-}
-
 .icon-unlock:before {
   content: "\e683";
 }
 
 .icon-user:before {
   content: "\e684";
-}
-
-.icon-arrow-left-bold:before {
-  content: "\e685";
-}
-
-.icon-subfield-left:before {
-  content: "\e600";
-}
-
-.icon-subfield-full:before {
-  content: "\e601";
 }
 
 .icon-discover:before {
@@ -145,14 +153,6 @@
   content: "\e634";
 }
 
-.icon-light-off:before {
-  content: "\e6cc";
-}
-
-.icon-light-on:before {
-  content: "\e6ce";
-}
-
 .icon-arrow:before {
   content: "\e647";
 }
@@ -227,10 +227,6 @@
 
 .icon-unselected:before {
   content: "\e63e";
-}
-
-.icon-home:before {
-  content: "\e63f";
 }
 
 .icon-personal:before {

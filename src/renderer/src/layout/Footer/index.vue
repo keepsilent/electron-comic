@@ -1,6 +1,6 @@
 <template>
     <div class="footer">
-        <div class="footer-inner">
+        <div :class="['footer-inner',page.layout]">
             <div class="file-path">
                 <template v-if="status.scene == 'catalogue'">{{status.name}}</template>
                 <template v-else>
@@ -45,7 +45,10 @@ interface Status {
 const { t } = useI18n();
 const pageStore = usePageStore();
 const status:Status = reactive({name: '',num: 0, scene: '', path: []})
-const page:PageInter = reactive({show: false})
+const page = reactive({
+    show: false,
+    layout: Common.getLayoutFold(pageStore.layout,'footer-inner')
+})
 const confirm:ConfirmInter = reactive({show: false});
 
 const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
@@ -107,6 +110,10 @@ watch(() => pageStore.path,(value)=>{
 
 watch(() => pageStore.num,(value)=>{
     status.num = value;
+})
+
+watch(() => pageStore.layout,(value)=>{
+    page.layout = Common.getLayoutFold(value,'footer-inner');
 })
 
 </script>

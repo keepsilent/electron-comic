@@ -18,10 +18,19 @@
         -webkituser-select: none;
 
         height: 48px;
-        padding-left: 218px;
+        padding-left: 203px;
         background: var(--background-color-primary);
         border-bottom: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
         //box-shadow: inset 0px -1px 0px var(--border-color-strong);
+        transition: padding-left var(--transition-delay-default) var(--transition-timing-default);
+    }
+
+    &-inner__fold {
+        padding-left: 0px;
+    }
+
+    &-inner__fold-2 {
+        padding-left: 76px;
     }
 
     .nav {
@@ -30,7 +39,7 @@
         -webkit-app-region: no-drag;
         app-region: no-drag;
 
-        .toggle-btn {
+        .icon-return {
             height: var(--size-m);
             width: var(--size-m);
             line-height: var(--line-height-xxl);

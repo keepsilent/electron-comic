@@ -3,9 +3,13 @@
     <div class="toolbar">
 
             <div class="operate">
-                <span class="operate-btn" :title="$t('tool.increase')">
-                    <i class="iconfont icon-increase"></i>
-                    <em>{{$t('button.increase')}}</em>
+<!--                <span class="operate-btn" :title="$t('tool.return')" @click="onGoBack">-->
+<!--                    <i class="iconfont icon-round-right"></i>-->
+<!--                    <em>{{$t('button.return')}}</em>-->
+<!--                </span>-->
+                <span class="operate-btn" :title="$t('tool.upload')">
+                    <i class="iconfont icon-upload"></i>
+                    <em>{{$t('button.upload')}}</em>
                     <input type="file" ref="upload" title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">
                 </span>
                 <span class="operate-btn forbiden" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
@@ -24,6 +28,7 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
 import {reactive, ref, watch } from "vue";
+import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import {getFileList, isFileExist, addFile,updateFileStatus} from "@renderer/api/file";
@@ -46,6 +51,8 @@ interface Props {
 }
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const emit = defineEmits(['cancel','confirm'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
@@ -177,6 +184,10 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
+const onGoBack = async function () {
+    router.back();
+}
+
 watch(() => props.file.path,(value)=>{
     page.show = !Base.isEmpty(value)
 })
@@ -215,6 +226,9 @@ watch(() => props.file.path,(value)=>{
             overflow: hidden;
 
             i { margin-right: var(--spacing-xxs)}
+            .icon-round-right {
+                transform: rotate(180deg)
+            }
 
             input[type="file"] {
                 position: absolute;

@@ -3,7 +3,7 @@
         <Aside></Aside>
         <div class="inner">
             <Header></Header>
-            <div class="main">
+            <div :class="['main',page.layout]">
 <!--                <router-view v-slot="{ Component }">-->
 <!--                    <component :key="refresh" :is="Component"></component>-->
 <!--                </router-view>-->
@@ -23,7 +23,7 @@
 import {useI18n} from "vue-i18n";
 import {reactive, watch} from "vue";
 import {storeToRefs} from 'pinia'
-import {Base} from "@renderer/utils";
+import {Base,Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
@@ -32,13 +32,14 @@ import Footer from '@renderer/layout/Footer/index.vue'
 import Launch from '@renderer/layout/Launch/index.vue'
 
 interface Page  {
-    launch: boolean
+    launch: boolean,
+    layout: string
 }
 
 const {locale} = useI18n();
 const pageStore = usePageStore();
 const {height} = storeToRefs(pageStore);
-const page:Page = reactive({launch: true})
+const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore.layout,'main')})
 
 
 // const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
@@ -58,8 +59,23 @@ window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
         window.electron.ipcRenderer.send('maximize');
     }
 })
+
+watch(() => pageStore.layout,(value)=>{
+    page.layout = Common.getLayoutFold(value,'main');
+})
+
 </script>
 <style scoped lang="scss">
+.main {
+    transition: margin-left var(--transition-delay-default) var(--transition-timing-default);
 
+    &__fold {
+        margin-left: 0;
+    }
+
+    &__fold-2 {
+        margin-left: 76px;
+    }
+}
 </style>
 

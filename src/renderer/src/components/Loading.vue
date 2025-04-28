@@ -39,7 +39,7 @@ watch(() => props.show,(value) => {
         height: 100%;
 
         background: rgba(0,0,0,0.15);
-        transition: opacity 0.25s ease-in-out;
+        transition: opacity var(--transition-delay-default) var(--transition-timing-default);
         opacity: 0;
     }
 
@@ -62,7 +62,7 @@ watch(() => props.show,(value) => {
         background: #FFF;
         border-radius: 8px;
         box-shadow: 1px 1px 10px rgba(0,0,0,0.15);
-        transition: opacity 0.25s ease-in-out;
+        transition: opacity var(--transition-delay-default) var(--transition-timing-default);
         opacity: 0;
     }
 

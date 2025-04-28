@@ -233,6 +233,16 @@
         font-size: 32px;
         line-height: 1;
 
+        transition: left var(--transition-delay-default) var(--transition-timing-default);
+
+        &__fold {
+            left: var(--spacing-xl)
+        }
+
+        &__fold-2 {
+            left: 100px
+        }
+
         .current {
             color: var(--grey-40);
             font-size: 36px;

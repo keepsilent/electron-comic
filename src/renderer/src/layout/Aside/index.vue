@@ -1,5 +1,5 @@
 <template>
-    <div class="aside-wrap">
+    <div :class="['aside-wrap',aside.layoutFold]">
         <div class="aside-inner">
 
             <!-- 用户头像 -->
@@ -13,10 +13,11 @@
             <!-- 左侧菜单 -->
             <div class="aside-main">
                 <!-- 用户头像-->
-                <div class="user pt-xl mt-xl tc">
+                <div class="user tc">
                     <div class="user-info">
                         <img class="avatar" :src="user.avatar" :alt="user.nicename" width="48" height="48">
-                        <h3 class="title mt-s">{{user.nicename}}</h3>
+                        <p class="title">{{user.nicename}}</p>
+<!--                        <p class="level">Lv.{{user.level}}</p>-->
                     </div>
 
                     <div class="user-menu">
@@ -46,13 +47,17 @@
                             </ul>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- 菜单 -->
                 <div class="menu pt-xl">
-                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu">
-                        <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill': 'iconfont '+item.icon"></i>
+                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" v-show="index < 2" :data-index="index" :title="item.name" @click="onSwitchMenu">
+                        <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill' : 'iconfont '+item.icon"></i>
+                        <em>{{item.name}}</em>
+                    </div>
+                    <span class="line mt-s mb-s"></span>
+                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data"  v-show="index >= 2" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu">
+                        <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill' : 'iconfont '+item.icon"></i>
                         <em>{{item.name}}</em>
                     </div>
                 </div>
@@ -65,13 +70,26 @@
                     <span class="tips">广告</span>
                 </div>
                 <div class="line"></div>
-                <div class="subfield">
-                    <span class="active"><i class="iconfont icon-subfield-left"></i></span>
-                    <span><i class="iconfont icon-subfield-full"></i></span>
+                <div class="layout">
+                    <tempalte v-if="aside.layout == 'two'">
+                        <span :class="{'active': aside.layout == 'one'}" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                        <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                    </tempalte>
+                    <template v-else>
+                        <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                        <span :class="{'active': aside.layout == 'two'}" @click="onPageLayout('two')"><i class="iconfont icon-layout-double"></i></span>
+                        <span :class="{'active': aside.layout == 'one'}" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                    </template>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Layout Fold -->
+    <div v-if="aside.layout == 'one'" class="aside-toggle" @click="onPageLayout('reset')">
+        <i class="iconfont icon-return"></i>
+    </div>
+
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
@@ -110,10 +128,14 @@ const { t } = useI18n();
 const router = useRouter()
 const pageStore = usePageStore();
 const fileStore = useFileStore();
+const aside = reactive({
+    layout: pageStore.layout,
+    layoutFold: Common.getLayoutFold(pageStore.layout,'aside-wrap')
+})
 const file:FileInter = reactive({file_id: 0})
 const menu:Menu = reactive({ current: 0,
     data:[
-        {name: t('aside.menu.new'), key:'new', url: '/',icon: 'icon-new'},
+        {name: t('aside.menu.home'), key:'home', url: '/',icon: 'icon-home'},
         {name: t('aside.menu.random'), key:'random', url: '',icon: 'icon-discover'},
         {name: t('aside.menu.tags'), key:'tags', url: '',icon: 'icon-tag'},
         {name: t('aside.menu.artists'), key:'artists', url: '',icon: 'icon-artist'},
@@ -130,7 +152,7 @@ const banner:Banner = reactive({
 )
 
 const user:User = reactive({
-    nicename: 'KeepSilent',
+    nicename: 'Comic++',
     avatar: './src/assets/electron.svg',
     level: 5,
     exp: 10000,
@@ -178,11 +200,9 @@ const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):boolean {
 
     menu.current = index;
     if(key == 'random') {
-        console.log('key',key);
         loadRandomFileInfo();
         return false;
     }
-
 
     console.log('url',url);
    // Base.redirect(url)
@@ -191,7 +211,6 @@ const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):boolean {
         age:20
     }
     router.push({path: url, query: query})
-    //this.$router.push({ name:‘hello’, query:{ name:‘word’, age:‘11’ } })
 }
 
 const onRedirectByEvent = function (event) {
@@ -206,10 +225,37 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
+const onResetPageLayout = function () {
+    const layout = localStorage.getItem('cm_setting_layout_old')
+    onPageLayout(layout);
+}
+
+const onPageLayout = throttle((layout)=>{
+    if(pageStore.layout == layout) {
+        return false;
+    }
+
+    if(layout == 'reset') {
+        layout = localStorage.getItem('cm_setting_layout_old') || 'three';
+    }
+
+    aside.layout = layout;
+    aside.layoutFold = Common.getLayoutFold(layout,'aside-wrap');
+    pageStore.layout = layout;
+
+    localStorage.setItem('cm_setting_layout',layout)
+    if(layout != 'one') {
+        localStorage.setItem('cm_setting_layout_old', layout)
+    }
+})
+
+watch(() => pageStore.layout,(value)=>{
+    aside.layout = value;
+    aside.layoutFold = Common.getLayoutFold(value,'aside-wrap');
+})
+
 watch(() => fileStore.id,(value)=>{
-    console.log('fileStore',value);
     file.file_id = value;
-   // status.path = analyzePath(value);
 })
 
 </script>

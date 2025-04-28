@@ -108,7 +108,7 @@
             <div v-if="thumbnail.length > 0" class="detail-footer mt-m">Σ(ﾟдﾟ;) {{t('details.end')}}</div>
 
             <!-- 分页数 -->
-            <div v-if="settings.page.show" class="detail-page none-select">
+            <div v-if="settings.page.show" :class="['detail-page','none-select',settings.page.layout]">
                 <span class="current">{{settings.page.num}}</span>
                 <em>/</em>
                 <span class="total">{{settings.page.total}}</span>
@@ -153,18 +153,19 @@ const fs = require("fs") as typeof import("fs");
 const scrollbar = ref(null);
 const menubar = ref(null);
 const fileEdit:boolean = ref(false);
-const page:PageInter = reactive({init: false, loading: false, actions: {}});
+const page:PageInter = reactive({init: false, loading: false, layout:pageStore.layout, actions: {}});
 const confirm:ConfirmInter = reactive({});
 const file:FileInter = reactive({});
 const interim:InterimInter = reactive({});
 const empty:EmptyInter = reactive({});
 const thumbnail = reactive([])
 const settings = reactive({
-    page: {show: false, num: 1, total: 1},
+    page: { show: false, num: 1, total: 1, layout: Common.getLayoutFold(pageStore.layout,'detail-page') },
     scrollTop: 0,
     zoom: import.meta.env.VITE_APP_COMIC_ZOOM,
     space: import.meta.env.VITE_APP_COMIC_SPACE,
-    thumbnail:[]
+    thumbnail:[],
+
 });
 
 
@@ -195,6 +196,9 @@ watch(() => page.init,(value) => {
     }
 
     setTimeout(  () => {
+        if(Base.isEmpty(thumbnail)) {
+            return false;
+        }
         prerenderThumbnail();
         scrollbar.value.addEventListener("scroll", onScroll);
         scrollbar.value.addEventListener("click", onContent);
@@ -726,6 +730,11 @@ const onUpdateFileEdit = function (data:object):boolean {
 const onCopy = function (event) {
     Base.copy(event);
 }
+
+watch(() => pageStore.layout,(value)=>{
+    page.layout = value;
+    settings.page.layout = Common.getLayoutFold(value,'detail-page');
+})
 </script>
 
 <style src="./index.scss" lang="scss" scoped></style>

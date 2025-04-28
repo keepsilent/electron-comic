@@ -22,7 +22,7 @@
 
         margin-left: -125px;
         margin-top: -125px;
-        transition: opacity 0.25s ease-in-out;
+        transition: opacity var(--transition-delay-default) var(--transition-timing-default);;
         opacity: 0;
     }
 

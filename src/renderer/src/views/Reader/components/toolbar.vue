@@ -3,7 +3,11 @@
     <div class="toolbar">
         <template v-if="page.show">
             <div class="operate">
-                <span class="operate-btn forbiden" :title="$t('tool.increase')"><i class="iconfont icon-increase"></i><em>{{$t('button.increase')}}</em></span>
+<!--                <span class="operate-btn" :title="$t('tool.return')" @click="onGoBack">-->
+<!--                    <i class="iconfont icon-round-right"></i>-->
+<!--                    <em>{{$t('button.return')}}</em>-->
+<!--                </span>-->
+                <span class="operate-btn forbiden" :title="$t('tool.upload')"><i class="iconfont icon-upload"></i><em>{{$t('button.upload')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.edit')" @click="onShowFileEdit" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.delete')" @click="onDeleteFile"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
@@ -110,6 +114,10 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
+const onGoBack = async function () {
+    router.back();
+}
+
 watch(() => props.file.file_path,(value)=>{
     page.show = !Base.isEmpty(value)
 })
@@ -148,6 +156,10 @@ watch(() => props.file.file_path,(value)=>{
             overflow: hidden;
 
             i { margin-right: var(--spacing-xxs)}
+
+            .icon-round-right {
+                transform: rotate(180deg)
+            }
 
             input[type="file"] {
                 position: absolute;
