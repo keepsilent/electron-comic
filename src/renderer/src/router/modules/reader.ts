@@ -4,7 +4,7 @@ export default [
         name: 'readerIndex',
         component: () => import('@renderer/views/reader/index.vue'),
         meta: {
-            title: '详情'
+            title: 'reader'
         }
     }
 ];

@@ -6,6 +6,7 @@ import { defineAsyncComponent } from 'vue'
 import RecycleRouter from './modules/recycle';
 import DetailsRouter from './modules/details';
 import ReaderRouter from './modules/reader';
+import taxonomyRouter from './modules/taxonomy';
 import StoreRouter from './modules/store';
 // import { close, start } from '@/utils/nprogress';
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
@@ -18,6 +19,7 @@ export const publicRoutes: Array<RouteRecordRaw> = [
     ...RecycleRouter,
     ...DetailsRouter,
     ...ReaderRouter,
+    ...taxonomyRouter,
     {
         path: '/',
         name: 'homeIndex',

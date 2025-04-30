@@ -126,20 +126,28 @@
 
                 label { margin-top: 6px}
                 .item {
+                    //display: flex;
+                    //align-items: center;
+                    //justify-items: center;
+                    //justify-content:flex-end;
+
                     margin-top: 6px;
                     padding: var(--spacing-xxs) 0;
                     margin-right: var(--spacing-s);
-                    background: var(--background-color-tertiary);
-                    border-radius: var(--border-radius-default);
+
                     cursor: pointer;
+                    vertical-align: center;
 
                     em {
+                        padding: var(--spacing-xxs) 0;
                         padding-left: var(--spacing-xs);
-                        padding-right: var(--spacing-xs);
+                        padding-right: var(--spacing-s);
+                        background: var(--background-color-tertiary);
+                        border-top-left-radius: var(--border-radius-default);
+                        border-bottom-left-radius: var(--border-radius-default);
                     }
 
                     i {
-                        margin-left: var(--spacing-xxs);
                         padding: var(--spacing-xxs) 0;
                         padding-left: var(--spacing-xs);
                         padding-right: var(--spacing-xs);
@@ -149,9 +157,12 @@
                         border-top-right-radius: var(--border-radius-default);
                         border-bottom-right-radius: var(--border-radius-default);
                     }
+
+                    &:hover {
+                        opacity: 0.85;
+                    }
                 }
             }
-
         }
     }
 

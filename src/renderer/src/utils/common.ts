@@ -182,6 +182,20 @@ const getLayoutFold = function (value, key) {
     return fold;
 }
 
+
+/**
+ * 设置统计单位
+ * @method setCountUnit
+ * @param {number} value
+ */
+const setCountUnit = function (value:number):number|string {
+    if(value < 1000) {
+        return value;
+    }
+
+    return parseInt(value / 1000) + 'k';
+}
+
 export default {
     showLoading: showLoading,
     hideLoading: hideLoading,
@@ -196,6 +210,7 @@ export default {
 
     lazyRenderPage: lazyRenderPage,
     setArchive:setArchive,
+    setCountUnit: setCountUnit,
     getDefaultImage: getDefaultImage,
     getLayoutFold: getLayoutFold,
 }

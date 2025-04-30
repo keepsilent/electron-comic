@@ -235,7 +235,7 @@ watch(() => pageStore.keyword,(value)=>{
     &-wrap {
         height: calc(100vh - 25px - 48px - 41px);
         padding: var(--spacing-m);
-        background: var(--background-color-secondary);
+        //background: var(--background-color-secondary);
         overflow-y: auto;
     }
 
@@ -336,7 +336,7 @@ watch(() => pageStore.keyword,(value)=>{
         text-align: center;
 
         cursor: pointer;
-        background: var(--background-color-primary);
+        background: var(--background-color-secondary);
         border-radius: var(--border-radius-default);
         border: dashed var(--border-width-default) var(--grey-30);
 

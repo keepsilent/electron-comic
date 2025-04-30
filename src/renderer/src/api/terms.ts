@@ -44,6 +44,109 @@ export const getTermByName = async function ({name, taxonomy}):Promise<Result> {
     return await DB.query(data);
 }
 
+const getTermTotal = async function ({taxonomy}):Promise<number> {
+    try {
+        const sql = `SELECT count(*) AS total FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy limit 1`;
+        const data: queryParam = {
+            sql: sql,
+            params: {
+                $taxonomy: taxonomy
+            }
+        }
+        const res = await DB.query(data);
+        if(res.code != 200) {
+            return 0;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            return 0;
+        }
+
+        return res.data[0].total;
+    } catch (err) {
+        return 0;
+    }
+}
+
+const getPage = function (page:number, totalPage:number):number {
+    if(page - 1 < 0) {
+        return 0;
+    }
+
+    if(page - 1 > totalPage) {
+        return totalPage;
+    }
+
+    return page - 1;
+}
+
+const getTotalPage = function (total:number, pageSize:number):number {
+    return Math.ceil(total / pageSize) || 1
+}
+
+export const getTermList = async function ({page, pageSize, taxonomy, sort}):Promise<Result> {
+    try {
+        const total = await getTermTotal({taxonomy: taxonomy});
+        const totalPage = getTotalPage(total, pageSize);
+        const orderby = sort == 'popular' ? 'count DESC': 'term_group ASC, name ASC'
+        const sql = `SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy ORDER BY ${orderby} LIMIT $page, $pageSize`;
+        const data: queryParam = {
+            sql: sql,
+            params: {
+                $page: getPage(page, totalPage) * pageSize,
+                $pageSize: pageSize,
+                $taxonomy: taxonomy
+            }
+        }
+        const res = await DB.query(data);
+        if(res.code != 200) {
+            return res
+        }
+
+        return {
+            code: 200,
+            data: {
+                list: res.data,
+                page: getPage(page, totalPage) == totalPage ? totalPage : getPage(page, totalPage) + 1,
+                pageSize: pageSize,
+                total: total,
+                totalPage: totalPage,
+            },
+            message:'success'
+        }
+    } catch (err) {
+        console.log('err',err);
+        return {code: 500, message: err};
+    }
+}
+
+export const getTermGroupFristRcord = async function ({taxonomy, group}):Promise<Result> {
+    const sql = `SELECT name FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy AND term_group = $group ORDER BY name ASC LIMIT 1`;
+    const data: queryParam = {
+        sql: sql,
+        params: {
+            $group: group,
+            $taxonomy: taxonomy
+        }
+    }
+    return await DB.query(data);
+}
+
+export const getTermGroupFristRcordPosition = async function ({taxonomy, name}):Promise<Result> {
+    const sql = `SELECT count(*) AS total FROM (SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy ORDER BY name ASC) AS tmp WHERE tmp.name <= $name`;
+    const data: queryParam = {
+        sql: sql,
+        params: {
+            $name: name,
+            $taxonomy: taxonomy
+        }
+    }
+    return await DB.query(data);
+}
+
+
+
+
 export const updateTaxonomyCount = async function ({term_taxonomy_id, count}):Promise<Result> {
     const data:queryParam = {
         table: 'cm_term_taxonomy',

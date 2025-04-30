@@ -137,11 +137,11 @@ const menu:Menu = reactive({ current: 0,
     data:[
         {name: t('aside.menu.home'), key:'home', url: '/',icon: 'icon-home'},
         {name: t('aside.menu.random'), key:'random', url: '',icon: 'icon-discover'},
-        {name: t('aside.menu.tags'), key:'tags', url: '',icon: 'icon-tag'},
-        {name: t('aside.menu.artists'), key:'artists', url: '',icon: 'icon-artist'},
-        {name: t('aside.menu.categories'), key:'categories', url: '',icon: 'icon-we'},
-        {name: t('aside.menu.parodies') ,key:'parodies', url: '',icon: 'icon-parody'},
-        {name: t('aside.menu.groups'), key:'groups', url: '',icon: 'icon-group'}
+        {name: t('aside.menu.tags'), key:'tags', url: '/taxonomy',icon: 'icon-tag'},
+        {name: t('aside.menu.artists'), key:'artists', url: '/taxonomy',icon: 'icon-artist'},
+        {name: t('aside.menu.categories'), key:'categories', url: '/taxonomy',icon: 'icon-we'},
+        {name: t('aside.menu.parodies') ,key:'parodies', url: '/taxonomy',icon: 'icon-parody'},
+        {name: t('aside.menu.groups'), key:'groups', url: '/taxonomy',icon: 'icon-group'}
     ]
 })
 
@@ -208,7 +208,7 @@ const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):boolean {
    // Base.redirect(url)
 
     const query = { //query是个配置项
-        age:20
+        type: key
     }
     router.push({path: url, query: query})
 }

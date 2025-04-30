@@ -1,0 +1,276 @@
+<template>
+    <Toolbar/>
+
+    <div class="taxonomy-wrap scrollbar">
+        <div class="taxonomy-header">
+            <div class="menu">
+                <span v-for="(item,index) in page.menu" :key="index" :class="{'active':page.current == item.value}"  @click="onSwitchSort(item.value)">{{item.name}}</span>
+            </div>
+            <div v-if="page.current == 'group'" class="sort" >
+                <span v-for="(item,index) in page.sort" :key="index" :class="{'selected':item.selected}" @click="onSwitchGroup(item.value)">{{item.name}}</span>
+            </div>
+        </div>
+        <div class="taxonomy-main">
+            <template v-if="page.current == 'group'">
+                <section v-for="(items,indexs) in page.data" :key="indexs" :class="{active: page.group == items.name}">
+                    <h3>{{items.name}}</h3>
+                    <span v-for="(item, index) in items.data" :key="index" class="item">
+                        <em>{{item.name}}</em>
+                        <i>{{setCountUnit(item.count)}}</i>
+                    </span>
+                </section>
+            </template>
+
+            <template v-if="page.current == 'popular'">
+                <span v-for="(item,index) in page.popular" :key="index" class="item">
+                    <em>{{item.name}}</em>
+                    <i>{{setCountUnit(item.count)}}</i>
+                </span>
+            </template>
+        </div>
+        <div class="taxonomy-footer">
+            <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
+        </div>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import {useI18n} from 'vue-i18n';
+import {useRouter,useRoute} from 'vue-router'
+import {ref, reactive, watch, onMounted} from 'vue'
+import {Base, Common, File} from "@renderer/utils";
+import {getTermList, getTermGroupFristRcord, getTermGroupFristPosition} from "@renderer/api/terms";
+import {debounce, throttle} from "@renderer/utils/throttle";
+
+import {usePageStore} from '@renderer/stores/page'
+import Toolbar from "./components/toolbar.vue";
+import Pagination from "@renderer/components/Pagination.vue";
+import {getTermGroupFristRcordPosition} from "../../api/terms";
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const pageStore = usePageStore();
+const load = reactive({page: 1, pageSize: 100, taxonomy: ''})
+const pagination = reactive({show: false, page: 1, totalPage: 1})
+const page = reactive({
+    current: 'group',
+    menu: [
+        {name: 'A-Z',value: 'group'},
+        {name:'Popular',value: 'popular'}
+    ],
+
+    data:[],
+    popular:[],
+
+    group: '',
+    sort: {}
+})
+
+onMounted(()=> {
+    init();
+})
+
+const init = function () {
+    const {type, page:current, group, sort} = route.query;
+    console.log('route.query',route.query);
+
+    pageStore.setStatusPath(`Source: ${type}`);
+    page.group = group || '';
+    page.current = sort || 'group';
+    load.page = current || 1;
+    load.taxonomy = getTaxonomy(type);
+    loadTermList();
+}
+
+const setCountUnit = function (value) {
+    return Common.setCountUnit(value);
+}
+
+const loadTermList = async function () {
+    try {
+        const params = getParams()
+        const res = await getTermList(params);
+        if(res.code != 200) {
+            return false;
+        }
+
+        page.popular = res.data.list;
+
+        setPagination(res.data)
+        setDataGroup(res.data.list);
+    } catch (err) {
+        pagination.show = false;
+        Base.printErrorLog('getTermList',err)
+    }
+}
+
+const setDataGroup = function (data:object[]):void {
+    const group = {};
+    for(let i in data) {
+        let value = data[i].term_group;
+        if(!Base.inArray(group,value,value)) {
+            group[value] = value
+        }
+    }
+
+    page.sort = getSortData(group);
+    page.data = getGroupData(group, data);
+}
+
+const getSortData = function(group:object):object[] {
+    const data = createSortDefaultData();
+    for(let i in group) {
+        for(let j in data) {
+            if(String.fromCharCode(group[i]) == data[j].name) {
+                data[j].selected = true;
+            }
+        }
+    }
+
+    return data
+}
+
+const getGroupData = function(group:object, data:object[]):object[] {
+    const arr = []
+    for(let i in group) {
+        let tmp = [];
+        for(let j in data) {
+            if(group[i] == data[j].term_group) {
+                tmp.push(data[j]);
+            }
+        }
+        arr.push({name: String.fromCharCode(group[i]),data: tmp});
+    }
+
+    return arr;
+}
+
+const getParams = function ():object {
+    const options = {
+        page: load.page,
+        pageSize: load.pageSize,
+        taxonomy: load.taxonomy,
+        sort: page.current
+    }
+
+    return options
+}
+
+const getTaxonomy = function (key:string):string {
+    const options = {
+        tags: 'tag',
+        artists: 'artist',
+        categories: 'category',
+        parodies: 'parody',
+        groups: 'group'
+    }
+
+    return options[key];
+}
+
+const getTaxonomys = function (key:string):string {
+    const options = {
+        tag: 'tags',
+        artist: 'artists',
+        category: 'categories',
+        parody: 'parodies',
+        group: 'groups'
+    }
+
+    return options[key];
+}
+
+const setPagination = function ({page,totalPage}):void {
+    pagination.show = true;
+    pagination.page = page;
+    pagination.totalPage = totalPage;
+}
+
+const createSortDefaultData = function ():object[] {
+    const data = [{name: '#',value: 35, selected: false}]
+    for(let i = 65; i <= 90; i++) {
+        data.push({name: String.fromCharCode(i), value: i, selected: false})
+    }
+
+    return data;
+}
+
+const onSwitchSort = throttle((type)=>{
+    // load.page = 1;
+    // page.current = type
+    // loadTermList();
+
+    const object = {
+        path: `/taxonomy`,
+        query:  {
+            type: getTaxonomys(load.taxonomy),
+            page: 1,
+            sort: type
+        }
+    }
+    router.push(object)
+})
+
+const onSwitchGroup = throttle(async (group)=>{
+    try {
+        const {taxonomy} = load;
+        const params = {taxonomy: taxonomy, group: group}
+        const res = await getTermGroupFristRcord(params)
+        if(res.code != 200) {
+            return false;
+        }
+        if(Base.isEmpty(res.data)) {
+            return  false;
+        }
+        const {name} = res.data[0];
+        await loadTermGroupFristRcordPosition(name,group);
+    } catch (err) {
+        Base.printErrorLog('getTermGroupFristRcord',err);
+    }
+})
+
+const loadTermGroupFristRcordPosition = async function (name, group) {
+    try {
+        const {taxonomy} = load;
+        const params = {taxonomy: taxonomy, name: name}
+        const res = await getTermGroupFristRcordPosition(params)
+        if(res.code != 200) {
+            return false;
+        }
+        if(Base.isEmpty(res.data)) {
+            return false;
+        }
+
+        const {total} = res.data[0];
+        const object = {
+            path: `/taxonomy`,
+            query:  {
+                type: getTaxonomys(load.taxonomy),
+                page: Math.ceil(total / load.pageSize) || 1,
+                group: String.fromCharCode(group),
+                sort: page.current
+            }
+        }
+        router.push(object)
+
+    } catch (err) {
+        Base.printErrorLog('getTermGroupFristRcord',err);
+    }
+}
+
+const onChangePage = function ({value}):void {
+    const object = {
+        path: `/taxonomy`,
+        query:  {
+            type: getTaxonomys(load.taxonomy),
+            page: value,
+            sort: page.current
+        }
+    }
+
+    router.push(object)
+}
+</script>
+
+<style src="./index.scss" lang="scss" scoped></style>

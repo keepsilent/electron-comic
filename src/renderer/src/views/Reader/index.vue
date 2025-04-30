@@ -35,7 +35,7 @@
                         <label>{{t('details.tags')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_tags" :key="index">
                             <em>{{item.name}}</em>
-                            <i>{{item.count}}</i>
+                            <i>{{setCountUnit(item.count)}}</i>
                         </span>
                     </div>
 
@@ -846,6 +846,10 @@ const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss')
     }
 
     return Time.formatDate(timeStamp, format);
+}
+
+const setCountUnit = function (value) {
+    return Common.setCountUnit(value);
 }
 
 watch(() => pageStore.layout,(value)=>{
