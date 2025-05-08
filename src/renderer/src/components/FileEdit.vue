@@ -158,7 +158,6 @@ interface Props {
         file_date: string,
         file_modified:string,
         file_name: string,
-        file_author: string,
         file_type: string,
         file_path: string,
         file_size:number,

@@ -1,20 +1,20 @@
 .taxonomy {
-    &-wrap {
 
-        min-height: 500px;
+    &-wrap {
         height: calc(100vh - 25px - 48px - 41px);
         overflow-y: auto;
     }
+
     &-header {
-        margin-top: 2.5%;
+        margin-top: 47px;
         .menu {
             display: flex;
             align-items: center;
             justify-content: center;
 
             span {
-                height: 22px;
-                line-height: 22px;
+                height: 23.5px;
+                line-height: 23.5px;
                 margin-right: var(--spacing-s);
                 padding: 6px var(--spacing-s);
 
@@ -66,17 +66,17 @@
         }
     }
 
+
+
     &-main {
         display: block;
         clear: both;
 
         width: 100%;
-        max-width: 860px;
+        max-width: 95%;
 
-
-        margin: 0 auto;
-        padding: var(--spacing-m);
-
+        margin: 0 auto ;
+        padding-top: var(--spacing-xxl);
 
         columns: 160px;
         column-rule-color: var(--border-color-default);
@@ -146,3 +146,10 @@
         padding-bottom: var(--spacing-l);
     }
 }
+
+//@media screen and (max-width: 1404px) {
+//    .taxonomy-main {
+//        max-width: 860px;
+//        columns: 160px;
+//    }
+//}

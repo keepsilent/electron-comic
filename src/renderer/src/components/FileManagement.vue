@@ -1,26 +1,26 @@
 <template>
     <div class="file-wrap scrollbar">
-        <div class="file-inner">
-
-
-            <div v-for="(item,index) in files" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
+        <div class="file-main">
+            <div v-for="(item,index) in load.list" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
                 <div class="cover">
                     <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
                 </div>
-                <span class="type">ZIP</span>
+<!--                <span class="type">ZIP</span>-->
 <!--                <div class="mask">-->
 <!--                    <p class="title">{{item.file_name}}</p>-->
 <!--                </div>-->
                 <p class="title">{{item.file_name}}</p>
             </div>
 
+<!--            <div class="file-upload-btn">-->
+<!--                <i class="iconfont icon-add"></i>-->
+<!--                <input type="file" ref="upload" title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">-->
+<!--                <p>Upload File</p>-->
+<!--            </div>-->
+        </div>
 
-
-            <div class="file-upload-btn">
-                <i class="iconfont icon-add"></i>
-                <input type="file" ref="upload" title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">
-                <p>Upload File</p>
-            </div>
+        <div class="file-footer">
+            <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
         </div>
     </div>
 
@@ -38,6 +38,8 @@ import {Base, Common, File, Time} from "@renderer/utils";
 import {getFileList, isFileExist, addFile} from "@renderer/api/file";
 import {getNhentaiList} from "@renderer/api/nhentai";
 import {usePageStore} from '@renderer/stores/page'
+import Pagination from "@renderer/components/Pagination.vue";
+
 
 import Loading from "./Loading.vue";
 import Confirm from "./Confirm.vue";
@@ -51,10 +53,21 @@ const fs = require("fs") as typeof import("fs");
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
 const confirm:ConfirmInter = reactive({});
 const upload:string = ref(null);
-const keyword:string = ref(null);
-const files = reactive({});
+
+const load = reactive({page: 1, pageSize: 20, list:[], keyword: ''})
+const pagination = reactive({show: false, page: 1, totalPage: 1})
 
 onMounted(() => {
+
+    const {keyword, page, group, sort} = route.query;
+    console.log('route.query',route.query);
+
+    //pageStore.setStatusPath(`Source: ${type}`);
+
+    load.page = page ?? 1;
+    load.keyword = keyword ?? 1;
+    console.log('load',load.page);
+
     init()
 })
 
@@ -65,7 +78,7 @@ const init = function () {
 }
 
 const setSearchKeyWord = function () {
-    keyword.value = route.query.keyword ?? '';
+    load.keyword = route.query.keyword ?? '';
 }
 
 const setArchive = function () {
@@ -74,12 +87,12 @@ const setArchive = function () {
 
 const getParams = function () {
     const params = {
-        page: 1,
-        pagesize: 10
+        page: load.page,
+        pageSize: load.pageSize
     }
 
-    if(!Base.isEmpty(keyword.value)) {
-        params.keyword = keyword.value
+    if(!Base.isEmpty(load.keyword )) {
+        params.keyword = load.keyword
     }
 
     return params
@@ -93,21 +106,43 @@ const loadFileList = async function () {
             return false;
         }
 
-        for(let i in res.data) {
-            res.data[i].file_name = File.getFileAlias(res.data[i].file_name);
-            res.data[i].file_cover = await getCover(res.data[i]);
-            res.data[i].file_size = File.formatFileSize(res.data[i].file_size);
-            res.data[i].file_date = Time.formatDate(res.data[i].file_date,'YYYY/MM/DD');
+        console.log('res',res);
+        if(Base.isEmpty(res.data.list)) {
+            load.list = [];
+            return false;
         }
 
-        Object.assign(files,res.data);
+
+
+        setPagination(res.data)
+        setFileList(res.data.list);
     } catch (err) {
         Base.printErrorLog('getFileList',err);
     }
 }
 
+const setFileList = async function (data:object[]) {
+    if(Base.isEmpty(data)) {
+        return false;
+    }
 
-const getCover = async function ({file_id}):void {
+    for(let i in data) {
+        data[i].file_name = File.getFileAlias(data[i].file_name);
+        data[i].file_cover = await getCover(data[i]);
+        data[i].file_size = File.formatFileSize(data[i].file_size);
+        data[i].file_date = Time.formatDate(data[i].file_date,'YYYY/MM/DD');
+    }
+    load.list = data;
+}
+
+const setPagination = function ({page,totalPage}):void {
+    pagination.show = true;
+    pagination.page = page;
+    pagination.totalPage = totalPage;
+}
+
+
+const getCover = async function ({file_id}):Promise<void> {
     try {
         const path = File.getFileCoverById(file_id);
 
@@ -221,11 +256,26 @@ const onOperateConfirm = function () {
 }
 
 const setDefaultImage = function ({currentTarget: {dataset: {index}}}) {
-    files[index].cover = Common.getDefaultImage();
+    load.list[index].cover = Common.getDefaultImage();
+}
+
+const onChangePage = function ({value}):void {
+    const object = {
+        path: `/`,
+        query:  {
+            page: value
+        }
+    }
+
+    if(!Base.isEmpty(load.keyword)) {
+        object.query.keyword = load.keyword
+    }
+
+    router.push(object)
 }
 
 watch(() => pageStore.keyword,(value)=>{
-   keyword.value = value;
+    load.keyword = value;
    loadFileList();
 })
 </script>
@@ -239,8 +289,9 @@ watch(() => pageStore.keyword,(value)=>{
         overflow-y: auto;
     }
 
-    &-inner {
+    &-main {
         display: grid;
+        min-height: 560px;
         //grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         grid-template-columns: repeat(auto-fill, 183px);
         gap: 15px;

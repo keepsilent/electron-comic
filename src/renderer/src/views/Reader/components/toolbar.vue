@@ -14,7 +14,7 @@
             </div>
 
             <div class="more">
-                <span class="operate-btn" :title="$t('button.more')"><i class="iconfont icon-more"></i></span>
+                <span class="operate-btn forbiden" :title="$t('button.more')"><i class="iconfont icon-more"></i></span>
             </div>
         </template>
     </div>

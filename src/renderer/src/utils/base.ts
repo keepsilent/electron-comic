@@ -173,6 +173,37 @@ const copy = async function (event:object):Promise<Void> {
     }
 }
 
+
+/**
+ * 获取页数
+ * @method getPage
+ * @param {Number} spage
+ * @param {Number} totalPage
+ * @return {Number}
+ */
+const getPage = function (page:number, totalPage:number):number {
+    if(page - 1 < 0) {
+        return 0;
+    }
+
+    if(page - 1 > totalPage) {
+        return totalPage;
+    }
+
+    return page - 1;
+}
+
+/**
+ * 获取总页数
+ * @method getTotalPage
+ * @param {Number} total
+ * @param {Number} pageSize
+ * @return {Number}
+ */
+const getTotalPage = function (total:number, pageSize:number):number {
+    return Math.ceil(total / pageSize) || 1
+}
+
 export default {
     isEmpty: isEmpty,
     isObject: isObject,
@@ -180,6 +211,8 @@ export default {
     unique: unique,
     copy: copy,
 
+    getPage: getPage,
+    getTotalPage: getTotalPage,
     getDataLength: getDataLength,
     getObjectFirstKey: getObjectFirstKey,
 

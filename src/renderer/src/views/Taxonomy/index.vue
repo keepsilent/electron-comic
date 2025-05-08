@@ -1,8 +1,7 @@
 <template>
     <Toolbar/>
-
     <div class="taxonomy-wrap scrollbar">
-        <div class="taxonomy-header">
+        <div v-if="empty.show != true" class="taxonomy-header">
             <div class="menu">
                 <span v-for="(item,index) in page.menu" :key="index" :class="{'active':page.current == item.value}"  @click="onSwitchSort(item.value)">{{item.name}}</span>
             </div>
@@ -10,11 +9,11 @@
                 <span v-for="(item,index) in page.sort" :key="index" :class="{'selected':item.selected}" @click="onSwitchGroup(item.value)">{{item.name}}</span>
             </div>
         </div>
-        <div class="taxonomy-main">
+        <div v-if="empty.show != true"  class="taxonomy-main">
             <template v-if="page.current == 'group'">
                 <section v-for="(items,indexs) in page.data" :key="indexs" :class="{active: page.group == items.name}">
                     <h3>{{items.name}}</h3>
-                    <span v-for="(item, index) in items.data" :key="index" class="item">
+                    <span v-for="(item, index) in items.data" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                         <em>{{item.name}}</em>
                         <i>{{setCountUnit(item.count)}}</i>
                     </span>
@@ -22,15 +21,16 @@
             </template>
 
             <template v-if="page.current == 'popular'">
-                <span v-for="(item,index) in page.popular" :key="index" class="item">
+                <span v-for="(item,index) in page.popular" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                     <em>{{item.name}}</em>
                     <i>{{setCountUnit(item.count)}}</i>
                 </span>
             </template>
         </div>
-        <div class="taxonomy-footer">
-            <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
-        </div>
+        <Statusbar :pagination="pagination" :group="page.group"></Statusbar>
+
+        <Empty :empty="empty" style="margin-top:20%"></Empty>
+        <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
     </div>
 </template>
 
@@ -38,28 +38,30 @@
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted} from 'vue'
+import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
 import {Base, Common, File} from "@renderer/utils";
-import {getTermList, getTermGroupFristRcord, getTermGroupFristPosition} from "@renderer/api/terms";
+import {getTermList, getTermGroupFristRcord, getTermGroupFristRcordPosition} from "@renderer/api/terms";
 import {debounce, throttle} from "@renderer/utils/throttle";
 
 import {usePageStore} from '@renderer/stores/page'
 import Toolbar from "./components/toolbar.vue";
+import Statusbar from "./components/statusbar.vue";
+import Empty from "@renderer/components/Empty.vue";
 import Pagination from "@renderer/components/Pagination.vue";
-import {getTermGroupFristRcordPosition} from "../../api/terms";
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
 const load = reactive({page: 1, pageSize: 100, taxonomy: ''})
-const pagination = reactive({show: false, page: 1, totalPage: 1})
+const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
+const empty:EmptyInter = reactive({});
 const page = reactive({
     current: 'group',
     menu: [
         {name: 'A-Z',value: 'group'},
         {name:'Popular',value: 'popular'}
     ],
-
     data:[],
     popular:[],
 
@@ -75,9 +77,9 @@ const init = function () {
     const {type, page:current, group, sort} = route.query;
     console.log('route.query',route.query);
 
-    pageStore.setStatusPath(`Source: ${type}`);
     page.group = group || '';
     page.current = sort || 'group';
+    pagination.source = t('aside.menu.'+type);
     load.page = current || 1;
     load.taxonomy = getTaxonomy(type);
     loadTermList();
@@ -97,12 +99,25 @@ const loadTermList = async function () {
 
         page.popular = res.data.list;
 
-        setPagination(res.data)
+        pageStore.num = res.data.total;
+
+        setEmpty(res.data);
         setDataGroup(res.data.list);
+        setPagination(res.data)
     } catch (err) {
         pagination.show = false;
         Base.printErrorLog('getTermList',err)
     }
+}
+
+const setEmpty = function ({total}):boolean {
+    if(total !== 0 ) {
+        return false;
+    }
+
+    let title = t('empty.repositories .title');
+    let subtitle = t('empty.repositories.subtitle');
+    Common.showEmpty(empty,title, subtitle)
 }
 
 const setDataGroup = function (data:object[]):void {
@@ -181,10 +196,11 @@ const getTaxonomys = function (key:string):string {
     return options[key];
 }
 
-const setPagination = function ({page,totalPage}):void {
+const setPagination = function ({page,totalPage,total}):void {
     pagination.show = true;
     pagination.page = page;
     pagination.totalPage = totalPage;
+    pagination.total = total;
 }
 
 const createSortDefaultData = function ():object[] {
@@ -197,10 +213,6 @@ const createSortDefaultData = function ():object[] {
 }
 
 const onSwitchSort = throttle((type)=>{
-    // load.page = 1;
-    // page.current = type
-    // loadTermList();
-
     const object = {
         path: `/taxonomy`,
         query:  {
@@ -220,6 +232,7 @@ const onSwitchGroup = throttle(async (group)=>{
         if(res.code != 200) {
             return false;
         }
+
         if(Base.isEmpty(res.data)) {
             return  false;
         }
@@ -266,6 +279,18 @@ const onChangePage = function ({value}):void {
             type: getTaxonomys(load.taxonomy),
             page: value,
             sort: page.current
+        }
+    }
+
+    router.push(object)
+}
+
+const onSearchTaxonomy = function ({currentTarget: {dataset: {name}}}):void {
+    const object = {
+        path: `/`,
+        query:  {
+            name: name,
+            type: load.taxonomy
         }
     }
 

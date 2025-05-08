@@ -1,6 +1,6 @@
 <template>
     <!-- 工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar" @click="onContent">
 
             <div class="operate">
 <!--                <span class="operate-btn" :title="$t('tool.return')" @click="onGoBack">-->
@@ -18,8 +18,23 @@
             </div>
 
             <div class="more">
-                <span class="operate-btn" :title="$t('button.more')"><i class="iconfont icon-more"></i></span>
+                <span class="operate-btn" :title="$t('tool.sort')" @click.stop="onShowOrderMenu"><i class="iconfont icon-more"></i></span>
             </div>
+    </div>
+
+    <!-- Order Menu -->
+    <div v-if="order.show" class="order-menu">
+        <em class="up-icon"></em>
+        <ul>
+            <li v-for="(item,index) in order.typeData" :key="index" :data-value="item.value" :class="{'active': item.value === order.type}" @click="onOrderType">
+                <em><i class="iconfont icon-check"></i></em>{{item.name}}
+            </li>
+        </ul>
+        <ul class="line">
+            <li v-for="(item,index) in order.methodData" :key="index" :data-value="item.value" :class="{'active': item.value === order.method}" @click="onOrderMethod">
+                <em><i class="iconfont icon-check"></i></em>{{item.name}}
+            </li>
+        </ul>
     </div>
 
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
@@ -53,11 +68,26 @@ interface Props {
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['cancel','confirm'])
+const emit = defineEmits(['cancel','confirm','sort'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
 const confirm:ConfirmInter = reactive({show: false});
 const upload:string = ref(null);
+const order = reactive({
+    show: false,
+    type: 'name',
+    method: 'desc',
+    typeData: [
+        {name: t('tool.order.name'),value: 'name'},
+        {name: t('tool.order.size'),value: 'size'},
+        {name: t('tool.order.type'),value: 'type'},
+        {name: t('tool.order.date'),value: 'date'},
+    ],
+    methodData: [
+        {name: t('tool.order.desc'),value: 'desc'},
+        {name: t('tool.order.asc'),value: 'asc'}
+    ],
+})
 
 page.actions.onDeleteFile = async function ():boolean {
     try {
@@ -151,15 +181,14 @@ const onUpload = async function (event) {
     }
 }
 
-const uploadFile = async function ( file,extract) {
+const uploadFile = async function ( file, extract) {
     try {
         const data= {
-            name: file.name,
-            author: '',
-            type: file.type,
-            size: file.size,
-            path: file.path,
-            total: File.getExtractFileTotal(extract),
+            'file_name': file.name,
+            'file_mine_type': file.type,
+            'file_size': file.size,
+            'file_path': file.path,
+            'file_total': File.getExtractFileTotal(extract),
         }
 
         const cover = await File.getExtractFileCover(extract);
@@ -184,13 +213,60 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
+
+const onShowOrderMenu = function () {
+    const type = localStorage.getItem('cm_setting_sort_type') || 'name';
+    const method = localStorage.getItem('cm_setting_sort_method') || 'desc';
+
+    order.show = true;
+    order.type = type;
+    order.method = method;
+}
+
+const onOrderType = function ({currentTarget: {dataset: {value}}}) {
+    const type = localStorage.getItem('cm_setting_sort_type') || 'name';
+    if(type == value) {
+        order.show = false;
+        return false
+    }
+
+    order.show = false;
+    order.type = value;
+    localStorage.setItem('cm_setting_sort_type',value);
+    setSort();
+}
+
+const onOrderMethod = function ({currentTarget: {dataset: {value}}}) {
+    const method = localStorage.getItem('cm_setting_sort_method') || 'desc';
+    if(method == value) {
+        order.show = false;
+        return false
+    }
+
+    order.show = false;
+    order.method = value;
+    localStorage.setItem('cm_setting_sort_method',value);
+    setSort();
+}
+
+const setSort = function () {
+    const {type, method} = order
+    emit('sort',{'order': type,'sort': method})
+}
+
+const onHideOrderMenu = function () {
+    order.show = false;
+}
+
+const onContent = function () {
+    order.show = false;
+}
+
 const onGoBack = async function () {
     router.back();
 }
 
-watch(() => props.file.path,(value)=>{
-    page.show = !Base.isEmpty(value)
-})
+defineExpose({ onHideOrderMenu })
 </script>
 
 <style scoped lang="scss">
@@ -255,6 +331,80 @@ watch(() => props.file.path,(value)=>{
             &:hover {
                 color: var(--content-color-tertiary);
                 background: transparent;
+            }
+        }
+    }
+}
+
+/** 排序菜单 **/
+.order-menu {
+    position: fixed;
+    top: 87px;
+    right: 10px;
+
+    background: #FFF;
+    z-index: 1;
+    border-radius: var(--border-radius-default);
+    box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);
+    overflow: hidden;
+
+    .up-icon {
+        position: fixed;
+        top: 72px;
+        right: 17px;
+        right: 17px;
+        border: solid 8px transparent;
+        border-bottom-color: #FFF;
+    }
+
+    ul {
+        &.line {
+            border-top: solid 1px var(--border-color-default);
+        }
+
+        li {
+            line-height: 35px;
+            padding-right: var(--spacing-l);
+            cursor: pointer;
+
+            &.active {
+                em i {
+                        display: block;
+                }
+
+                &:hover {
+                    em i {
+                        color: var(--content-color-secondary);
+                    }
+                }
+            }
+
+            em {
+                display: block;
+                float: left;
+                width: 30px;
+                height: 35px;
+                padding-left: 10px;
+                margin-right: 10px;
+                background: var(--background-color-secondary);
+                border-right: solid 1px var(--border-color-default);
+
+                i {
+                    display: none;
+                }
+            }
+
+
+            &:hover {
+                background: var(--background-color-secondary);
+
+                em {
+                    background: transparent;
+                    i {
+                        display: block;
+                        color: var(--grey-40);
+                    }
+                }
             }
         }
     }

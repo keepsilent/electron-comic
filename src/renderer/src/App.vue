@@ -14,7 +14,7 @@
 <!--                    </transition>-->
                 </router-view>
             </div>
-            <Footer></Footer>
+<!--            <Footer></Footer>-->
         </div>
     </div>
     <Launch :show="page.launch"></Launch>
@@ -43,14 +43,14 @@ const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore
 
 
 // const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
-window.electron.ipcRenderer.on('resize',(event,args)=> {
-    const {x, y, width, height} = args;
-
-    pageStore.x = x;
-    pageStore.y = y;
-    pageStore.width = width;
-    pageStore.height = height;
-})
+// window.electron.ipcRenderer.on('resize',(event,args)=> {
+//     const {x, y, width, height} = args;
+//
+//     pageStore.x = x;
+//     pageStore.y = y;
+//     pageStore.width = width;
+//     pageStore.height = height;
+// })
 
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     page.launch = false;

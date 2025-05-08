@@ -18,30 +18,48 @@
             border-radius: var(--skeleton-radius-l);
             background: var(--skeleton-color-secondary);
             animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
-
         }
 
         .info {
             position: relative;
-            width: 300px;
-            height: 243px;
+            width: 35%;
+
             .title {
                 width: var(--skeleton-width-default);
-                height: var(--skeleton-height-l);
+                height: var(--skeleton-height-default);
                 border-radius: var(--skeleton-radius-default);
                 background: var(--skeleton-color-secondary);
                 animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
-
             }
 
-            .subtitle {
-                width: var(--skeleton-width-m);
+            .subtitle,.no {
+                width: var(--skeleton-width-l);
                 height: var(--skeleton-height-default);
                 margin-top: var(--spacing-m);
                 border-radius: var(--skeleton-radius-default);
                 background: var(--skeleton-color-secondary);
                 animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
+            }
 
+            .no {
+                width: var(--skeleton-width-s);
+            }
+
+            .tag {
+                display: flex;
+                align-items: center;
+                span {
+                    display: block;
+                    width: 60px;
+                    height: var(--skeleton-height-default);
+                    margin-top: var(--spacing-m);
+                    margin-right: var(--spacing-s);
+                    border-radius: var(--skeleton-radius-default);
+                    background: var(--skeleton-color-secondary);
+                    animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
+                }
+                &:nth-child(1n) span {width: 90px;}
+                &:nth-child(2n) span {width: 60px;}
             }
 
             .tags {

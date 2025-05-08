@@ -185,8 +185,8 @@
 :root {
     /*Skeleton colors*/
     --skeleton-color-primary: var(--grey-00);
-    --skeleton-color-secondary: var(--grey-05);
-    --skeleton-color-tertiary: var(--grey-10);
+    --skeleton-color-secondary: var(--grey-20);
+    --skeleton-color-tertiary: var(--grey-30);
 
 
     /*Skeleton width*/

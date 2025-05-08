@@ -1,24 +1,21 @@
 <template>
-    <div class="footer">
-        <div :class="['footer-inner',page.layout]">
+    <div class="status-wrap">
+        <div :class="['status-inner',page.layout]">
             <div class="file-path">
-                <template v-if="status.scene == 'catalogue'">{{status.name}}</template>
-                <template v-else>
-                    <template v-for="(item,index) in status.path">
-                        <span class="item" :title="item.value" :data-index="index" @click="onOpenFolder">{{item.name}}</span>
-                        <template v-if="index + 1 != (status.path).length">
-                            <i class="iconfont icon-return"></i>
-                        </template>
+                <template v-for="(item,index) in page.path">
+                    <span class="item" :title="item.value" :data-index="index" @click="onOpenFolder">{{item.name}}</span>
+                    <template v-if="index + 1 != (page.path).length">
+                        <i class="iconfont icon-return"></i>
                     </template>
                 </template>
             </div>
             <div class="file-info">
-                <div class="file-num">
-                    <i class="num">{{status.num}} </i>
-                    <template v-if="status.scene == 'path'">{{t('status.files')}}</template>
-                    <template v-else>{{t('status.item')}}</template>
-                </div>
-                <div class="iconfont icon-problem"></div>
+<!--                <span>{{settings.page.num}}:{{settings.page.total}}</span>-->
+                <span>{{settings.zoom}}%</span>
+                <span>{{settings.space}} {{$t('status.spaces')}}</span>
+                <span>{{file.file_size}}</span>
+                <span>MIME:{{File.getFileExt(file.file_path).toUpperCase()}}</span>
+                <span><i class="iconfont icon-remind"></i></span>
             </div>
         </div>
     </div>
@@ -28,31 +25,53 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {reactive,watch} from 'vue'
+import {reactive,onMounted, watch} from 'vue'
 import {Base,Common,File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 
 import Confirm from "@renderer/components/Confirm.vue";
 
-interface Status {
-    name: string,
-    num: number,
-    scene: string,
-    path?: object
+interface Props {
+    show: boolean,
+    file: {
+        file_id:number,
+        file_date: string,
+        file_modified:string,
+        file_name: string,
+        file_type: string,
+        file_path: string,
+        file_size:number,
+        file_total:number,
+        file_status: string,
+        file_categories: object,
+        file_artists: object,
+        file_alias:string,
+        file_intro:string
+    },
+    settings: {
+        page: {
+            num: number,
+            total: number
+        },
+        scrollTop: 0,
+        zoom: number,
+        space: number,
+    }
 }
 
 const { t } = useI18n();
 const pageStore = usePageStore();
-const status:Status = reactive({name: '',num: 0, scene: '', path: []})
+const props = defineProps<Props>()
 const page = reactive({
     show: false,
-    layout: Common.getLayoutFold(pageStore.layout,'footer-inner')
+    layout: Common.getLayoutFold(pageStore.layout,'status-inner')
 })
 const confirm:ConfirmInter = reactive({show: false});
 
+
 const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
-    const path = status.path[index].value;
+    const path = page.path[index].value;
     if(!File.isExists(path)) {
         Common.showAlert(confirm,t("alert.content.inexistence"));
         return false;
@@ -96,26 +115,11 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-watch(() => pageStore.name,(value)=>{
-    status.name = value;
-})
-
-watch(() => pageStore.scene,(value)=>{
-    status.scene = value;
-})
-
-watch(() => pageStore.path,(value)=>{
-    status.path = analyzePath(value);
-})
-
-watch(() => pageStore.num,(value)=>{
-    status.num = value;
+watch(() => props.file.file_path,(value)=>{
+    page.path = analyzePath(value);
 })
 
 watch(() => pageStore.layout,(value)=>{
-    page.layout = Common.getLayoutFold(value,'footer-inner');
+    page.layout = Common.getLayoutFold(value,'status-inner');
 })
 </script>
-<style scoped lang="scss">
-@use "./index.scss";
-</style>

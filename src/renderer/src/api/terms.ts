@@ -68,32 +68,17 @@ const getTermTotal = async function ({taxonomy}):Promise<number> {
     }
 }
 
-const getPage = function (page:number, totalPage:number):number {
-    if(page - 1 < 0) {
-        return 0;
-    }
-
-    if(page - 1 > totalPage) {
-        return totalPage;
-    }
-
-    return page - 1;
-}
-
-const getTotalPage = function (total:number, pageSize:number):number {
-    return Math.ceil(total / pageSize) || 1
-}
 
 export const getTermList = async function ({page, pageSize, taxonomy, sort}):Promise<Result> {
     try {
         const total = await getTermTotal({taxonomy: taxonomy});
-        const totalPage = getTotalPage(total, pageSize);
+        const totalPage = Base.getTotalPage(total, pageSize);
         const orderby = sort == 'popular' ? 'count DESC': 'term_group ASC, name ASC'
         const sql = `SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy ORDER BY ${orderby} LIMIT $page, $pageSize`;
         const data: queryParam = {
             sql: sql,
             params: {
-                $page: getPage(page, totalPage) * pageSize,
+                $page: Base.getPage(page, totalPage) * pageSize,
                 $pageSize: pageSize,
                 $taxonomy: taxonomy
             }
@@ -107,7 +92,7 @@ export const getTermList = async function ({page, pageSize, taxonomy, sort}):Pro
             code: 200,
             data: {
                 list: res.data,
-                page: getPage(page, totalPage) == totalPage ? totalPage : getPage(page, totalPage) + 1,
+                page: Base.getPage(page, totalPage) == totalPage ? totalPage : Base.getPage(page, totalPage) + 1,
                 pageSize: pageSize,
                 total: total,
                 totalPage: totalPage,

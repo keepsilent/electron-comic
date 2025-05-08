@@ -194,8 +194,8 @@ const language:SelectInter = reactive({
 
 const pageing:SelectInter = reactive({
     key: 'pageing',
-    name: localStorage.getItem('cm_setting_pageing') || '20',
-    value: localStorage.getItem('cm_setting_pageing') || '20',
+    name: localStorage.getItem('cm_setting_page_size') || '20',
+    value: localStorage.getItem('cm_setting_page_size') || '20',
     width: 70,
     options: [
         {name:'20',value: '20'},
@@ -253,7 +253,8 @@ const onSelectOption = function (option) {
         case 'pageing':
             pageing.name = option.name;
             pageing.value = option.value;
-            localStorage.setItem('cm_setting_pageing', option.value)
+            pageStore.setPageSize(option.value);
+            localStorage.setItem('cm_setting_page_size', option.value)
             break
     }
 }

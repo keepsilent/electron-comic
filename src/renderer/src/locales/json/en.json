@@ -88,9 +88,17 @@
 		}
 	},
 	"empty": {
+		"search": {
+			"title": "Your search did not match any repositories",
+			"subtitle": "Try to change keyword of search, Be like: Adventure, Magic, Cure."
+		},
 		"inexistence": {
 			"title": "File could not be found",
 			"subtitle": "Is the project moved, renamed, or deleted, lf this problem persists, Please contact us."
+		},
+		"repositories": {
+			"title": "Repositories is Empty",
+			"subtitle": "You should upload files ,To create your own Repositories."
 		}
 	},
 	"edit": {
@@ -140,15 +148,28 @@
 		"edit": "Edit File",
 		"delete": "Delete File",
 		"upload": "Upload File",
-		"increase": "Increase File"
+		"increase": "Increase File",
+		"sort": "Sort Order",
+		"order": {
+			"name": "Name",
+			"size": "Size",
+			"type": "Project type",
+			"date": "Date changed",
+			"desc": "DESC",
+			"asc": "ASC"
+		}
 	},
 	"search": {
 		"placeholder": "Search"
 	},
 	"status": {
-		"location": "Location",
-		"item": "Item",
-		"files": "Files"
+		"search": "Search: \"{q}\" relevant information",
+		"taxonomy": "Taxonomy: \"{name}\" of {type} relevant information",
+		"group": "Group: \"{group}\" has been selected",
+		"spaces": "spaces",
+		"current": "Current",
+		"total": "Total",
+		"location": "Location"
 	},
 	"setting": {
 		"title": "SETTINGS",

@@ -66,16 +66,20 @@ const onSearch = function({keyCode}):boolean|void {
     //     return false;
     // }
 
-    if(route.path == '/') {
-        pageStore.keyword = keyword.value;
-        return false;
-    }
 
+    // if(route.path == '/') {
+    //     pageStore.keyword = keyword.value;
+    //     return false;
+    // }
+
+    console.log('route.path ',route.path,keyword.value);
     const object = {
         path: '/',
-        query: {
-            keyword: keyword.value
-        }
+        query:{}
+    }
+
+    if(!Base.isEmpty(keyword.value)) {
+        object.query.q = keyword.value
     }
 
     router.push(object)
@@ -96,6 +100,7 @@ const onGoBack = function ():void {
 const onClear = function():void {
     keyword.value = '';
     pageStore.keyword = '';
+    router.push({path:'/'})
 }
 
 const onIPC = function({currentTarget: {dataset: {key}}}): void {

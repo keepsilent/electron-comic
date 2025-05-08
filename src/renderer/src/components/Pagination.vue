@@ -166,6 +166,7 @@ const assignData = function (data):void {
         justify-content: center;
 
         margin-top: var(--spacing-l);
+        padding-bottom: var(--spacing-l);
 
         span {
             width: 28px;

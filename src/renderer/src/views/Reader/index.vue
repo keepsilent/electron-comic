@@ -7,15 +7,44 @@
                 <div class="info">
                     <p class="title"></p>
                     <p class="subtitle"></p>
-                    <div class="tags">
+                    <p class="no"></p>
+                    <p class="tag">
                         <span></span>
                         <span></span>
                         <span></span>
-                    </div>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </p>
+                    <p class="tag">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </p>
+                    <p class="tag">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </p>
+                    <p class="tag">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </p>
+                    <p class="tag">
+                        <span></span>
+                        <span></span>
+                    </p>
+                    <p class="tag">
+                        <span></span>
+                    </p>
                 </div>
             </div>
 
-            <Interim :interim="interim"></Interim>
+            <Interim :interim="interim" style="opacity: 0.65"></Interim>
         </div>
     </div>
     <div v-if="page.init" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space" id="scrollbar">
@@ -33,7 +62,7 @@
 
                     <div v-if="file.file_tags.length > 0" class="taxonomy">
                         <label>{{t('details.tags')}}：</label>
-                        <span class="item" v-for="(item,index) in file.file_tags" :key="index">
+                        <span class="item" v-for="(item,index) in file.file_tags" :key="index" :data-name="item.name" data-type="tag" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
                             <i>{{setCountUnit(item.count)}}</i>
                         </span>
@@ -41,7 +70,7 @@
 
                     <div v-if="file.file_artists.length > 0" class="taxonomy">
                         <label>{{t('details.artists')}}：</label>
-                        <span class="item" v-for="(item,index) in file.file_artists" :key="index">
+                        <span class="item" v-for="(item,index) in file.file_artists" :key="index" :data-name="item.name" data-type="artist" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
                             <i>{{item.count}}</i>
                         </span>
@@ -49,7 +78,7 @@
 
                     <div v-if="file.file_languages.length > 0" class="taxonomy">
                         <label>{{t('details.languages')}}：</label>
-                        <span class="item" v-for="(item,index) in file.file_languages" :key="index">
+                        <span class="item" v-for="(item,index) in file.file_languages" :key="index" :data-name="item.name" data-type="language" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
                             <i>{{item.count}}</i>
                         </span>
@@ -57,7 +86,7 @@
 
                     <div v-if="file.file_categories.length > 0" class="taxonomy">
                         <label>{{t('details.categories')}}：</label>
-                        <span class="item" v-for="(item,index) in file.file_categories" :key="index">
+                        <span class="item" v-for="(item,index) in file.file_categories" :key="index" :data-name="item.name" data-type="category" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
                             <i>{{item.count}}</i>
                         </span>
@@ -107,6 +136,7 @@
             <Menubar ref="menubar" :settings="settings" @update="onUpdateSettings"></Menubar>
         </div>
     </div>
+    <Statusbar :file="file" :settings="settings"></Statusbar>
 
     <Loading :show="page.loading"></Loading>
     <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit" @update="onUpdateFileEdit"></FileEdit>
@@ -127,6 +157,7 @@ import {Archive} from 'libarchive.js/main.js';
 
 import Toolbar from "./components/toolbar.vue";
 import Menubar from "./components/menubar.vue";
+import Statusbar from "./components/statusbar.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 import Loading from "@renderer/components/Loading.vue";
 import Interim from "@renderer/components/Interim.vue";
@@ -365,11 +396,15 @@ const renderStatus = function (file) {
 
 const renderFilesThumbnail = async function (file:File):void {
     try {
+        const now = (new Date()).valueOf();
         const fileBuffer = fs.readFileSync(file.file_path);
         const blob = new Blob([fileBuffer], {type: file.file_mine_type});
 
         const archive = await Archive.open(blob);
         const extract = await archive.extractFiles();
+        const current =  (new Date()).valueOf() - now;
+
+        console.log('cu',current);
 
         readImageFile(File.getExtractImageList(extract));
     } catch (err) {
@@ -850,6 +885,18 @@ const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss')
 
 const setCountUnit = function (value) {
     return Common.setCountUnit(value);
+}
+
+const onSearchTaxonomy = function ({currentTarget: {dataset: {name,type}}}):void {
+    const object = {
+        path: `/`,
+        query:  {
+            name: name,
+            type: type
+        }
+    }
+
+    router.push(object)
 }
 
 watch(() => pageStore.layout,(value)=>{

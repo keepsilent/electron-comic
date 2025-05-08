@@ -6,32 +6,11 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "4767011",
-      "name": "right",
-      "font_class": "right",
-      "unicode": "e7eb",
-      "unicode_decimal": 59371
-    },
-    {
-      "icon_id": "4767012",
-      "name": "left",
-      "font_class": "left",
-      "unicode": "e7ec",
-      "unicode_decimal": 59372
-    },
-    {
-      "icon_id": "4767018",
-      "name": "doubleleft",
-      "font_class": "doubleleft",
-      "unicode": "e7ed",
-      "unicode_decimal": 59373
-    },
-    {
-      "icon_id": "4767019",
-      "name": "double right",
-      "font_class": "doubleright",
-      "unicode": "e7ee",
-      "unicode_decimal": 59374
+      "icon_id": "29924",
+      "name": "check",
+      "font_class": "check",
+      "unicode": "e648",
+      "unicode_decimal": 58952
     },
     {
       "icon_id": "20981639",
