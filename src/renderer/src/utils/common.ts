@@ -196,6 +196,8 @@ const setCountUnit = function (value:number):number|string {
     return parseInt(value / 1000) + 'k';
 }
 
+
+
 export default {
     showLoading: showLoading,
     hideLoading: hideLoading,

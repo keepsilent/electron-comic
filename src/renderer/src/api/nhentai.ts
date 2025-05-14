@@ -1,10 +1,11 @@
 import axios from "axios";
-import {Base, DB, File, Time} from "@renderer/utils";
-import {isTermExist, getTermByName, increaseTerm, increaseTermRelationships, removeTermRelationships} from "@renderer/api/terms";
-import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
+import {Base,File} from "@renderer/utils";
+import {isTermExist, increaseTerm, increaseTermRelationships} from "@renderer/api/terms";
+import {insertFileMeta} from "@renderer/api/filemeta";
 
 const options = {
-    baseURL: 'https://nhentai.net/api'
+    baseURL: 'https://nhentai.net/api',
+    timeout: 5000,
 }
 const service = axios.create(options);
 
@@ -12,6 +13,10 @@ const getFileInfo = function (data:object, name:string):object {
     const reg = /[/\\?%*:|"<>]/g;
     for(let i in data) {
         for(let j in data[i].title) {
+            if(Base.isEmpty(data[i].title[j])) {
+                continue;
+            }
+
             if(data[i].title[j] == name) {
                 return data[i];
             }
@@ -56,8 +61,9 @@ export const getNhentaiList = async function ({file_id, file_name}) {
 
         const {id, title, tags} = info;
         await batchInsertTermRelationships(file_id, tags);
-        await addFileMeta({file_id: file_id, meta_key: 'id', meta_value:JSON.stringify({id:id,source:'nhentai'})});
-        await addFileMeta({file_id: file_id, meta_key: 'title', meta_value:JSON.stringify({title:title,source:'nhentai'})});
+
+        await insertFileMeta({file_id: file_id, meta_key: 'id', meta_value:JSON.stringify({id:id,source:'nhentai'})});
+        await insertFileMeta({file_id: file_id, meta_key: 'title', meta_value:JSON.stringify({title:title,source:'nhentai'})});
         console.log('info',info);
     } catch (err) {
         Base.printErrorLog('getNhentaiList',err);
@@ -68,6 +74,7 @@ const batchInsertTermRelationships = async function (object_id:number, tags:obje
     if(Base.isEmpty(tags)) {
         return false;
     }
+
     for(let i in tags) {
         await insertTermRelationships(object_id, tags[i].name, tags[i].type);
     }

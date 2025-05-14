@@ -2,6 +2,7 @@ export interface PageInter {
     show?: boolean,
     init?: boolean,
     loading?: boolean,
+    uploader?: boolean
     layout?: string,
     aside?: string,
     actions?: object

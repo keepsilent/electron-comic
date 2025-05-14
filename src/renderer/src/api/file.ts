@@ -6,15 +6,17 @@ import type {
     Result
 } from "@renderer/utils/db/base";
 import {Base, DB, File, Time} from "@renderer/utils";
+import {getTermRelationships,runRemoveTermRelationships} from "@renderer/api/terms";
+
 
 
 const fs = require("fs") as typeof import("fs");
 
-export const isFileExist = async function ({name, type}):Promise<Result> {
-    const sql = `SELECT * FROM cm_file WHERE file_name = $name AND file_mine_type = $type LIMIT 1`;
+export const isFileExist = async function ({name}):Promise<Result> {
+    const sql = `SELECT * FROM cm_file WHERE file_name = $name  LIMIT 1`;
     const data:queryParam = {
         sql: sql,
-        params: {$name: name, $type:type}
+        params: {$name: name}
     }
     return await DB.query(data);
 }
@@ -51,12 +53,10 @@ export const getFileTaxonomy = async function ({file_id, taxonomy}):Promise<Resu
     return await DB.query(data);
 }
 
-const getFileTotal = async function ({q, name, type}):Promise<number> {
+const getFileTotal = async function ({q, name, taxonomy}):Promise<number> {
     try {
-        const join = name && type ? `JOIN cm_term_relationships ON  cm_term_relationships.object_id = cm_file.file_id
-        JOIN cm_term_taxonomy ON cm_term_relationships.term_taxonomy_id = cm_term_taxonomy.term_taxonomy_id
-        JOIN cm_terms ON cm_term_taxonomy.term_id = cm_terms.term_id`: '';
-        const where = getFileListWhere({q, name, type});
+        const join = getFileListJoin({name, taxonomy})
+        const where = getFileListWhere({q, name, taxonomy});
 
         const sql = `SELECT count(*) as total FROM cm_file ${join} WHERE ${where} LIMIT 1`;
         const data: queryParam = {
@@ -78,19 +78,26 @@ const getFileTotal = async function ({q, name, type}):Promise<number> {
     }
 }
 
-const getFileListWhere = function ({q, name, type}):string {
-    if(!Base.isEmpty(name) && !Base.isEmpty(type)) {
-        return `file_status = 'normal' AND name = '${name}' AND taxonomy = '${type}'`;
+const getFileListWhere = function ({q, name, taxonomy}):string {
+    if(!Base.isEmpty(name) && !Base.isEmpty(taxonomy)) {
+        return `(file_status = 'normal' OR file_status = 'lose') AND name = '${name}' AND taxonomy = '${taxonomy}'`;
     }
 
     if(!Base.isEmpty(q)) {
-        return `file_status = 'normal' AND file_name LIKE '%${q}%'`;
+        return `(file_status = 'normal' OR file_status = 'lose') AND file_name LIKE '%${q}%'`;
     }
 
-    return `file_status = 'normal'`;
+    return `file_status = 'normal' OR file_status = 'lose'`;
 }
 
-const getFileListOrderBy = function (order = 'name', sort= 'desc'):string {
+const getFileListJoin = function ({name, taxonomy}):string {
+    const join = name && taxonomy ? `JOIN cm_term_relationships ON cm_term_relationships.object_id = cm_file.file_id
+        JOIN cm_term_taxonomy ON cm_term_relationships.term_taxonomy_id = cm_term_taxonomy.term_taxonomy_id
+        JOIN cm_terms ON cm_term_taxonomy.term_id = cm_terms.term_id`: '';
+    return join;
+}
+
+const getFileListOrderBy = function ({mode='name',sort= 'desc'}):string {
     const options = {
         'name':'file_name',
         'size': 'file_size',
@@ -98,21 +105,20 @@ const getFileListOrderBy = function (order = 'name', sort= 'desc'):string {
         'date': 'file_modified'
     }
 
-    return `ORDER BY ${options[order]} ${sort.toUpperCase()}`;
+    return `ORDER BY ${options[mode]} ${sort.toUpperCase()}`;
 }
 
-export const getFileList = async function ({page, pageSize, q, name, type, order, sort}):Promise<Result> {
+export const getFileList = async function ({page, pageSize, q, name, taxonomy, order}):Promise<Result> {
     try {
-        const total = await getFileTotal({q, name, type});
+        console.log('getFileList order',order);
+        const total = await getFileTotal({q, name, taxonomy});
         const totalPage = Base.getTotalPage(total, pageSize);
-        const orderby = getFileListOrderBy(order, sort);
-        const join = name && type ? `JOIN cm_term_relationships ON  cm_term_relationships.object_id = cm_file.file_id
-        JOIN cm_term_taxonomy ON cm_term_relationships.term_taxonomy_id = cm_term_taxonomy.term_taxonomy_id
-        JOIN cm_terms ON cm_term_taxonomy.term_id = cm_terms.term_id`: '';
-        const where = getFileListWhere({q, name, type});
+        const join = getFileListJoin({name, taxonomy})
+        const where = getFileListWhere({q, name, taxonomy});
+        const orderby = getFileListOrderBy(order);
 
         const sql = `SELECT * FROM cm_file ${join} WHERE ${where} ${orderby} LIMIT $page, $pageSize`;
-       // console.log('sql',sql);
+        console.log('sql',sql);
         const data: queryParam = {
             sql: sql,
             params: {
@@ -142,24 +148,6 @@ export const getFileList = async function ({page, pageSize, q, name, type, order
     }
 }
 
-export const getFileList1 = async function ({keyword, page,pagesize}):Promise<Result> {
-    let where = `WHERE file_status='normal'`;
-    if(keyword) {
-        where += ` AND file_name LIKE '%${keyword}%'`;
-    }
-    const sql = `SELECT * FROM cm_file  ${where}  LIMIT $page, $pagesize`;
-
-    const data:queryParam = {
-        sql: sql,
-        params: {
-            $page: (page - 1) * pagesize,
-            $pagesize: pagesize
-        },
-    }
-
-    return await DB.query(data);
-}
-
 export const addFile = async function (data:{ [key: string]: any }):Promise<Result> {
     const date = Time.formatDate(new Date().getTime());
     const params:insertParam = {
@@ -187,18 +175,18 @@ export const updateFileStatus = async function ({id, status}):Promise<Result> {
 }
 
 
-export const updateFileInfo = async function ({file_id, file_name, file_intro, file_path}):Promise<Result> {
-    const data:queryParam = {
+export const updateFileInfo = async function ({file_id, data}):Promise<Result> {
+    const date = Time.formatDate(new Date().getTime());
+    const params:queryParam = {
         table: 'cm_file',
         data: {
-            'file_name': file_name,
-            'file_intro': file_intro,
-            'file_path': file_path
+            'file_modified': date,
+            ...data
         },
         condition: `file_id = ${file_id}`
     }
 
-    return await DB.update(data);
+    return await DB.update(params);
 }
 
 export const deleteFile = async function ({id, status}):Promise<Result> {
@@ -225,9 +213,11 @@ export const updateFileInfoRecord = async function ({file_id, file_name, file_in
         try {
             const params = {
                 file_id: file_id,
-                file_name: file_name,
-                file_intro: file_intro,
-                file_path: old_file_path == new_file_path ? old_file_path : new_file_path
+                data: {
+                    file_name: file_name,
+                    file_intro: file_intro,
+                    file_path: old_file_path == new_file_path ? old_file_path : new_file_path
+                }
             }
 
             const res = await updateFileInfo(params)
@@ -244,6 +234,51 @@ export const updateFileInfoRecord = async function ({file_id, file_name, file_in
             return true;
         } catch (err) {
             Base.printErrorLog('updateFileInfoRecord',err);
+            return false
+        }
+    });
+}
+
+const removeTermRelationshipsCount = async function (object_id) {
+    try {
+        const params = { object_id: object_id};
+        const res = await getTermRelationships(params);
+        if(res.code != 200) {
+            return false;
+        }
+
+        let num = 0;
+        const total = Base.getDataLength(res.data);
+        for(let i in res.data) {
+            let {term_taxonomy_id} = res.data[i];
+            if(await runRemoveTermRelationships(object_id, term_taxonomy_id)) {
+                num++
+            }
+        }
+
+        if(num != total) {
+            return false
+        }
+
+        return true;
+    } catch (err) {
+        console.log('removeTermRelationshipsCount',err);
+        return false;
+    }
+}
+
+export const deleteFileInfoRecord = async function ({file_id}):Promise<Boolean> {
+    return await DB.transaction(async () => {
+        try {
+            const params = { id: file_id, status: 'delete'};
+            const res = await updateFileStatus(params);
+            if(res.code != 200) {
+                return false;
+            }
+
+            return await removeTermRelationshipsCount(file_id);
+        } catch (err) {
+            Base.printErrorLog('deleteFileInfoRecord',err);
             return false
         }
     });

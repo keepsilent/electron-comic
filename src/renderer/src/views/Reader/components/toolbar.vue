@@ -1,20 +1,20 @@
 <template>
     <!-- 工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar-wrap">
         <template v-if="page.show">
-            <div class="operate">
+            <div class="toolbar-left">
 <!--                <span class="operate-btn" :title="$t('tool.return')" @click="onGoBack">-->
 <!--                    <i class="iconfont icon-round-right"></i>-->
 <!--                    <em>{{$t('button.return')}}</em>-->
 <!--                </span>-->
-                <span class="operate-btn forbiden" :title="$t('tool.upload')"><i class="iconfont icon-upload"></i><em>{{$t('button.upload')}}</em></span>
+                <span class="operate-btn" :title="$t('tool.increase')" @click="onShowUpload"><i class="iconfont icon-increase"></i><em>{{$t('button.increase')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.edit')" @click="onShowFileEdit" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
                 <span class="operate-btn" :title="$t('tool.delete')" @click="onDeleteFile"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
             </div>
 
-            <div class="more">
-                <span class="operate-btn forbiden" :title="$t('button.more')"><i class="iconfont icon-more"></i></span>
+            <div class="toolbar-right">
+                <span class="operate-btn" :title="$t('button.refresh')" @click="onRefresh"><i class="iconfont icon-refresh"></i></span>
             </div>
         </template>
     </div>
@@ -29,7 +29,7 @@ import {ref, reactive, watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
 import type {PageInter, ConfirmInter} from "@renderer/utils/types";
-import {updateFileStatus} from "@renderer/api/file";
+import {deleteFileInfoRecord} from "@renderer/api/file";
 
 import Confirm from "@renderer/components/Confirm.vue";
 
@@ -51,7 +51,7 @@ interface Props {
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['operate','cancel','confirm'])
+const emit = defineEmits(['operate','cancel','refresh','confirm','upload'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
 const confirm:ConfirmInter = reactive({show: false});
@@ -59,13 +59,10 @@ const edit:boolean = ref(true);
 
 page.actions.onDeleteFile = async function () {
     try {
+        Common.cancelConfirm(confirm);
         const {file_id, file_path} = props.file;
-        // if (File.deleteFile(path) == false) {
-        //     Common.showAlert(confirm,t("alert.content.delete.fail"));
-        //     return false;
-        // }
-        const params = { id: file_id, status: 'delete'};
-        const res = await updateFileStatus(params);
+        const params = { file_id: file_id};
+        const res = await deleteFileInfoRecord(params);
         if(res.code != 200) {
             return false;
         }
@@ -73,11 +70,9 @@ page.actions.onDeleteFile = async function () {
         const cover_path = File.getFileCoverById(file_id);
         File.deleteFile(file_path);
         File.deleteFile(cover_path);
-        router.back()
+        router.back();
     } catch (err) {
-        Base.printErrorLog('deleteFile',err);
-    } finally {
-        Common.cancelConfirm(confirm);
+        Base.printErrorLog('deleteFileInfoRecord',err);
     }
 }
 
@@ -93,16 +88,9 @@ const onOpenFolder = function () {
 
 const onShowFileEdit = function () {
     emit('operate',{key:'edit', value: true})
-
 }
 
 const onDeleteFile = function () {
-    //const path = props.file.path;
-    // if(!File.isExists(path)) {
-    //     Common.showAlert(confirm,t("alert.content.inexistence"));
-    //     return false;
-    // }
-
     Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }
 
@@ -114,6 +102,14 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
+const onShowUpload = function () {
+    emit('upload')
+}
+
+const onRefresh = function () {
+    emit('refresh')
+}
+
 const onGoBack = async function () {
     router.back();
 }
@@ -123,71 +119,4 @@ watch(() => props.file.file_path,(value)=>{
 })
 </script>
 
-<style scoped lang="scss">
-.toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 
-    padding: 6px var(--spacing-s);
-
-    border-bottom: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
-    background-color: var(--background-color-secondary);
-
-    .operate,.more {
-        display: flex;
-        align-items: center;
-
-        .operate-btn {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: fit-content;
-            height: var(--size-s);
-            line-height: var(--size-s);
-            padding: var(--spacing-xxs) var(--spacing-s);
-            margin-right: var(--spacing-m);
-
-            color: var(--content-color-secondary);
-            font-size: var(--text-size-m);
-
-            cursor: pointer;
-            border-radius: var(--border-radius-default);
-            overflow: hidden;
-
-            i { margin-right: var(--spacing-xxs)}
-
-            .icon-round-right {
-                transform: rotate(180deg)
-            }
-
-            input[type="file"] {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                cursor: pointer;
-                opacity: 0;
-            }
-
-            &:hover {
-                color: var(--content-color-primary);
-                background: var(--highlight-background-color-primary);
-            }
-
-            &:last-child {
-                margin-right: 0;
-            }
-        }
-
-        .forbiden {
-            color: var(--content-color-tertiary);
-            &:hover {
-                color: var(--content-color-tertiary);
-                background: transparent;
-            }
-        }
-    }
-}
-</style>

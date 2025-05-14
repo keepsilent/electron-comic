@@ -1,7 +1,9 @@
 <template>
-    <div class="status-wrap">
-        <div :class="['status-inner',page.layout]">
-            <div class="file-path">
+
+    <!-- Status Bar -->
+    <div class="statusbar-wrap">
+        <div :class="['statusbar-inner',page.layout]">
+            <div class="statusbar-left">
                 <template v-for="(item,index) in page.path">
                     <span class="item" :title="item.value" :data-index="index" @click="onOpenFolder">{{item.name}}</span>
                     <template v-if="index + 1 != (page.path).length">
@@ -9,8 +11,8 @@
                     </template>
                 </template>
             </div>
-            <div class="file-info">
-<!--                <span>{{settings.page.num}}:{{settings.page.total}}</span>-->
+
+            <div class="statusbar-right">
                 <span>{{settings.zoom}}%</span>
                 <span>{{settings.space}} {{$t('status.spaces')}}</span>
                 <span>{{file.file_size}}</span>
@@ -65,7 +67,7 @@ const pageStore = usePageStore();
 const props = defineProps<Props>()
 const page = reactive({
     show: false,
-    layout: Common.getLayoutFold(pageStore.layout,'status-inner')
+    layout: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
 })
 const confirm:ConfirmInter = reactive({show: false});
 
@@ -119,7 +121,7 @@ watch(() => props.file.file_path,(value)=>{
     page.path = analyzePath(value);
 })
 
-watch(() => pageStore.layout,(value)=>{
-    page.layout = Common.getLayoutFold(value,'status-inner');
+watch(() => pageStore.layout,(value) => {
+    page.layout = Common.getLayoutFold(value,'statusbar-inner');
 })
 </script>

@@ -1,40 +1,65 @@
 <template>
-    <!-- 工具栏 -->
-    <div class="toolbar" @click="onContent">
+    <!-- Toolbar -->
+    <div class="toolbar-wrap">
+        <div class="toolbar-left">
+            <span class="operate-btn" :title="$t('tool.increase')" @click="onShowUpload"><i class="iconfont icon-increase"></i><em>{{$t('button.increase')}}</em></span>
+            <span class="operate-btn forbiden" :title="$t('tool.open')"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
+            <span class="operate-btn forbiden" :title="$t('tool.edit')" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
+            <span class="operate-btn forbiden" :title="$t('tool.delete')"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
+        </div>
 
-            <div class="operate">
-<!--                <span class="operate-btn" :title="$t('tool.return')" @click="onGoBack">-->
-<!--                    <i class="iconfont icon-round-right"></i>-->
-<!--                    <em>{{$t('button.return')}}</em>-->
-<!--                </span>-->
-                <span class="operate-btn" :title="$t('tool.upload')">
-                    <i class="iconfont icon-upload"></i>
-                    <em>{{$t('button.upload')}}</em>
-                    <input type="file" ref="upload" title="Upload File" accept=".zip,.txt,.pdf" @change="onUpload">
-                </span>
-                <span class="operate-btn forbiden" :title="$t('tool.open')" @click="onOpenFolder"><i class="iconfont icon-file"></i><em>{{$t('button.open')}}</em></span>
-                <span class="operate-btn forbiden" :title="$t('tool.edit')" ><i class="iconfont icon-feedback"></i><em>{{$t('button.edit')}}</em></span>
-                <span class="operate-btn forbiden" :title="$t('tool.delete')" @click="onDeleteFile"><i class="iconfont icon-delete"></i><em>{{$t('button.delete')}}</em></span>
-            </div>
-
-            <div class="more">
-                <span class="operate-btn" :title="$t('tool.sort')" @click.stop="onShowOrderMenu"><i class="iconfont icon-more"></i></span>
-            </div>
+        <div class="toolbar-right">
+            <span class="operate-btn" :title="$t('tool.more')" @click.stop="onShowMoreMenu"><i class="iconfont icon-more"></i></span>
+        </div>
     </div>
 
-    <!-- Order Menu -->
-    <div v-if="order.show" class="order-menu">
-        <em class="up-icon"></em>
-        <ul>
-            <li v-for="(item,index) in order.typeData" :key="index" :data-value="item.value" :class="{'active': item.value === order.type}" @click="onOrderType">
-                <em><i class="iconfont icon-check"></i></em>{{item.name}}
-            </li>
-        </ul>
-        <ul class="line">
-            <li v-for="(item,index) in order.methodData" :key="index" :data-value="item.value" :class="{'active': item.value === order.method}" @click="onOrderMethod">
-                <em><i class="iconfont icon-check"></i></em>{{item.name}}
-            </li>
-        </ul>
+    <!-- More Menu -->
+    <div v-if="page.more" class="toolbar-more-menu-wrap" @click.stop>
+        <em class="up"></em>
+        <div class="toolbar-more-menu-inner">
+
+            <div class="item" data-key="view" @mouseenter="onSubItemFoucs">
+                <span><i :class="['iconfont',getViewIcon()] "></i><em>{{t('button.view')}}</em></span>
+                <i class="iconfont icon-return"></i>
+
+                <!-- View Menu -->
+                <div ref="view" class="toolbar-more-sub-menu-wrap" :style="'left:'+(page.submenu.view.left)">
+                    <div class="toolbar-more-sub-menu-inner">
+                        <div v-for="(item,index) in page.view.data" :key="index" :data-value="item.value" :class="item.value === page.view.current ? 'sub-item active': 'sub-item'" @click="onSwitchView">
+                            <em><i class="dot"></i></em>
+                            <em :class="['iconfont',item.icon]"></em>
+                            {{item.name}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="item" data-key="order" @mouseenter="onSubItemFoucs">
+                <span><i class="iconfont icon-order"></i><em>{{t('button.order')}}</em></span>
+                <i class="iconfont icon-return"></i>
+
+                <!-- Order Menu -->
+                <div ref="order" class="toolbar-more-sub-menu-wrap" :style="'left:'+(page.submenu.order.left)">
+                    <div class="toolbar-more-sub-menu-inner">
+                        <div v-for="(item,index) in page.order.mode.data" :key="index" :data-value="item.value" :class="item.value === page.order.mode.current ? 'sub-item active': 'sub-item'" @click="onSwitchOrderMode">
+                            <em><i class="dot"></i></em>{{item.name}}
+                        </div>
+                        <div class="line"></div>
+                        <div v-for="(item,index) in page.order.sort.data" :key="index" :data-value="item.value"  :class="item.value === page.order.sort.current ? 'sub-item active': 'sub-item'" @click="onSwitchOrderSort">
+                            <em><i class="dot"></i></em>{{item.name}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="item" @click="onRefresh"><span><i class="iconfont icon-refresh"></i><em>{{t('button.refresh')}}</em></span></div>
+            <div class="line"></div>
+            <div class="item" @click="onShowUpload"><span><i class="iconfont icon-increase"></i><em>{{t('button.increase')}}</em></span></div>
+            <div class="line"></div>
+            <div class="item" @click="onGoBack"><span><i class="iconfont icon-back"></i><em>{{t('button.return')}}</em></span></div>
+            <div class="item" @click="onShowSetting"><span><i class="iconfont icon-setting"></i><em>{{t('button.settings')}}</em></span>
+            </div>
+        </div>
     </div>
 
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
@@ -45,10 +70,11 @@ import {useI18n} from 'vue-i18n';
 import {reactive, ref, watch } from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base, Common, File} from "@renderer/utils";
-import type {PageInter, ConfirmInter} from "@renderer/utils/types";
-import {getFileList, isFileExist, addFile,updateFileStatus} from "@renderer/api/file";
+import type {ConfirmInter} from "@renderer/utils/types";
+import {updateFileStatus} from "@renderer/api/file";
+import {usePageStore} from '@renderer/stores/page'
+
 import Confirm from "@renderer/components/Confirm.vue";
-import {Archive} from 'libarchive.js/main.js';
 
 interface Props {
     file: {
@@ -68,28 +94,50 @@ interface Props {
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['cancel','confirm','sort'])
+const emit = defineEmits(['cancel','confirm','order','upload','refresh'])
 const props = defineProps<Props>()
-const page:PageInter = reactive({show: false, actions:{}})
-const confirm:ConfirmInter = reactive({show: false});
-const upload:string = ref(null);
-const order = reactive({
+const pageStore = usePageStore();
+const view = ref(null);
+const order = ref(null);
+const page = reactive({
     show: false,
-    type: 'name',
-    method: 'desc',
-    typeData: [
-        {name: t('tool.order.name'),value: 'name'},
-        {name: t('tool.order.size'),value: 'size'},
-        {name: t('tool.order.type'),value: 'type'},
-        {name: t('tool.order.date'),value: 'date'},
-    ],
-    methodData: [
-        {name: t('tool.order.desc'),value: 'desc'},
-        {name: t('tool.order.asc'),value: 'asc'}
-    ],
+    actions:{},
+    more: false,
+    view: {
+        current: pageStore.toolbar.view,
+        data: [
+            {name: t('tool.view.super'),value: 'super',icon: 'icon-super-large-icon'},
+            {name: t('tool.view.large'),value: 'large',icon: 'icon-large-icon'},
+            {name: t('tool.view.middle'),value: 'middle',icon: 'icon-middle-icon'},
+            {name: t('tool.view.small'),value: 'small',icon: 'icon-small-icon'}
+        ]
+    },
+    order: {
+        mode: {
+            current: pageStore.order.file.mode,
+            data: [
+                {name: t('tool.order.name'),value: 'name'},
+                // {name: t('tool.order.size'),value: 'size'},
+                {name: t('tool.order.type'),value: 'type'},
+                {name: t('tool.order.date'),value: 'date'},
+            ]
+        },
+        sort: {
+            current: pageStore.order.file.sort,
+            data: [
+                {name: t('tool.order.asc'),value: 'asc'},
+                {name: t('tool.order.desc'),value: 'desc'}
+            ]
+        }
+    },
+    submenu: {
+        view: { width: 0, left: 0},
+        order: { width: 0, left: 0}
+    }
 })
+const confirm:ConfirmInter = reactive({show: false});
 
-page.actions.onDeleteFile = async function ():boolean {
+page.actions.onDeleteFile = async function () {
     try {
         const {id} = props.file;
         // if (File.deleteFile(path) == false) {
@@ -106,11 +154,6 @@ page.actions.onDeleteFile = async function ():boolean {
     } finally {
         Common.cancelConfirm(confirm);
     }
-}
-
-
-const setArchive = function () {
-    Common.setArchive(Archive);
 }
 
 const onOpenFolder = function () {
@@ -133,78 +176,6 @@ const onDeleteFile = function () {
     Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }
 
-
-const isUploaded = async function (name,type) {
-    try {
-        const params = {name: name, type: type};
-        const res = await isFileExist(params);
-
-        if(res.code !== 200) {
-            return true;
-        }
-
-        if(Base.getDataLength(res.data) >= 1) {
-            return true
-        }
-
-        return false;
-    } catch (err) {
-        Base.printErrorLog('isFileExist',err)
-        return true;
-    }
-}
-
-const onUpload = async function (event) {
-    if (event.length == 0) {
-        Common.showAlert(confirm,'Please select the file you upload','Upload File Tips');
-        upload.value.value = null;
-        return false;
-    }
-
-    try {
-        Common.showLoading(page);
-        const [file] = event.target.files;
-        const archive = await Archive.open(file);
-        const extract = await archive.extractFiles();
-
-        if(await isUploaded(file.name,file.type)) {
-            Common.showAlert(confirm,`${File.getFileAlias(file.name)} already exist!`,'Upload File Tips');
-            return false;
-        }
-
-        await uploadFile(file, extract);
-    } catch (err) {
-        console.error('err',err)
-    } finally {
-        Common.hideLoading(page);
-        upload.value.value = null;
-    }
-}
-
-const uploadFile = async function ( file, extract) {
-    try {
-        const data= {
-            'file_name': file.name,
-            'file_mine_type': file.type,
-            'file_size': file.size,
-            'file_path': file.path,
-            'file_total': File.getExtractFileTotal(extract),
-        }
-
-        const cover = await File.getExtractFileCover(extract);
-        const res = await addFile(data);
-        if(res.code != 200) {
-            return false
-        }
-
-        File.createCoverByBase64(res.data, cover)
-
-        console.log('addSingleFile res',res);
-    } catch (err) {
-        Base.printErrorLog('addFile', err)
-    }
-}
-
 const onCancelConfirm = function () {
     Common.cancelConfirm(confirm);
 }
@@ -213,200 +184,112 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-
-const onShowOrderMenu = function () {
-    const type = localStorage.getItem('cm_setting_sort_type') || 'name';
-    const method = localStorage.getItem('cm_setting_sort_method') || 'desc';
-
-    order.show = true;
-    order.type = type;
-    order.method = method;
+const onShowMoreMenu = function () {
+    page.more = true;
+    pageStore.toolbar.more = true;
 }
 
-const onOrderType = function ({currentTarget: {dataset: {value}}}) {
-    const type = localStorage.getItem('cm_setting_sort_type') || 'name';
-    if(type == value) {
-        order.show = false;
+const onSwitchOrderMode = function ({currentTarget: {dataset: {value}}}) {
+    const mode = page.order.mode.current
+    if(mode == value) {
+        setHideMoreMenu()
         return false
     }
 
-    order.show = false;
-    order.type = value;
-    localStorage.setItem('cm_setting_sort_type',value);
-    setSort();
+    setHideMoreMenu()
+    page.order.mode.current = value;
+    pageStore.order.file.mode = value;
+    localStorage.setItem('cm_setting_order_file_mode',value);
+    setOrderConfig();
 }
 
-const onOrderMethod = function ({currentTarget: {dataset: {value}}}) {
-    const method = localStorage.getItem('cm_setting_sort_method') || 'desc';
-    if(method == value) {
-        order.show = false;
+const onSwitchOrderSort = function ({currentTarget: {dataset: {value}}}) {
+    const mode = page.order.sort.current
+    if(mode == value) {
+        setHideMoreMenu()
         return false
     }
 
-    order.show = false;
-    order.method = value;
-    localStorage.setItem('cm_setting_sort_method',value);
-    setSort();
+    setHideMoreMenu()
+    page.order.sort.current = value;
+    pageStore.order.file.sort = value;
+    localStorage.setItem('cm_setting_order_file_sort',value);
+    setOrderConfig();
 }
 
-const setSort = function () {
-    const {type, method} = order
-    emit('sort',{'order': type,'sort': method})
+const setOrderConfig = function () {
+    emit('order',{
+        'mode': page.order.mode.current,
+        'sort': page.order.sort.current
+    })
 }
 
-const onHideOrderMenu = function () {
-    order.show = false;
-}
-
-const onContent = function () {
-    order.show = false;
+const onShowSetting = function () {
+    setHideMoreMenu()
+    pageStore.pop.setting = true;
 }
 
 const onGoBack = async function () {
+    setHideMoreMenu();
     router.back();
 }
 
-defineExpose({ onHideOrderMenu })
+const setHideMoreMenu = function () {
+    page.more = false;
+    pageStore.toolbar.more = false;
+}
+
+const onSubItemFoucs = async function ({currentTarget: {dataset: {key}}}) {
+    if(page.submenu[key].width != 0) {
+        return false;
+    }
+
+    let width = 0;
+    switch (key) {
+        case 'view':
+            width = view.value.offsetWidth
+            break;
+        case 'order':
+            width = order.value.offsetWidth
+            break
+    }
+
+    page.submenu[key].width = width;
+    page.submenu[key].left = ((width - 5) * - 1) + 'px';
+}
+
+const onSwitchView = function ({currentTarget: {dataset: {value}}}) {
+    page.view.current = value;
+
+    pageStore.toolbar.more = false;
+    pageStore.toolbar.view = value;
+    localStorage.setItem('cm_setting_view',value);
+}
+
+const onShowUpload = function () {
+    emit('upload');
+    pageStore.toolbar.more = false;
+}
+
+const onRefresh = function () {
+    emit('refresh');
+    pageStore.toolbar.more = false;
+}
+
+const getViewIcon = function () {
+    let icon = '';
+    switch (page.view.current) {
+        case 'super':
+            icon = 'icon-large-icon';
+            break;
+        default:
+            icon = `icon-${page.view.current}-icon`;
+            break
+    }
+    return icon;
+}
+
+watch(() => pageStore.toolbar.more,(value)=> {
+    page.more = value;
+})
 </script>
-
-<style scoped lang="scss">
-.toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 6px var(--spacing-s);
-
-    border-bottom: var(--border-style-solid) var(--border-width-default) var(--border-color-default);
-    background-color: var(--background-color-secondary);
-
-    .operate,.more {
-        display: flex;
-        align-items: center;
-
-        .operate-btn {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: fit-content;
-            height: var(--size-s);
-            line-height: var(--size-s);
-            padding: var(--spacing-xxs) var(--spacing-s);
-            margin-right: var(--spacing-m);
-
-            color: var(--content-color-secondary);
-            font-size: var(--text-size-m);
-
-            cursor: pointer;
-            border-radius: var(--border-radius-default);
-            overflow: hidden;
-
-            i { margin-right: var(--spacing-xxs)}
-            .icon-round-right {
-                transform: rotate(180deg)
-            }
-
-            input[type="file"] {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                cursor: pointer;
-                opacity: 0;
-            }
-
-            &:hover {
-                color: var(--content-color-primary);
-                background: var(--highlight-background-color-primary);
-            }
-
-            &:last-child {
-                margin-right: 0;
-            }
-        }
-
-        .forbiden {
-            color: var(--content-color-tertiary);
-            &:hover {
-                color: var(--content-color-tertiary);
-                background: transparent;
-            }
-        }
-    }
-}
-
-/** 排序菜单 **/
-.order-menu {
-    position: fixed;
-    top: 87px;
-    right: 10px;
-
-    background: #FFF;
-    z-index: 1;
-    border-radius: var(--border-radius-default);
-    box-shadow: 1px 2px 10px rgba(0, 0, 0, .15);
-    overflow: hidden;
-
-    .up-icon {
-        position: fixed;
-        top: 72px;
-        right: 17px;
-        right: 17px;
-        border: solid 8px transparent;
-        border-bottom-color: #FFF;
-    }
-
-    ul {
-        &.line {
-            border-top: solid 1px var(--border-color-default);
-        }
-
-        li {
-            line-height: 35px;
-            padding-right: var(--spacing-l);
-            cursor: pointer;
-
-            &.active {
-                em i {
-                        display: block;
-                }
-
-                &:hover {
-                    em i {
-                        color: var(--content-color-secondary);
-                    }
-                }
-            }
-
-            em {
-                display: block;
-                float: left;
-                width: 30px;
-                height: 35px;
-                padding-left: 10px;
-                margin-right: 10px;
-                background: var(--background-color-secondary);
-                border-right: solid 1px var(--border-color-default);
-
-                i {
-                    display: none;
-                }
-            }
-
-
-            &:hover {
-                background: var(--background-color-secondary);
-
-                em {
-                    background: transparent;
-                    i {
-                        display: block;
-                        color: var(--grey-40);
-                    }
-                }
-            }
-        }
-    }
-}
-</style>

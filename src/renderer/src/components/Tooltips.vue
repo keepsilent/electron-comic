@@ -1,21 +1,36 @@
 <template>
-    <div class="tooltip">
+    <div class="tooltip" @mouseenter="onFoucs">
         <slot></slot>
-        <i class="arrow"></i>
-        <span class="tips">{{content}}</span>
+        <i :class="['arrow',placement]"></i>
+        <span ref="text" :style="placement == 'left' ? 'left:-'+(width+8)+'px': ''" :class="['tips',placement]">{{content}}</span>
     </div>
 </template>
 
 <script setup lang="ts">
-import {reactive, watch} from "vue";
+import {ref, reactive, onMounted, watch} from "vue";
 
-interface Props {
-    content:string,
-    effect?:string,
-    placement?:string
+const props = defineProps({
+    content:{
+        type:String,
+        default: ''
+    },
+    effect: {
+        type:String,
+        default: 'dark'
+    },
+    placement: {
+        type:String,
+        default: 'top'
+    }
+});
+
+const width = ref(0);
+const text = ref(null);
+
+const onFoucs = function () {
+    width.value = text.value.offsetWidth;
 }
 
-const props = defineProps<Props>()
 </script>
 
 <style scoped lang="scss">
@@ -29,17 +44,34 @@ const props = defineProps<Props>()
     .arrow {
         display: none;
         position: absolute;
-        top: -10px;
-        right: 0;
+
         border: 8px solid transparent;
-        border-top-color: var(--grey-70);
+
+
+        &.top {
+            top: -10px;
+            right: 0;
+            border-top-color: var(--grey-70);
+        }
+
+        &.bottom {
+            bottom: -10px;
+            right: 0;
+            border-bottom-color: var(--grey-70);
+        }
+
+        &.left {
+            top: 0px;
+            left: -10px;
+            border-left-color: var(--grey-70);
+        }
     }
+
 
     .tips {
         display: none;
         position: absolute;
-        top: -36px;
-        left: -180%;
+
         width: fit-content;
         white-space: nowrap;
 
@@ -48,6 +80,21 @@ const props = defineProps<Props>()
         font-size: var(--text-size-m);
         background: var(--grey-70);
         border-radius: var(--border-radius-default);
+
+        &.top {
+            top: -36px;
+            left: -120%;
+        }
+
+        &.bottom {
+            bottom: -36px;
+            left: -120%;
+        }
+
+        &.left {
+            top:-35%;
+            left: -340px;
+        }
     }
 
     &:hover {

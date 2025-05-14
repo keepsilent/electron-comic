@@ -3,6 +3,9 @@
 	"message": {
 		"hello": "Hello, {name}!"
 	},
+	"home": {
+		"lose": "File is moved, renamed, or deleted?!"
+	},
 	"button": {
 		"open": "Open",
 		"edit": "Edit",
@@ -13,6 +16,8 @@
 		"delete": "Delete",
 		"upload": "Upload",
 		"ok": "OK",
+		"yes": "Yes",
+		"no": "No",
 		
 		"add": "Add",
 		"more": "More",
@@ -21,6 +26,7 @@
 		
 		"return": "Return",
 		"setting": "Setting",
+		"settings": "Setting...",
 		
 		"close": "Close",
 		"maximize": "Maximize",
@@ -31,7 +37,9 @@
 		"reset": "Reset",
 		"save": "Save",
 		"copy": "Copy",
-		"upload": "Upload"
+		"refresh": "Refresh",
+		"order": "Order",
+		"view": "View"
 	},
 	"aside": {
 		"menu": {
@@ -84,7 +92,7 @@
 	"confirm": {
 		"delete": {
 			"title": "Delete File",
-			"content": "The selected file and its data will be permanently deleted."
+			"content": "Are you sure you want to permanently delete this file?"
 		}
 	},
 	"empty": {
@@ -153,10 +161,16 @@
 		"order": {
 			"name": "Name",
 			"size": "Size",
-			"type": "Project type",
-			"date": "Date changed",
+			"type": "Type",
+			"date": "Date",
 			"desc": "DESC",
 			"asc": "ASC"
+		},
+		"view": {
+			"super": "Super Large Icon",
+			"large": "Large Icon",
+			"middle": "Middle Icon",
+			"small": "Small Icon"
 		}
 	},
 	"search": {
@@ -170,6 +184,16 @@
 		"current": "Current",
 		"total": "Total",
 		"location": "Location"
+	},
+	"uploader": {
+		"title": "INCREASE",
+		"explain": "Drag and Drop file here or",
+		"choose": "choose file",
+		"accept": "Files Supported: ZIP, 7-Zip, RAR v4, RAR v5, TAR .etc",
+		"database": "Run SQL fail",
+		"accident": "Accidental termination",
+		"exist":"File already exists",
+		"tips": "File ware being uploaded, please wait..."
 	},
 	"setting": {
 		"title": "SETTINGS",

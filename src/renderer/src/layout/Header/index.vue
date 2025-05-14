@@ -2,12 +2,11 @@
     <div class="header">
         <div :class="['header-inner',page.layout]">
             <div class="nav ml-m">
-<!--                <span class="iconfont icon-toggle-left toggle-btn" ></span>-->
                 <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
                 <div class="search ml-m">
                     <i class="iconfont icon-search"></i>
-                    <input type="text" v-model="keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
-                    <i v-if="keyword" class="iconfont icon-close ml-10" @click="onClear"></i>
+                    <input type="text" v-model="page.keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
+                    <i v-if="page.keyword" class="iconfont icon-close ml-10" @click="onClear"></i>
                 </div>
             </div>
 
@@ -21,39 +20,33 @@
 
                 <div class="right">
                     <span class="iconfont icon-minimize" :title="$t('button.minimize')" data-key="minimize" @click="onIPC"></span>
-                    <span :class="maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="maximize.name" :data-key="maximize.value" @click="onIPC"></span>
+                    <span :class="page.maximize.value == 'maximize' ? ['iconfont', 'icon-maximize'] : ['iconfont', 'icon-restore']" :title="page.maximize.name" :data-key="page.maximize.value" @click="onIPC"></span>
                     <span class="iconfont icon-close" :title="$t('button.close')" data-key="close" @click="onIPC"></span>
                 </div>
             </div>
         </div>
     </div>
-    <Setting :show="setting" @hide="onHideSetting"></Setting>
+    <Setting :show="page.setting" @hide="onHideSetting"></Setting>
 </template>
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref, reactive, toRefs,watch} from "vue";
+import {ref, reactive, watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base,Common} from "@renderer/utils";
-
 import {usePageStore} from '@renderer/stores/page'
 
 import Setting from "@renderer/components/Setting.vue";
-
-
-interface Maximize {
-    name: string,
-    value: string
-}
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
-const keyword:string = ref(null);
-const maximize:Maximize = reactive({name: 'Maximize', value: 'maximize'})
-const setting:boolean = ref(false)
+
 const page = reactive({
+    keyword: '',
+    setting: false,
+    maximize: { name: 'Maximize', value: 'maximize'},
     layout: Common.getLayoutFold(pageStore.layout,'header-inner'),
 })
 
@@ -62,35 +55,27 @@ const onSearch = function({keyCode}):boolean|void {
         return false;
     }
 
-    // if(Base.isEmpty(keyword.value)) {
-    //     return false;
-    // }
-
-
-    // if(route.path == '/') {
-    //     pageStore.keyword = keyword.value;
-    //     return false;
-    // }
-
-    console.log('route.path ',route.path,keyword.value);
+    const {keyword} = page;
     const object = {
         path: '/',
         query:{}
     }
 
-    if(!Base.isEmpty(keyword.value)) {
-        object.query.q = keyword.value
+    if(!Base.isEmpty(keyword)) {
+        object.query.q = keyword
     }
 
     router.push(object)
 }
 
 const onShowSetting = function ():void {
-    setting.value = true
+    page.setting = true;
+    pageStore.pop.setting = true;
 }
 
 const onHideSetting = function ():void {
-    setting.value = false
+    page.setting = false;
+    pageStore.pop.setting = false;
 }
 
 const onGoBack = function ():void {
@@ -98,21 +83,24 @@ const onGoBack = function ():void {
 }
 
 const onClear = function():void {
-    keyword.value = '';
-    pageStore.keyword = '';
-    router.push({path:'/'})
+    page.keyword = '';
+
+
+    if(route.path == '/') {
+        router.push({path: '/'})
+    }
 }
 
 const onIPC = function({currentTarget: {dataset: {key}}}): void {
     switch (key) {
         case 'restore':
-            maximize.name = t('button.maximize');
-            maximize.value = 'maximize';
+            page.maximize.name = t('button.maximize');
+            page.maximize.value = 'maximize';
             window.electron.ipcRenderer.send(key);
             break
         case 'maximize':
-            maximize.name = t('button.restore');
-            maximize.value = 'restore';
+            page.maximize.name = t('button.restore');
+            page.maximize.value = 'restore';
             window.electron.ipcRenderer.send(key);
             break
         default:
@@ -124,28 +112,20 @@ watch(() => pageStore.layout,(value)=>{
     page.layout = Common.getLayoutFold(value,'header-inner');
 })
 
-// watch(() => pageStore.maximize,(value)=>{
-//     console.log('pageStore.maximize',value);
-//     if(value == true) {
-//         window.electron.ipcRenderer.send('maximize');
-//         return false;
-//     }
-//     window.electron.ipcRenderer.send('restore');
-// })
+watch(() => pageStore.pop.setting,(value) => {
+    page.setting = value;
+})
 
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {
-        maximize.name = t('button.restore');
-        maximize.value = 'restore';
+        page.maximize.name = t('button.restore');
+        page.maximize.value = 'restore';
         return false
     }
 
-    maximize.name = t('button.maximize');
-    maximize.value = 'maximize';
+    page.maximize.name = t('button.maximize');
+    page.maximize.value = 'maximize';
 })
 
-
 </script>
-<style lang="scss" scoped>
-@use "./index.scss";
-</style>
+<style src="./index.scss" lang="scss" scoped></style>

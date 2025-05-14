@@ -44,9 +44,18 @@ export const getTermByName = async function ({name, taxonomy}):Promise<Result> {
     return await DB.query(data);
 }
 
+export const getTermRelationships  = async function ({object_id}):Promise<Result> {
+    const sql = `SELECT * FROM cm_term_relationships  WHERE object_id = $object_id`;
+    const data:queryParam = {
+        sql: sql,
+        params: {$object_id: object_id }
+    }
+    return await DB.query(data);
+}
+
 const getTermTotal = async function ({taxonomy}):Promise<number> {
     try {
-        const sql = `SELECT count(*) AS total FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy limit 1`;
+        const sql = `SELECT count(*) AS total FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy AND count > 0 LIMIT 1`;
         const data: queryParam = {
             sql: sql,
             params: {
@@ -68,13 +77,12 @@ const getTermTotal = async function ({taxonomy}):Promise<number> {
     }
 }
 
-
 export const getTermList = async function ({page, pageSize, taxonomy, sort}):Promise<Result> {
     try {
         const total = await getTermTotal({taxonomy: taxonomy});
         const totalPage = Base.getTotalPage(total, pageSize);
         const orderby = sort == 'popular' ? 'count DESC': 'term_group ASC, name ASC'
-        const sql = `SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy ORDER BY ${orderby} LIMIT $page, $pageSize`;
+        const sql = `SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy AND count > 0 ORDER BY ${orderby} LIMIT $page, $pageSize`;
         const data: queryParam = {
             sql: sql,
             params: {
@@ -118,7 +126,7 @@ export const getTermGroupFristRcord = async function ({taxonomy, group}):Promise
 }
 
 export const getTermGroupFristRcordPosition = async function ({taxonomy, name}):Promise<Result> {
-    const sql = `SELECT count(*) AS total FROM (SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy ORDER BY name ASC) AS tmp WHERE tmp.name <= $name`;
+    const sql = `SELECT count(*) AS total FROM (SELECT * FROM cm_terms JOIN cm_term_taxonomy ON cm_terms.term_id = cm_term_taxonomy.term_id WHERE taxonomy = $taxonomy AND count > 0 ORDER BY name ASC) AS tmp WHERE tmp.name <= $name`;
     const data: queryParam = {
         sql: sql,
         params: {
@@ -128,9 +136,6 @@ export const getTermGroupFristRcordPosition = async function ({taxonomy, name}):
     }
     return await DB.query(data);
 }
-
-
-
 
 export const updateTaxonomyCount = async function ({term_taxonomy_id, count}):Promise<Result> {
     const data:queryParam = {
@@ -306,35 +311,39 @@ export const deleteTermRelationships = async function ({object_id, term_taxonomy
     return await DB.delete(data);
 }
 
+export const runRemoveTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean> {
+    try {
+        const params = {term_taxonomy_id: term_taxonomy_id};
+        const res = await isTermExistById(params);
+        if(res.code != 200 || res.data.length == 0) {
+            return false;
+        }
+
+        const relationships = await isRelationshipsExist({object_id: object_id, term_taxonomy_id: term_taxonomy_id});
+        if(relationships.code != 200) {
+            return false;
+        }
+
+        if(relationships.data.length == 0) {
+            return false;
+        }
+
+        const [term] = res.data;
+        const {count} = term;
+        const success = await deleteTermRelationships({object_id, term_taxonomy_id});
+        if(success.code != 200) {
+            return false;
+        }
+
+        return updateTaxonomyCountRecord(term_taxonomy_id, count - 1 < 0 ? 0 : count - 1);
+    } catch (err) {
+        Base.printErrorLog('removeTermRelationships',err)
+        return false
+    }
+}
+
 export const removeTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean> {
     return await DB.transaction(async () => {
-        try {
-            const params = {term_taxonomy_id: term_taxonomy_id};
-            const res = await isTermExistById(params);
-            if(res.code != 200 || res.data.length == 0) {
-                return false;
-            }
-
-            const relationships = await isRelationshipsExist({object_id: object_id, term_taxonomy_id: term_taxonomy_id});
-            if(relationships.code != 200) {
-                return false;
-            }
-
-            if(relationships.data.length == 0) {
-                return false;
-            }
-
-            const [term] = res.data;
-            const {count} = term;
-            const success = await deleteTermRelationships({object_id, term_taxonomy_id});
-            if(success.code != 200) {
-                return false;
-            }
-
-            return updateTaxonomyCountRecord(term_taxonomy_id, count - 1 < 0 ? 0 : count - 1);
-        } catch (err) {
-            Base.printErrorLog('removeTermRelationships',err)
-            return false
-        }
+        return await runRemoveTermRelationships(object_id, term_taxonomy_id);
     });
 }

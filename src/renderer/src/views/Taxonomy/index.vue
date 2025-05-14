@@ -1,5 +1,5 @@
 <template>
-    <Toolbar/>
+    <Toolbar @upload="onShowUpload"/>
     <div class="taxonomy-wrap scrollbar">
         <div v-if="empty.show != true" class="taxonomy-header">
             <div class="menu">
@@ -30,6 +30,7 @@
         <Statusbar :pagination="pagination" :group="page.group"></Statusbar>
 
         <Empty :empty="empty" style="margin-top:20%"></Empty>
+        <Upload :show="page.upload" @hide="onHideUpload"></Upload>
         <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
     </div>
 </template>
@@ -47,6 +48,7 @@ import {usePageStore} from '@renderer/stores/page'
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
 import Empty from "@renderer/components/Empty.vue";
+import Upload from "@renderer/components/Upload.vue";
 import Pagination from "@renderer/components/Pagination.vue";
 
 const { t } = useI18n();
@@ -65,6 +67,7 @@ const page = reactive({
     data:[],
     popular:[],
 
+    upload: false,
     group: '',
     sort: {}
 })
@@ -77,11 +80,13 @@ const init = function () {
     const {type, page:current, group, sort} = route.query;
     console.log('route.query',route.query);
 
-    page.group = group || '';
-    page.current = sort || 'group';
-    pagination.source = t('aside.menu.'+type);
-    load.page = current || 1;
+    page.group = group ?? '';
+    page.current = sort ?? 'group';
+
+    load.page = current ?? 1;
     load.taxonomy = getTaxonomy(type);
+
+    pagination.source = t('aside.menu.'+type);
     loadTermList();
 }
 
@@ -290,11 +295,19 @@ const onSearchTaxonomy = function ({currentTarget: {dataset: {name}}}):void {
         path: `/`,
         query:  {
             name: name,
-            type: load.taxonomy
+            taxonomy: load.taxonomy
         }
     }
 
     router.push(object)
+}
+
+const onShowUpload = function () {
+    page.upload = true
+}
+
+const onHideUpload = function () {
+    page.upload = false;
 }
 </script>
 

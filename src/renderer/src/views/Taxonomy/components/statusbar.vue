@@ -1,10 +1,10 @@
 <template>
-    <div class="status-wrap">
-        <div :class="['status-inner',page.layout]">
-            <div class="file-path">
+    <div class="statusbar-wrap">
+        <div :class="['statusbar-inner',page.layout]">
+            <div class="statusbar-left">
                 <template v-if="group">{{t('status.group',{group:group})}}</template>
             </div>
-            <div class="file-info">
+            <div class="statusbar-right">
                 <span>{{t('status.current')}} {{pagination.page}}, {{t('status.total')}} {{pagination.total}}</span>
                 <span><i class="iconfont icon-remind"></i></span>
             </div>
@@ -39,7 +39,7 @@ const pageStore = usePageStore();
 const props = defineProps<Props>()
 const page = reactive({
     show: false,
-    layout: Common.getLayoutFold(pageStore.layout,'status-inner')
+    layout: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
 })
 const confirm:ConfirmInter = reactive({show: false});
 
@@ -52,6 +52,6 @@ const onOperateConfirm = function () {
 }
 
 watch(() => pageStore.layout,(value) => {
-    page.layout = Common.getLayoutFold(value,'status-inner');
+    page.layout = Common.getLayoutFold(value,'statusbar-inner');
 })
 </script>

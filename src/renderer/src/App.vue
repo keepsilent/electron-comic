@@ -1,5 +1,5 @@
 <template>
-    <div class="wrap">
+    <div class="wrap" @click="onBubbling">
         <Aside></Aside>
         <div class="inner">
             <Header></Header>
@@ -51,6 +51,10 @@ const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore
 //     pageStore.width = width;
 //     pageStore.height = height;
 // })
+
+const onBubbling = function () {
+    pageStore.toolbar.more = false;
+}
 
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     page.launch = false;

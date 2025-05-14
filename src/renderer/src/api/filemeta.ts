@@ -46,3 +46,22 @@ export const addFileMeta = async function (data:{ [key: string]: any }):Promise<
 
     return await DB.insert(params);
 }
+
+export const insertFileMeta = async function (data:{ [key: string]: any }):Promise<Result> {
+    try {
+        const params = {id: data.file_id, key: data.meta_key, value: data.meta_value}
+        const res = await getFileMetaValue(params);
+        if (res.code !== 200) {
+            return res;
+        }
+
+        if(Base.isEmpty(res.data)) {
+            return await addFileMeta(data);
+        }
+
+        return await updateFileMetaValue(params);
+    } catch (err) {
+        Base.printErrorLog('insertFileMeta',err);
+        return {code: 500, message: err, data:''}
+    }
+}

@@ -1,5 +1,5 @@
 <template>
-    <Toolbar :file="file" @operate="onOperateToolbar"/>
+    <Toolbar :file="file" @operate="onOperateToolbar" @refresh="onRefresh" @upload="onShowUpload"/>
     <div v-if="page.init == false" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space">
         <div class="detail-inner">
             <div class="detail-header-skeleton">
@@ -139,6 +139,7 @@
     <Statusbar :file="file" :settings="settings"></Statusbar>
 
     <Loading :show="page.loading"></Loading>
+    <Upload :show="page.upload" @hide="onHideUpload"></Upload>
     <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit" @update="onUpdateFileEdit"></FileEdit>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
@@ -151,7 +152,7 @@ import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from 
 import {Alphabet, Base,Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page';
 import {useFileStore} from '@renderer/stores/file';
-import {getFileInfo, getFileTaxonomy} from "@renderer/api/file";
+import {getFileInfo, updateFileStatus, getFileTaxonomy} from "@renderer/api/file";
 import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
 
@@ -160,6 +161,7 @@ import Menubar from "./components/menubar.vue";
 import Statusbar from "./components/statusbar.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 import Loading from "@renderer/components/Loading.vue";
+import Upload from "@renderer/components/Upload.vue";
 import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
 import FileEdit from "@renderer/components/FileEdit.vue";
@@ -174,7 +176,7 @@ const fs = require("fs") as typeof import("fs");
 const scrollbar = ref(null);
 const menubar = ref(null);
 const fileEdit:boolean = ref(false);
-const page:PageInter = reactive({init: false, loading: false, layout:pageStore.layout, actions: {}});
+const page:PageInter = reactive({init: false, loading: false, upload: false, layout:pageStore.layout, actions: {}});
 const confirm:ConfirmInter = reactive({});
 const file:FileInter = reactive({});
 const interim:InterimInter = reactive({});
@@ -262,15 +264,25 @@ const loadDetail = async function () {
 }
 
 const renderContent = function (file) {
-    const {file_path} = file;
-    if(File.isExists(file_path)) {
+    const {file_path, file_status} = file;
+    if(file_status == 'normal' && File.isExists(file_path)) {
         renderFilesThumbnail(file);
         return false;
     }
 
+    setFileStatus(file);
     const title = t('empty.inexistence.title');
     const subtitle = t('empty.inexistence.subtitle');
     Common.showEmpty(empty,title, subtitle)
+}
+
+const setFileStatus = async function ({file_id}) {
+    try {
+        const params = {id: file_id, status: 'lose'}
+        await updateFileStatus(params)
+    } catch (err) {
+        Base.printErrorLog('updateFileStatus',err)
+    }
 }
 
 const resetFileData = async function (data):boolean {
@@ -390,8 +402,8 @@ const loadFileTaxonomy = async function (file_id, taxonomy) {
 const renderStatus = function (file) {
     fileStore.info = file;
     fileStore.id = file.file_id;
-    pageStore.num = file.file_total;
-    pageStore.setStatusPath(file.file_path,'path');
+    // pageStore.num = file.file_total;
+    // pageStore.setStatusPath(file.file_path,'path');
 }
 
 const renderFilesThumbnail = async function (file:File):void {
@@ -892,11 +904,24 @@ const onSearchTaxonomy = function ({currentTarget: {dataset: {name,type}}}):void
         path: `/`,
         query:  {
             name: name,
-            type: type
+            taxonomy: type
         }
     }
 
     router.push(object)
+}
+
+const onShowUpload = function () {
+    page.upload = true
+}
+
+const onHideUpload = function () {
+    page.upload = false;
+}
+
+const onRefresh = function () {
+    page.init = false;
+    init();
 }
 
 watch(() => pageStore.layout,(value)=>{

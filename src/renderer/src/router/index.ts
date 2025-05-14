@@ -3,7 +3,7 @@ import type { App } from 'vue';
 import LoginRouter from './modules/login';
 // 引入 test.ts
 import { defineAsyncComponent } from 'vue'
-import RecycleRouter from './modules/recycle';
+
 import DetailsRouter from './modules/details';
 import ReaderRouter from './modules/reader';
 import taxonomyRouter from './modules/taxonomy';
@@ -16,7 +16,6 @@ export const publicRoutes: Array<RouteRecordRaw> = [
     // ...LoginRouter,
     // ...TestRouter,
     // ...StoreRouter,
-    ...RecycleRouter,
     ...DetailsRouter,
     ...ReaderRouter,
     ...taxonomyRouter,
