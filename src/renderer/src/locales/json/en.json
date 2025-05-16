@@ -186,10 +186,10 @@
 		},
 		"view": {
 			"title": "View",
-			"super": "Super Large Icon",
-			"large": "Large Icon",
-			"middle": "Middle Icon",
-			"small": "Small Icon"
+			"super": "Extra large icons",
+			"large": "Large icons",
+			"middle": "Medium icons",
+			"small": "Small icons "
 		}
 	},
 	"search": {
@@ -213,6 +213,29 @@
 		"accident": "Accidental termination",
 		"exist":"File already exists",
 		"tips": "File ware being uploaded, please wait..."
+	},
+	"filter":  {
+		"title": "Filter File Display Style",
+		"minimal": "Minimal",
+		"full": "Full",
+		"custom": "Custom",
+		"preview": "Preview",
+		"options": "Custom Options",
+		"file": {
+			"cover": "Cover",
+			"title": "Title",
+			"date": "Date",
+			"size": "Size",
+			"type": "Type",
+			"view": "View",
+			"artist": "Artist"
+		},
+		"explain": {
+			"title": "Set file display style, default: Minimal",
+			"minimal": "Most concise style effect",
+			"full": "Display all the options",
+			"custom": "Freely combine and match"
+		}
 	},
 	"setting": {
 		"title": "SETTINGS",

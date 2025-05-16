@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="item" @click="onRefresh"><span><i class="iconfont icon-a-guangqi_guolv11x"></i><em class="title">{{t('tool.filter')}}</em></span></div>
+            <div class="item" @click="onShowFileFilter"><span><i class="iconfont icon-a-guangqi_guolv11x"></i><em class="title">{{t('tool.filter')}}</em></span></div>
 
 
 <!--            <div class="line"></div>-->
@@ -153,6 +153,7 @@
         </div>
     </div>
 
+    <FileFilter :show="page.filter" @cancel="onCancelFileFilter"></FileFilter>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
@@ -165,6 +166,7 @@ import type {ConfirmInter} from "@renderer/utils/types";
 import {updateFileStatus} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
 
+import FileFilter from "@renderer/components/FileFilter.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
@@ -195,6 +197,7 @@ const page = reactive({
     show: false,
     actions:{},
     more: false,
+    filter: false,
     open: {
         data: [
             {name: t('tool.open.app'), value: 'app'},
@@ -453,6 +456,15 @@ const isOrderModeMore = function (value) {
         }
     }
     return false;
+}
+
+const onShowFileFilter = function () {
+    page.filter = true;
+    pageStore.toolbar.more = false;
+}
+
+const onCancelFileFilter = function () {
+    page.filter = false
 }
 
 watch(() => pageStore.toolbar.more,(value)=> {

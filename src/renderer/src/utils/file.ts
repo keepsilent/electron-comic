@@ -401,6 +401,26 @@ const deleteFile = function (path:string):boolean{
     }
 }
 
+const getFileFilterOptions = function () {
+    const options = localStorage.getItem('cm_setting_file_filter');
+    if(Base.isEmpty(options)) {
+        return {
+            mode: 'full',
+            options:{
+                title: true,
+                cover: true,
+                artist: true,
+                date: true,
+                view: true,
+                type: true,
+                size: true
+            }
+        }
+    }
+
+    return JSON.parse(options);
+}
+
 export default {
     mkdir: mkdir,
     isExists: isExists,
@@ -421,5 +441,6 @@ export default {
     getBase64Image: getBase64Image,
     getExtractFileTotal: getExtractFileTotal,
     getExtractFileCover: getExtractFileCover,
-    getExtractImageList: getExtractImageList
+    getExtractImageList: getExtractImageList,
+    getFileFilterOptions:getFileFilterOptions
 }
