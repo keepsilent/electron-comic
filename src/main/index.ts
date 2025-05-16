@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 
 //app.commandLine.appendSwitch('disable-site-isolation-trials');
 
-const createWindow = async function(): void {
+const createWindow = async function() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 662,

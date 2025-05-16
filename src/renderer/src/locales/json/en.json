@@ -231,7 +231,7 @@
 			"artist": "Artist"
 		},
 		"explain": {
-			"title": "Set file display style, default: Minimal",
+			"title": "Set file display style, default: Full",
 			"minimal": "Most concise style effect",
 			"full": "Display all the options",
 			"custom": "Freely combine and match"

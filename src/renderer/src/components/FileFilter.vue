@@ -10,8 +10,8 @@
             <div class="setting-info">
                 <div>
                     <p class="title">{{t('filter.explain.title')}}</p>
-                    <p class="mt-s"><b>· {{t('filter.full')}}</b> - {{t('filter.explain.full')}}</p>
-                    <p class="mt-m"><b>· {{t('filter.minimal')}}</b> - {{t('filter.explain.minimal')}}</p>
+                    <p class="mt-m"><b>· {{t('filter.full')}}</b> - {{t('filter.explain.full')}}</p>
+                    <p class="mt-s"><b>· {{t('filter.minimal')}}</b> - {{t('filter.explain.minimal')}}</p>
                     <p class="mt-s"><b>· {{t('filter.custom')}}</b> - {{t('filter.explain.custom')}}</p>
                 </div>
                 <div>
