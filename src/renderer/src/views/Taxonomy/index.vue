@@ -120,9 +120,19 @@ const setEmpty = function ({total}):boolean {
         return false;
     }
 
-    let title = t('empty.repositories .title');
+    const {taxonomy} = load;
+    const options = {
+        tag: 'icon-tag',
+        artist: 'icon-artist',
+        category: 'icon-we',
+        parody: 'icon-parody',
+        group: 'icon-group'
+    }
+
+    let title = t('empty.repositories.title');
     let subtitle = t('empty.repositories.subtitle');
-    Common.showEmpty(empty,title, subtitle)
+    let icon = options[taxonomy];
+    Common.showEmpty(empty, title, subtitle, icon)
 }
 
 const setDataGroup = function (data:object[]):void {

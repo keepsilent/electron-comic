@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="launch-footer">App is running, Please wait.</div>
+            <div class="launch-footer">App is running, Please wait...</div>
         </div>
     </div>
 </template>

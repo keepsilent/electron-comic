@@ -64,6 +64,7 @@ page.actions.onDeleteFile = async function () {
         const params = { file_id: file_id};
         const res = await deleteFileInfoRecord(params);
         if(res.code != 200) {
+            Common.showAlert(confirm,t("confirm.delete.fail.content"),t("confirm.delete.fail.title"));
             return false;
         }
 
@@ -91,7 +92,7 @@ const onShowFileEdit = function () {
 }
 
 const onDeleteFile = function () {
-    Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
+    Common.showConfirm(confirm,t("confirm.delete.tips.content"),'onDeleteFile',t("confirm.delete.tips.title"));
 }
 
 const onCancelConfirm = function () {

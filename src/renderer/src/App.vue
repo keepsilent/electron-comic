@@ -54,6 +54,8 @@ const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore
 
 const onBubbling = function () {
     pageStore.toolbar.more = false;
+    pageStore.toolbar.submenu.view = false;
+    pageStore.toolbar.submenu.order = false;
 }
 
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {

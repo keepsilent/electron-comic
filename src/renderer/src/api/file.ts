@@ -39,6 +39,17 @@ export const getFileInfo = async function ({id}):Promise<Result> {
     return await DB.query(data);
 }
 
+export const getFileArtist = async function ({object_id}):Promise<Result> {
+    const sql = `SELECT name from cm_terms 
+                 JOIN cm_term_taxonomy ON cm_term_taxonomy.term_id = cm_terms.term_id 
+                 JOIN cm_term_relationships ON cm_term_relationships.term_taxonomy_id = cm_term_taxonomy.term_taxonomy_id
+                 WHERE taxonomy = 'artist' AND object_id = $object_id`;
+    const data:queryParam = {
+        sql: sql,
+        params: {$object_id: object_id}
+    }
+    return await DB.query(data);
+}
 
 export const getFileTaxonomy = async function ({file_id, taxonomy}):Promise<Result> {
     const sql = `SELECT cm_term_taxonomy.term_taxonomy_id, name, taxonomy, count FROM cm_file 
@@ -102,7 +113,9 @@ const getFileListOrderBy = function ({mode='name',sort= 'desc'}):string {
         'name':'file_name',
         'size': 'file_size',
         'type': 'file_mine_type',
-        'date': 'file_modified'
+        'date': 'file_date',
+        'modify': 'file_modified',
+        'view': 'file_view'
     }
 
     return `ORDER BY ${options[mode]} ${sort.toUpperCase()}`;

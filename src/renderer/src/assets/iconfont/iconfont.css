@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4833690 */
-  src: url('iconfont.woff2?t=1747123382560') format('woff2'),
-       url('iconfont.woff?t=1747123382560') format('woff'),
-       url('iconfont.ttf?t=1747123382560') format('truetype');
+  src: url('iconfont.woff2?t=1747297417389') format('woff2'),
+       url('iconfont.woff?t=1747297417389') format('woff'),
+       url('iconfont.ttf?t=1747297417389') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,46 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-attention:before {
+  content: "\e73d";
+}
+
+.icon-cut:before {
+  content: "\e74b";
+}
+
+.icon-guolvqi:before {
+  content: "\e627";
+}
+
+.icon-filter:before {
+  content: "\e60f";
+}
+
+.icon-a-guangqi_guolv11x:before {
+  content: "\e61a";
+}
+
+.icon-roundadd:before {
+  content: "\e6d9";
+}
+
+.icon-edit:before {
+  content: "\e64a";
+}
+
+.icon-top1:before {
+  content: "\e69e";
+}
+
+.icon-file1:before {
+  content: "\e73b";
+}
+
+.icon-post:before {
+  content: "\e759";
 }
 
 .icon-super-large-icon:before {
@@ -27,6 +67,10 @@
 
 .icon-more:before {
   content: "\e685";
+}
+
+.icon-delete1:before {
+  content: "\e6b4";
 }
 
 .icon-similar:before {
@@ -103,6 +147,10 @@
 
 .icon-warn:before {
   content: "\e666";
+}
+
+.icon-forward:before {
+  content: "\e6eb";
 }
 
 .icon-back:before {

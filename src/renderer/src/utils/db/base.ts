@@ -88,11 +88,12 @@ class Database {
                 file_name TEXT NOT NULL DEFAULT '' ,
                 file_intro TEXT NOT NULL DEFAULT '' ,
                 file_path TEXT NOT NULL DEFAULT '' ,
-                file_size VARCHAR(64) NOT NULL DEFAULT 0,
-                file_total VARCHAR(10) NOT NULL DEFAULT 0,
+                file_size VARCHAR(64) NOT NULL DEFAULT '0',
+                file_total VARCHAR(10) NOT NULL DEFAULT '0',
                 file_status VARCHAR(32) NOT NULL DEFAULT 'normal',
                 file_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-                file_mine_type VARCHAR(64) NOT NULL DEFAULT ''
+                file_mine_type VARCHAR(64) NOT NULL DEFAULT '',
+                file_view INT(11) NOT NULL DEFAULT 0
             );`,
             'file_name': `CREATE INDEX IF NOT EXISTS file_name on cm_file (file_name);`,
             'cm_filemeta': `CREATE TABLE IF NOT EXISTS cm_filemeta (

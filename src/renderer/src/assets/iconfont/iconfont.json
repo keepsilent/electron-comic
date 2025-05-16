@@ -6,6 +6,76 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "176308",
+      "name": "attention",
+      "font_class": "attention",
+      "unicode": "e73d",
+      "unicode_decimal": 59197
+    },
+    {
+      "icon_id": "194873",
+      "name": "cut",
+      "font_class": "cut",
+      "unicode": "e74b",
+      "unicode_decimal": 59211
+    },
+    {
+      "icon_id": "11121373",
+      "name": "过滤器",
+      "font_class": "guolvqi",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "13074974",
+      "name": "filter",
+      "font_class": "filter",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "40266635",
+      "name": "过滤 ",
+      "font_class": "a-guangqi_guolv11x",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "38746",
+      "name": "round_add",
+      "font_class": "roundadd",
+      "unicode": "e6d9",
+      "unicode_decimal": 59097
+    },
+    {
+      "icon_id": "29928",
+      "name": "edit",
+      "font_class": "edit",
+      "unicode": "e64a",
+      "unicode_decimal": 58954
+    },
+    {
+      "icon_id": "32091",
+      "name": "top",
+      "font_class": "top1",
+      "unicode": "e69e",
+      "unicode_decimal": 59038
+    },
+    {
+      "icon_id": "158975",
+      "name": "file",
+      "font_class": "file1",
+      "unicode": "e73b",
+      "unicode_decimal": 59195
+    },
+    {
+      "icon_id": "240130",
+      "name": "post",
+      "font_class": "post",
+      "unicode": "e759",
+      "unicode_decimal": 59225
+    },
+    {
       "icon_id": "44312501",
       "name": "Super Large Icon",
       "font_class": "super-large-icon",
@@ -32,6 +102,13 @@
       "font_class": "more",
       "unicode": "e685",
       "unicode_decimal": 59013
+    },
+    {
+      "icon_id": "32477",
+      "name": "delete",
+      "font_class": "delete1",
+      "unicode": "e6b4",
+      "unicode_decimal": 59060
     },
     {
       "icon_id": "41961",
@@ -165,6 +242,13 @@
       "font_class": "warn",
       "unicode": "e666",
       "unicode_decimal": 58982
+    },
+    {
+      "icon_id": "52507",
+      "name": "forward",
+      "font_class": "forward",
+      "unicode": "e6eb",
+      "unicode_decimal": 59115
     },
     {
       "icon_id": "9782904",

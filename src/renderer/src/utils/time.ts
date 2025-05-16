@@ -90,7 +90,6 @@ const formatDate = function(value:string, format:string = 'YYYY/MM/DD HH:mm:ss')
         return '';
     }
 
-
     const date = new Date(compatibleDate(value));
     const options = {
         'Y+': date.getFullYear().toString(), // 年
@@ -112,7 +111,6 @@ const formatDate = function(value:string, format:string = 'YYYY/MM/DD HH:mm:ss')
 
     return format
 }
-
 
 export default {
     formatDate: formatDate,

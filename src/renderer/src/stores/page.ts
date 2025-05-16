@@ -23,6 +23,10 @@ export const usePageStore = defineStore('page',() => {
     })
 
     const toolbar = reactive({
+        submenu: {
+            order: null,
+            view: null
+        },
         more: null, //Control toolbar pop more window show status
         view: localStorage.getItem('cm_setting_view') ?? 'large' //Cache view model method
     })
@@ -32,8 +36,6 @@ export const usePageStore = defineStore('page',() => {
 
     const layout:string = ref(localStorage.getItem('cm_setting_layout') ?? 'three');
     const aside:string = ref(localStorage.getItem('cm_setting_aside') ?? 'unfold');
-
-
 
     return {
         pop: pop,

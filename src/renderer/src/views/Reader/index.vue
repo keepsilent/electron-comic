@@ -165,6 +165,7 @@ import Upload from "@renderer/components/Upload.vue";
 import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
 import FileEdit from "@renderer/components/FileEdit.vue";
+import {updateFileInfo} from "../../api/file";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -202,6 +203,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+    updateFileView();
     updateFileSettings();
     scrollbar.value.removeEventListener("scroll", onScroll);
     scrollbar.value.removeEventListener("click", onContent);
@@ -293,7 +295,7 @@ const resetFileData = async function (data):boolean {
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(file.file_size);
-    file.file_modified = getTimeAgo(file.file_modified,'YYYY/MM/DD');
+    file.file_modified = getTimeAgo(file.file_modified,'YYYY/MM/DD HH:mm:ss');
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
     file.file_artists = await loadFileTaxonomy(file.file_id,'artist');
@@ -761,6 +763,21 @@ const getFileSettings = async function() {
         settings.thumbnail = JSON.parse(thumbnail);
     } catch (err) {
         Base.printErrorLog('getFileMetaValue',err);
+    }
+}
+
+const updateFileView = async function () {
+    if(Base.isEmpty(file)) {
+        return false;
+    }
+
+    try {
+        const {file_id, file_view} = file
+        const params = { file_id: file_id, data: {file_view: file_view+1} }
+        await updateFileInfo(params)
+
+    } catch (err) {
+        Base.printErrorLog('updateFileInfo',err)
     }
 }
 

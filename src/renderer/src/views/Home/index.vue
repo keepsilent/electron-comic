@@ -16,6 +16,17 @@
                 <div v-for="(item,index) in load.list" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
                     <div class="cover">
                         <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
+                        <div class="mask">
+                            <div class="mask-inner">
+                                <div class="mask-left">
+                                    <span><i class="iconfont icon-attention"></i><em>{{item.file_view}}</em></span>
+                                    <span><i class="iconfont icon-file1"></i><em>{{item.file_ext}}</em></span>
+                                </div>
+                                <div class="mask-right">
+                                    <span>{{item.file_size}}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <span v-if="item.file_status == 'lose'" class="status">
                         <Tooltips :content="t('home.lose')" placement="bottom">
@@ -23,6 +34,24 @@
                         </Tooltips>
                     </span>
                     <p class="title">{{item.file_name}}</p>
+                    <p class="subtitle">
+                        <i class="iconfont icon-user mr-xxs"></i>
+                        <span class="artist">
+                            <template v-if="item.file_artist.status == 'success'">
+                                <template v-for="(artist,index) in item.file_artist.data">
+                                    <em>{{artist.name}}</em>
+                                    <template v-if="index + 1 != (item.file_artist.data).length">
+                                        <i class="ml-xs mr-xs">·</i>
+                                    </template>
+                                </template>
+                            </template>
+                            <template v-else>{{t('home.unknown')}}</template>
+                        </span>
+                        <span v-if="toolbar.view.model != 'middle' && toolbar.view.model != 'small'" class="date">
+                             <i class="ml-xs mr-xs">·</i>
+                            <em>{{item.file_date}}</em>
+                        </span>
+                    </p>
                 </div>
             </div>
 
@@ -45,7 +74,7 @@ import {ref, reactive, watch, onMounted} from 'vue'
 
 import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
 import {Base, Common, File, Time} from "@renderer/utils";
-import {getFileList} from "@renderer/api/file";
+import {getFileList, getFileArtist} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
 
 import Toolbar from "./components/toolbar.vue";
@@ -146,6 +175,7 @@ const loadFileList = async function () {
     } catch (err) {
         Base.printErrorLog('getFileList',err);
     } finally {
+        page.init = true;
         setDelayDisplay()
     }
 }
@@ -158,7 +188,11 @@ const setDelayDisplay = function () {
 
     setTimeout(()=> {
         page.init = true;
-    },300)
+    },150)
+}
+
+const setCountUnit = function (value) {
+    return Common.setCountUnit(value);
 }
 
 const setEmpty = function ({total}):boolean {
@@ -188,11 +222,60 @@ const setFileList = async function (data:object[]) {
 
     for(let i in data) {
         data[i].file_name = File.getFileAlias(data[i].file_name);
+
         data[i].file_cover = await getCover(data[i]);
+        data[i].file_ext = getFileExt(data[i].file_path);
+        data[i].file_view = setCountUnit(data[i].file_view);
         data[i].file_size = File.formatFileSize(data[i].file_size);
-        data[i].file_date = Time.formatDate(data[i].file_date,'YYYY/MM/DD');
+        data[i].file_date = getTimeAgo(data[i].file_date);
+        data[i].file_artist = await loadFileArtist(data[i].file_id);
     }
     load.list = data;
+}
+
+const getFileExt = function (path) {
+    return File.getFileExt(path).toUpperCase();
+}
+
+const getTimeAgo = function (date:number):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+    if (Base.isEmpty(date)) {
+        return '';
+    }
+
+    const timeStamp = Time.dateToTimestamp(date);
+    const now = new Date().getTime();   //获取当前时间毫秒
+    const value = now - parseInt(timeStamp); //时间差
+
+    const day = Math.floor(value / (1000 * 60 * 60) / 24);
+    const hour = Math.floor(value / (1000 * 60 * 60));
+    const minute = Math.floor(value / (1000 * 60));
+    const second = Math.floor(value / 1000);
+
+    if (day >= 1 && day <= 6) {
+        return t('time.day',{day:day, hour:hour - day * 24});
+    }
+
+    if (hour >= 1 && hour <= 23) {
+        return t('time.hour',{hour:hour, minute:minute - hour * 60});
+    }
+
+    if (minute >= 1 && minute <= 59) {
+        return t('time.minute',{minute:minute});
+    }
+
+    if(second >= 4 && second <= 59) {
+        return t('time.second',{second:second})
+    }
+
+    if(second >= 0 && second <= 3) {
+        return t('time.now');
+    }
+
+    if(Time.formatDate(timeStamp, 'YYYY') == new Date().getFullYear()) {
+        return Time.formatDate(timeStamp, 'MM-DD');
+    } else {
+        return Time.formatDate(timeStamp, 'YYYY-MM-DD');
+    }
 }
 
 const setPagination = function ({page,totalPage,total}):void {
@@ -219,6 +302,23 @@ const getCover = async function ({file_id}):Promise<string> {
 
 const onCancelConfirm = function():void {
     Common.cancelConfirm(confirm);
+}
+
+const loadFileArtist = async function (object_id) {
+    try {
+        const params = {object_id: object_id}
+        const res = await getFileArtist(params);
+
+        console.log('res',res);
+        if(res.code != 200 || Base.isEmpty(res.data)) {
+            return { status: 'fail', data: []};
+        }
+
+        return { status: 'success', data: res.data};
+    } catch (err) {
+        Base.printErrorLog('getFileArtist',err)
+        return  { status: 'fail', data: []}
+    }
 }
 
 const onRedirect = function ({currentTarget: {dataset: {id}}}):void {
