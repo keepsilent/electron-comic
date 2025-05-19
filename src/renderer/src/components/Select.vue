@@ -6,7 +6,7 @@
                 <i class="iconfont icon-return"></i>
             </div>
             <div v-if="page.drop" class="dropdown-menu">
-                <ul :class="select.options.length > 5 ? 'scrollbar scrollbar-space': 'scrollbar'">
+                <ul :class="isShowScroll(select.options) ? 'scrollbar scrollbar-space': 'scrollbar'">
                     <li v-for="(item,index) in select.options" :key="index" :data-name="item.name" :data-value="item.value" @click="onSelectOption">{{item.name}}</li>
                 </ul>
             </div>
@@ -16,31 +16,48 @@
 
 <script setup lang="ts">
 
-import {reactive} from "vue";
-
+import {reactive, watch} from "vue";
+import {Base, Common, File} from "@renderer/utils";
 interface Props {
     select: {
         key: string,
-        name: string,
-        value: string,
-        options: object,
+        name?: string,
+        value?: any,
+        options?: {
+            name:string,
+            value:any
+        }[],
+        width?: any
     }
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits(['select'])
-const page = reactive({name: '', value: '', drop: false})
+const page = reactive({name: '', value: '', drop: false, total: 0})
 
 
 const onShowDropDownBox = function ()  {
     page.drop = true;
 }
 
-const onSelectOption = function ({currentTarget: {dataset: {name,value}}}) {
+const onSelectOption = function (event) {
+    const {currentTarget: {dataset: {name,value}}}  = event;
     page.drop = false;
     props.select.name = name;
     props.select.value = value;
     emit('select',{key:props.select.key,name:name,value: value})
+}
+
+const isShowScroll = function (value) {
+    if(Base.isEmpty(value)) {
+        return false
+    }
+
+    if(Base.getDataLength(value) > 5) {
+        return  true
+    }
+
+    return false;
 }
 
 // 自定义指令，用于处理点击外部区域的事件

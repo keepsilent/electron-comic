@@ -12,10 +12,10 @@
 import {reactive} from "vue";
 
 interface Props {
-    toggle: {
-        key: string,
-        value: string,
-        options:object
+    toggle?: {
+        key?: string,
+        value?: string,
+        options?:object
     }
 }
 

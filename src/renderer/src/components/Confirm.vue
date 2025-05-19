@@ -21,12 +21,11 @@ import {reactive, watch} from "vue";
 interface Props {
     confirm: {
         show: boolean,
-        title: string,
-        content: string,
-
-        confirmText: string,
-        showCancel: boolean,
-        cancelText: string,
+        title?: string,
+        content?: string,
+        confirmText?: string,
+        showCancel?: boolean,
+        cancelText?: string,
     }
 }
 

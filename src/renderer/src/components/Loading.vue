@@ -13,7 +13,7 @@
 import {reactive, watch} from "vue";
 
 interface Props {
-   show: boolean
+   show?: boolean
 }
 
 interface Page {

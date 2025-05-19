@@ -13,8 +13,8 @@ const getMainHeight = function (height:number, blank:number = 118):number {
  * 获取存储路径
  * @method getStoragePath
  */
-const getStoragePath = function (key:string):string {
-    return localStorage.getItem('cm_setting_storage_path')  || import.meta.env.VITE_APP_COVER_PATH
+const getStoragePath = function (key?:string):string {
+    return localStorage.getItem('cm_setting_storage_path') || import.meta.env.VITE_APP_COVER_PATH
 }
 
 export default {

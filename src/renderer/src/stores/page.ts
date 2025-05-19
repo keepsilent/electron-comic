@@ -18,16 +18,16 @@ export const usePageStore = defineStore('page',() => {
     })
 
     const pop = reactive({
-        setting: null, //Control pop setting window show status
-        upload: null, //Control pop upload window show status
+        setting: false, //Control pop setting window show status
+        upload: false, //Control pop upload window show status
     })
 
     const toolbar = reactive({
         submenu: {
-            order: null,
-            view: null
+            order: false,
+            view: false
         },
-        more: null, //Control toolbar pop more window show status
+        more: false, //Control toolbar pop more window show status
         view: localStorage.getItem('cm_setting_view') ?? 'large' //Cache view model method
     })
 

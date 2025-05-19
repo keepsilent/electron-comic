@@ -142,7 +142,7 @@ import {useI18n} from 'vue-i18n';
 import { reactive, onMounted, watch} from "vue";
 const fs = require("fs") as typeof import("fs");
 import {Base, Common, File} from "@renderer/utils";
-import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/utils/types";
 import {updateFileInfoRecord} from "@renderer/api/file";
 import {isTermExist, getTermByName, increaseTerm, increaseTermRelationships, removeTermRelationships} from "@renderer/api/terms";
 import {debounce, throttle} from "@renderer/utils/throttle";
@@ -163,8 +163,10 @@ interface Props {
         file_size:number,
         file_total:number,
         file_status: string,
-        file_categories: object,
-        file_artists: object,
+        file_tags: any,
+        file_categories: any,
+        file_artists: any,
+        file_languages: any,
         file_alias:string,
         file_intro:string
     }
@@ -173,9 +175,11 @@ interface Props {
 interface Page {
     show:boolean,
     categories: string,
+    alias:string,
     tags: string,
     languages: string,
     artists: string
+    intro: string
 }
 
 const { t } = useI18n();
@@ -213,7 +217,7 @@ const onIncrease = throttle(async (key:string) => {
     const data = getCanIncreaseData(arr,key);
 
     for(let i in data) {
-        let name = data[i].trim();
+        let name = (data[i] as string).trim();
         let taxonomy = getTaxonomyBykey(key);
         let success = await insertTermRelationships(object_id, name, taxonomy);
 
@@ -240,7 +244,7 @@ const getTaxonomyBykey = function (key:string) {
 }
 
 const getCanIncreaseData = function (arr:object, key:string):object {
-    const tmp = [];
+    const tmp:any = [];
     const data = props.file['file_'+key] || [];
     for(let i in arr) {
         if(!Base.isEmpty(arr[i]) && !Base.inArray(data,'name',arr[i])) {
@@ -343,7 +347,11 @@ const onSave = throttle( async () => {
             new_file_path: new_file_path,
         }
         const res = await updateFileInfoRecord(params);
-        if(res.code != 200) {
+        // if(res.code != 200) {
+        //     Common.showAlert(confirm,t("edit.anomaly"));
+        //     return false
+        // }
+        if(res == false) {
             Common.showAlert(confirm,t("edit.anomaly"));
             return false
         }
@@ -359,7 +367,8 @@ const onSave = throttle( async () => {
     }
 })
 
-const onInputClear = function ({currentTarget: {dataset: {key}}}) {
+const onInputClear = function (event) {
+    const {currentTarget: {dataset: {key}}} = event
     page[key] = ''
 }
 

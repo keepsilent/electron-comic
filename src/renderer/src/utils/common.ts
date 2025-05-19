@@ -14,7 +14,7 @@ const { t } = i18n.global;
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showAlert = function (confirm:ConfirmInter, content:string, title:string, confirmText:string, callback:string = '') {
+const showAlert = function (confirm:ConfirmInter, content:string, title:string = '', confirmText:string = '', callback:string = '') {
     confirm.show = true;
     confirm.title = title ?? t('alert.default');
     confirm.content = content;
@@ -128,7 +128,7 @@ const setArchive = function (Archive:Archive):void {
  * @param {String} title
  * @param {String} subtitle
  */
-const showEmpty = function (empty:EmptyInter,title:string,subtitle: string,icon:string='icon-file'):void {
+const showEmpty = function (empty:EmptyInter,title:string, subtitle: string,icon:string='icon-file'):void {
 
     const object = {
         show: true,

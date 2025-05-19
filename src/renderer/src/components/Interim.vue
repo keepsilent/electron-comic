@@ -13,11 +13,11 @@ import {reactive, watch} from "vue";
 
 interface Props {
     interim: {
-        show: {
+        show?: {
             type: boolean,
             default: true
         },
-        space: {
+        space?: {
             type: boolean,
             default: true
         }
@@ -25,8 +25,8 @@ interface Props {
 }
 
 interface Page {
-    show: boolean,
-    space: boolean
+    show: any,
+    space: any
 }
 
 const props = defineProps<Props>()

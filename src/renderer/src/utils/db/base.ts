@@ -18,7 +18,9 @@ console.error('dbPath',dbPath);
 
 export interface queryParam {
     sql: string;
-    params?: any[];
+    //params?: any[];
+    //params?: object;
+    params: { [key: string]: any };
 }
 
 export interface insertParam {
@@ -37,10 +39,10 @@ export interface deleteParam {
     condition: string;
 }
 
-interface Result {
+export interface Result {
     code: number,
-    message:string
-    data: any
+    message?: any,
+    data?: any
 }
 
 

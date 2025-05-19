@@ -187,7 +187,7 @@ interface Props {
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const emit = defineEmits(['cancel','confirm','order','upload','refresh'])
+const emit = defineEmits(['cancel','confirm','order','upload','filter','refresh'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
 const open = ref(null);
@@ -463,8 +463,9 @@ const onShowFileFilter = function () {
     pageStore.toolbar.more = false;
 }
 
-const onCancelFileFilter = function () {
+const onCancelFileFilter = function ({change}) {
     page.filter = false
+    emit('filter',{change:change})
 }
 
 watch(() => pageStore.toolbar.more,(value)=> {

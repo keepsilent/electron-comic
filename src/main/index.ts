@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+// import icon from '../../resources/icon.png?asset'
 
 //app.commandLine.appendSwitch('disable-site-isolation-trials');
 
@@ -80,7 +80,14 @@ const createWindow = async function() {
     ipcMain.on('minimize', () => mainWindow.minimize())
     ipcMain.on('restore', () => mainWindow.restore())
     ipcMain.on('close', () => mainWindow.close())
+    ipcMain.on('reset', () => {
+        app.exit() //退出当前程序
+        app.relaunch() //重新启动
+    })
+
     ipcMain.on('openDialog', (event,value) => {
+        let {frameId} = event;
+        console.log('frameId',frameId);
         dialog.showOpenDialog({
             defaultPath: value,
             buttonLabel: '确定',
@@ -91,12 +98,11 @@ const createWindow = async function() {
             //result.filePaths.length>0 && ipcRenderer.send(result.filePaths);
         })
     })
-    ipcMain.on('reset', () => {
-        app.exit() //退出当前程序
-        app.relaunch() //重新启动
-    })
 
     ipcMain.on('openpath', (event,value) => {
+        console.log('event',event);
+        let {frameId} = event;
+        console.log('frameId',frameId);
         shell.openPath(value)
     })
 

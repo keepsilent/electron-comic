@@ -1,5 +1,8 @@
 import axios from "axios";
 import {Base,File} from "@renderer/utils";
+import type {
+    Result
+} from "@renderer/utils/db/base";
 import {isTermExist, increaseTerm, increaseTermRelationships} from "@renderer/api/terms";
 import {insertFileMeta} from "@renderer/api/filemeta";
 
@@ -9,8 +12,9 @@ const options = {
 }
 const service = axios.create(options);
 
-const getFileInfo = function (data:object, name:string):object {
+const getFileInfo = function (data:object, name:string):any {
     const reg = /[/\\?%*:|"<>]/g;
+
     for(let i in data) {
         for(let j in data[i].title) {
             if(Base.isEmpty(data[i].title[j])) {
@@ -33,17 +37,15 @@ const getFileInfo = function (data:object, name:string):object {
         }
     }
 
-    return []
+    return {}
 }
 
 
-export const getNhentaiList = async function ({file_id, file_name}) {
+export const getNhentaiList = async function ({file_id, file_name}):Promise<Boolean> {
     try {
         const name = File.getFileAlias(file_name);
         const url = `/galleries/search?query=${name}&page=1&sort=date`
-        console.log('url',url);
         const res = await service.get(url);
-        console.log(res);
         if(res.status != 200) {
             return false;
         }
@@ -64,13 +66,14 @@ export const getNhentaiList = async function ({file_id, file_name}) {
 
         await insertFileMeta({file_id: file_id, meta_key: 'id', meta_value:JSON.stringify({id:id,source:'nhentai'})});
         await insertFileMeta({file_id: file_id, meta_key: 'title', meta_value:JSON.stringify({title:title,source:'nhentai'})});
-        console.log('info',info);
+        return true
     } catch (err) {
         Base.printErrorLog('getNhentaiList',err);
+        return false;
     }
 }
 
-const batchInsertTermRelationships = async function (object_id:number, tags:object) {
+const batchInsertTermRelationships = async function (object_id:number, tags:object):Promise<boolean> {
     if(Base.isEmpty(tags)) {
         return false;
     }
@@ -78,6 +81,8 @@ const batchInsertTermRelationships = async function (object_id:number, tags:obje
     for(let i in tags) {
         await insertTermRelationships(object_id, tags[i].name, tags[i].type);
     }
+
+    return true
 }
 
 const insertTermRelationships = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
@@ -88,14 +93,15 @@ const insertTermRelationships = async function (object_id:number, name:string, t
             return false;
         }
 
-        let relationships = { code: 500 };
+        let relationships:Result = {code: 500};
         if(res.data.length == 0) { //如果没有,插入数据, 添加关系,统计数+1
             relationships = await increaseTerm(object_id, name, taxonomy);
         } else {  //如果有,查看是否有关系,没有：添加关系，统计数+1; 有:不操作
             relationships = await increaseTermRelationships(object_id, name, taxonomy);
         }
 
-        return relationships.code == 200 ? true : false;
+        const {code} = relationships
+        return code == 200 ? true : false;
     } catch (err) {
         return false;
     }

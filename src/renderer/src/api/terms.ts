@@ -138,7 +138,7 @@ export const getTermGroupFristRcordPosition = async function ({taxonomy, name}):
 }
 
 export const updateTaxonomyCount = async function ({term_taxonomy_id, count}):Promise<Result> {
-    const data:queryParam = {
+    const data:updateParam = {
         table: 'cm_term_taxonomy',
         data: {
             'count': count
@@ -191,7 +191,7 @@ const addTermRecord = async function (name:string):Promise<Number> {
     }
 }
 
-const addTermTaxonomyRecord = async function (term_id:number, taxonomy:string):Promise<Number>{
+const addTermTaxonomyRecord = async function (term_id:number|any, taxonomy:string|any):Promise<Number>{
     try {
         const params = {term_id: term_id, taxonomy: taxonomy}
         const res = await addTermTaxonomy(params);
@@ -206,7 +206,7 @@ const addTermTaxonomyRecord = async function (term_id:number, taxonomy:string):P
     }
 }
 
-const addTermRelationshipsRecord = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean>{
+const addTermRelationshipsRecord = async function (object_id:number|any, term_taxonomy_id:number|any):Promise<Boolean>{
     try {
         const params = {object_id: object_id, term_taxonomy_id: term_taxonomy_id}
         const res = await addTermRelationships(params);
@@ -221,83 +221,83 @@ const addTermRelationshipsRecord = async function (object_id:number, term_taxono
     }
 }
 
-const updateTaxonomyCountRecord = async function (term_taxonomy_id:number, count:number):Promise<Boolean>{
+const updateTaxonomyCountRecord = async function (term_taxonomy_id:number|any, count:number|any):Promise<Result>{
     try {
         const params = {term_taxonomy_id: term_taxonomy_id, count: count}
         const res = await updateTaxonomyCount(params);
         if(res.code != 200) {
-            return false
+            return res
         }
 
-        return true
+        return {code: 200}
     } catch (err) {
         Base.printErrorLog('updateTaxonomyCountRecord',err);
-        return false
+        return {code: 500}
     }
 }
 
-export const increaseTerm = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
+export const increaseTerm = async function (object_id:number, name:string, taxonomy:string):Promise<Result> {
     return await DB.transaction(async () => {
         try {
             const params = {name: name, taxonomy: taxonomy};
             const res = await isTermExist(params);
             if (res.code != 200 || res.data.length >= 1) {
-                return false;
+                return res;
             }
 
             const term_id = await addTermRecord(name);
             if (term_id == 0) {
-                return false;
+                return {code: 500};
             }
 
             const term_taxonomy_id = await addTermTaxonomyRecord(term_id, taxonomy);
             if (term_taxonomy_id == 0) {
-                return false;
+                return {code: 500};
             }
 
             const relationships = await addTermRelationshipsRecord(object_id, term_taxonomy_id);
             if (relationships == false) {
-                return false;
+                return {code: 500};
             }
 
             return updateTaxonomyCountRecord(term_taxonomy_id, 1);
         } catch (err) {
             Base.printErrorLog('increaseTerm',err)
-            return false;
+            return {code: 500};
         }
     });
 }
 
-export const increaseTermRelationships = async function (object_id:number, name:string, taxonomy:string):Promise<Boolean> {
+export const increaseTermRelationships = async function (object_id:number, name:string, taxonomy:string):Promise<Result> {
     return await DB.transaction(async () => {
         try {
             const params = {name: name, taxonomy: taxonomy};
             const res = await isTermExist(params);
 
             if(res.code != 200 || res.data.length == 0) {
-                return false;
+                return res;
             }
 
             const [term] = res.data;
             const {term_taxonomy_id, count} = term;
             const relationships = await isRelationshipsExist({object_id: object_id, term_taxonomy_id: term_taxonomy_id});
             if(relationships.code != 200) {
-                return false;
+                return relationships;
             }
 
             if(relationships.data.length >= 1) { //已绑定过关系,无须再操作
-                return true
+                return {code: 500}
             }
 
             //没有绑定关系,添加关系 && count+1
             const success = await addTermRelationshipsRecord(object_id, term_taxonomy_id);
             if(success == false) {
-                return false;
+                return success;
             }
             return updateTaxonomyCountRecord(term_taxonomy_id, count + 1);
         } catch (err) {
             Base.printErrorLog('increaseTermRelationships',err)
-            return false
+            return {code: 500}
         }
     });
 }
@@ -311,38 +311,38 @@ export const deleteTermRelationships = async function ({object_id, term_taxonomy
     return await DB.delete(data);
 }
 
-export const runRemoveTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean> {
+export const runRemoveTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Result> {
     try {
         const params = {term_taxonomy_id: term_taxonomy_id};
         const res = await isTermExistById(params);
         if(res.code != 200 || res.data.length == 0) {
-            return false;
+            return res;
         }
 
         const relationships = await isRelationshipsExist({object_id: object_id, term_taxonomy_id: term_taxonomy_id});
         if(relationships.code != 200) {
-            return false;
+            return relationships;
         }
 
         if(relationships.data.length == 0) {
-            return false;
+            return {code: 500};
         }
 
         const [term] = res.data;
         const {count} = term;
         const success = await deleteTermRelationships({object_id, term_taxonomy_id});
         if(success.code != 200) {
-            return false;
+            return success;
         }
 
         return updateTaxonomyCountRecord(term_taxonomy_id, count - 1 < 0 ? 0 : count - 1);
     } catch (err) {
         Base.printErrorLog('removeTermRelationships',err)
-        return false
+        return {code: 500, message: err}
     }
 }
 
-export const removeTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Boolean> {
+export const removeTermRelationships = async function (object_id:number, term_taxonomy_id:number):Promise<Result> {
     return await DB.transaction(async () => {
         return await runRemoveTermRelationships(object_id, term_taxonomy_id);
     });

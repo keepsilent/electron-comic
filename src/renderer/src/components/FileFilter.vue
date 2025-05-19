@@ -71,7 +71,7 @@ import {useI18n} from 'vue-i18n';
 import { reactive, onMounted, watch} from "vue";
 const fs = require("fs") as typeof import("fs");
 import {Base, Common, File} from "@renderer/utils";
-import type { ConfirmInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/utils/types";
 
 
 import Select from "@renderer/components/Select.vue";
@@ -120,7 +120,7 @@ onMounted(() => {
 })
 
 const onClose = function () {
-    emit('cancel')
+    emit('cancel',{change: false})
 }
 
 const isSelected = function (value) {
@@ -132,7 +132,8 @@ const isSelected = function (value) {
     }
 }
 
-const onSelected = function ({currentTarget: {dataset: {index}}}) {
+const onSelected = function (event) {
+    const {currentTarget: {dataset: {index}}} = event
     page.filter[index].selected = !page.filter[index].selected
 }
 
@@ -156,30 +157,39 @@ const onSelectOption = function (option) {
 }
 
 const onSave = function () {
+    const {options} = File.getFileFilterOptions();
     const object = { mode: page.style.value, options: {}}
     const {filter} = page;
-    console.log('f',filter);
+
     for(let i in filter) {
         let {value, selected} = filter[i]
-
-        console.log('v',value,selected)
         object.options[value] = selected
     }
 
-    emit('cancel')
-
     localStorage.setItem('cm_setting_file_filter',JSON.stringify(object))
-
-    console.log('options',object);
+    emit('cancel',{change: isChange(object.options, options)});
 }
 
-const getStyleName = function () {
+const isChange = function (data, old) {
+    for(let i in data) {
+        for(let j in old) {
+            if(data[i] != old[j]) {
+                return true
+            }
+        }
+    }
+
+    return false;
+}
+
+const getStyleName = function ():string {
     const {mode} = File.getFileFilterOptions()
     for(let i in page.style.options) {
         if(page.style.options[i].value == mode) {
             return page.style.options[i].name
         }
     }
+    return '';
 }
 
 const getStyleValue= function () {
@@ -199,7 +209,13 @@ const setFileFilterOptions = function () {
     }
 }
 
+const onCancelConfirm = function () {
+    Common.cancelConfirm(confirm);
+}
 
+const onOperateConfirm = function () {
+    Common.operateConfirm(confirm, page);
+}
 
 watch(() => props.show,(value) => {
     setTimeout(()=> {page.show = value},10)

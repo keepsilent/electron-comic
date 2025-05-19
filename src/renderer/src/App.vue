@@ -38,7 +38,6 @@ interface Page  {
 
 const {locale} = useI18n();
 const pageStore = usePageStore();
-const {height} = storeToRefs(pageStore);
 const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore.layout,'main')})
 
 

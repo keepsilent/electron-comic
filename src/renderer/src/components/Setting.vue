@@ -154,9 +154,9 @@ const props = defineProps<Props>()
 const pageStore = usePageStore();
 const page:Page = reactive({show: true})
 const confirm:ConfirmInter = reactive({show: false});
-const menu:string = ref('general');
-const theme:string = ref('default');
-const general:object = reactive({
+const menu = ref('general');
+const theme = ref('default');
+const general:{path?:string} = reactive({
     path: Config.getStoragePath()
 })
 const about:About = reactive({
@@ -210,7 +210,8 @@ const shortcuts:SelectInter = reactive({
     options:[t('button.on'),t('button.off')]
 })
 
-const onRedirect = function ({currentTarget: {dataset: {value}}}) {
+const onRedirect = function (event) {
+    const {currentTarget: {dataset: {value}}} = event
     Base.redirect(value,'_blank');
 }
 
@@ -218,11 +219,13 @@ const onClose = function () {
     emit('hide')
 }
 
-const onSwitchMenu = function ({currentTarget: {dataset: {value}}}):boolean {
+const onSwitchMenu = function (event) {
+    const {currentTarget: {dataset: {value}}} = event
     menu.value = value
 }
 
-const onSwitchTheme = function ({currentTarget: {dataset: {value}}}):boolean {
+const onSwitchTheme = function (event) {
+    const {currentTarget: {dataset: {value}}} = event
     if(value == 'dark') {
         Common.showAlert(confirm,t('setting.theme.tips',{name:t('setting.theme.dark')}));
         return false;

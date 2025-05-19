@@ -8,12 +8,10 @@ import type {
 import {Base, DB, File, Time} from "@renderer/utils";
 import {getTermRelationships,runRemoveTermRelationships} from "@renderer/api/terms";
 
-
-
 const fs = require("fs") as typeof import("fs");
 
 export const isFileExist = async function ({name}):Promise<Result> {
-    const sql = `SELECT * FROM cm_file WHERE file_name = $name  LIMIT 1`;
+    const sql = `SELECT * FROM cm_file WHERE file_name = $name LIMIT 1`;
     const data:queryParam = {
         sql: sql,
         params: {$name: name}
@@ -27,6 +25,7 @@ export const getRandomFileInfo = async function ({id}):Promise<Result> {
         sql: sql,
         params: {$id: id}
     }
+    console.log('getRandomFileInfo',sql);
     return await DB.query(data);
 }
 
@@ -156,13 +155,12 @@ export const getFileList = async function ({page, pageSize, q, name, taxonomy, o
             message:'success'
         }
     } catch (err) {
-        console.log('err',err);
         return {code: 500, message: err};
     }
 }
 
 export const addFile = async function (data:{ [key: string]: any }):Promise<Result> {
-    const date = Time.formatDate(new Date().getTime());
+    const date = Time.formatDate(new Date().getTime().toString());
     const params:insertParam = {
         table: 'cm_file',
         data: {
@@ -176,7 +174,7 @@ export const addFile = async function (data:{ [key: string]: any }):Promise<Resu
 }
 
 export const updateFileStatus = async function ({id, status}):Promise<Result> {
-    const data:queryParam = {
+    const data:updateParam = {
         table: 'cm_file',
         data: {
             'file_status': status
@@ -189,8 +187,8 @@ export const updateFileStatus = async function ({id, status}):Promise<Result> {
 
 
 export const updateFileInfo = async function ({file_id, data}):Promise<Result> {
-    const date = Time.formatDate(new Date().getTime());
-    const params:queryParam = {
+    const date = Time.formatDate(new Date().getTime().toString());
+    const params:updateParam = {
         table: 'cm_file',
         data: {
             'file_modified': date,

@@ -2,15 +2,15 @@ export interface PageInter {
     show?: boolean,
     init?: boolean,
     loading?: boolean,
-    uploader?: boolean
+    upload?: boolean
     layout?: string,
     aside?: string,
     actions?: object
 }
 
 export interface ConfirmInter {
-    show:boolean,
-    content: string,
+    show: boolean,
+    content?: string,
     title?:string,
     callback?: string,
     showCancel?: boolean,
@@ -41,16 +41,14 @@ export interface EmptyInter {
     subtitle?: string
 }
 
-
 export interface InterimInter {
     show?:boolean,
     space?: boolean
 }
 
-
 export interface SelectInter {
     key: string,
-    name: string,
-    value: string,
-    options: { name: string, value: string }[]
+    name?: string,
+    value?: any,
+    options?: { name?: string, value?: any }[]
 }

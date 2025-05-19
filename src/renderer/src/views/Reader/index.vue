@@ -410,15 +410,13 @@ const renderStatus = function (file) {
 
 const renderFilesThumbnail = async function (file:File):void {
     try {
-        const now = (new Date()).valueOf();
+        //const now = (new Date()).valueOf();
         const fileBuffer = fs.readFileSync(file.file_path);
         const blob = new Blob([fileBuffer], {type: file.file_mine_type});
 
         const archive = await Archive.open(blob);
         const extract = await archive.extractFiles();
-        const current =  (new Date()).valueOf() - now;
-
-        console.log('cu',current);
+        //const current =  (new Date()).valueOf() - now;
 
         readImageFile(File.getExtractImageList(extract));
     } catch (err) {

@@ -9,6 +9,9 @@
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
+    "noUnusedLocals": false, /* 检查未使用的变量 */
+    "noUnusedParameters": false,/* 检查未使用的函数参数 */
+    "noImplicitReturns": false,
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"

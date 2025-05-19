@@ -29,12 +29,12 @@ interface Props {
         page: number,
         totalPage: number,
     },
-    set?: number
+    set?: string
 }
 
 const emit = defineEmits(['chagePage'])
 const props = defineProps<Props>()
-const page = reactive({data:[]})
+const page:{data:{name?:string,scene?:string,value?:string}[]} = reactive({data:[]})
 
 
 onMounted(() => {
@@ -58,10 +58,15 @@ const onPage = throttle((value) => {
     emit('chagePage',{value: value})
 })
 
+interface dataInter {
+    name:string,
+    value?:number,
+    scene?:string
+}
 const createPagination = function () {
-    let data: object = [];
-    const step = props.set || 10;
-    const middle = parseInt(step / 2);
+    let data:dataInter[] = [];
+    const step:string = props.set as string || '10';
+    const middle:number = parseInt((Number(step) / 2).toString());
     const {page, totalPage} = props.pagination
 
     if(page == totalPage && page == 1) {
@@ -97,7 +102,7 @@ const getEnd = function (page:number, middle:number, totalPage: number):number {
     return page + middle;
 }
 
-const addPageBtn = function(data:object, begin:number, end:number, current:number):object {
+const addPageBtn = function(data:any[], begin:number, end:number, current:number):dataInter[] {
     for (let i = begin; i <= end; i++) {
         if (i == current) {
             data.push({ name: i, value: i, scene:'selected'});
@@ -109,7 +114,7 @@ const addPageBtn = function(data:object, begin:number, end:number, current:numbe
     return data;
 }
 
-const addPrevDoubleBtn = function(data:object,page:number, totalPage: number, middle:number):object {
+const addPrevDoubleBtn = function(data:dataInter[],page:number, totalPage: number, middle:number):dataInter[] {
     if(totalPage <= middle) {
         return data;
     }
@@ -122,7 +127,7 @@ const addPrevDoubleBtn = function(data:object,page:number, totalPage: number, mi
     return data;
 }
 
-const addPrevBtn = function(data:object,page:number):object {
+const addPrevBtn = function(data:dataInter[],page:number):dataInter[] {
     if(page - 1 <= 0) {
         return data;
     }
@@ -131,7 +136,7 @@ const addPrevBtn = function(data:object,page:number):object {
     return data;
 }
 
-const addNextBtn = function(data:object, page:number, totalPage:number):object {
+const addNextBtn = function(data:dataInter[], page:number, totalPage:number):dataInter[] {
     if(page + 1 > totalPage) {
         return data;
     }
@@ -140,7 +145,7 @@ const addNextBtn = function(data:object, page:number, totalPage:number):object {
     return data;
 }
 
-const addNextDoubleBtn = function(data:object,page:number, totalPage:number,middle:number):object {
+const addNextDoubleBtn = function(data:dataInter[],page:number, totalPage:number,middle:number):dataInter[] {
     if(totalPage <= middle) {
         return data;
     }

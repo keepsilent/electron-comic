@@ -401,7 +401,11 @@ const deleteFile = function (path:string):boolean{
     }
 }
 
-const getFileFilterOptions = function () {
+/**
+ * 获取文件列表选项
+ * @method getFileFilterOptions
+ */
+const getFileFilterOptions = function (): {mode :string, options:object } {
     const options = localStorage.getItem('cm_setting_file_filter');
     if(Base.isEmpty(options)) {
         return {

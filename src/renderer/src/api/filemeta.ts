@@ -27,7 +27,7 @@ export const getFileMetaValue = async function ({id, key}):Promise<Result> {
 }
 
 export const updateFileMetaValue = async function ({id, key, value}):Promise<Result> {
-    const data:queryParam = {
+    const data:updateParam = {
         table: 'cm_filemeta',
         data: {
             'meta_value': value

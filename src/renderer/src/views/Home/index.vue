@@ -1,5 +1,5 @@
 <template>
-    <Toolbar :file="toolbar.file" @order="onSwitchOrder" @upload="onShowUpload" @refresh="onRefresh"/>
+    <Toolbar :file="toolbar.file" @order="onSwitchOrder" @upload="onShowUpload" @filter="onFilefilter" @refresh="onRefresh"/>
     <div ref="scrollbar" class="file-wrap scrollbar">
 
         <!-- Skeleton -->
@@ -14,41 +14,43 @@
         <template v-if="page.init">
             <div v-if="empty.show != true" :class="['file-main',toolbar.view.class]">
                 <div v-for="(item,index) in load.list" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
-                    <div class="cover">
+                    <div v-if="page.options.cover" class="cover">
                         <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
-                        <div class="mask">
+                        <div v-if="page.options.view || page.options.type || page.options.size" class="mask">
                             <div class="mask-inner">
                                 <div class="mask-left">
-                                    <span><i class="iconfont icon-attention"></i><em>{{item.file_view}}</em></span>
-                                    <span><i class="iconfont icon-file1"></i><em>{{item.file_ext}}</em></span>
+                                    <span v-if="page.options.view"><i class="iconfont icon-attention"></i><em>{{item.file_view}}</em></span>
+                                    <span v-if="page.options.type"><i class="iconfont icon-file1"></i><em>{{item.file_ext}}</em></span>
                                 </div>
-                                <div class="mask-right">
+                                <div v-if="toolbar.view.model != 'small' && page.options.size" class="mask-right">
                                     <span>{{item.file_size}}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <span v-if="item.file_status == 'lose'" class="status">
+                    <span v-if="page.options.cover && item.file_status == 'lose'" class="status">
                         <Tooltips :content="t('home.lose')" placement="bottom">
                             <i class="iconfont icon-warn-fill"></i>
                         </Tooltips>
                     </span>
-                    <p class="title">{{item.file_name}}</p>
-                    <p class="subtitle">
-                        <i class="iconfont icon-user mr-xxs"></i>
-                        <span class="artist">
-                            <template v-if="item.file_artist.status == 'success'">
-                                <template v-for="(artist,index) in item.file_artist.data">
-                                    <em>{{artist.name}}</em>
-                                    <template v-if="index + 1 != (item.file_artist.data).length">
-                                        <i class="ml-xs mr-xs">·</i>
+                    <p v-if="page.options.title" class="title">{{item.file_name}}</p>
+                    <p :class="page.options.title? 'subtitle' : 'subtitle mt-s'">
+                        <template v-if="page.options.artist">
+                            <i class="iconfont icon-user mr-xxs"></i>
+                            <span class="artist">
+                                <template v-if="item.file_artist.status == 'success'">
+                                    <template v-for="(artist,index) in item.file_artist.data">
+                                        <em>{{artist.name}}</em>
+                                        <template v-if="index + 1 != (item.file_artist.data).length">
+                                            <i class="ml-xs mr-xs">·</i>
+                                        </template>
                                     </template>
                                 </template>
-                            </template>
-                            <template v-else>{{t('home.unknown')}}</template>
-                        </span>
-                        <span v-if="toolbar.view.model != 'middle' && toolbar.view.model != 'small'" class="date">
-                             <i class="ml-xs mr-xs">·</i>
+                                <template v-else>{{t('home.unknown')}}</template>
+                            </span>
+                        </template>
+                        <span v-if="toolbar.view.model != 'middle' && toolbar.view.model != 'small' && page.options.date" class="date">
+                            <i v-if="page.options.artist" class="ml-xs mr-xs">·</i>
                             <em>{{item.file_date}}</em>
                         </span>
                     </p>
@@ -72,7 +74,7 @@ import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted} from 'vue'
 
-import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
+import type { ConfirmInter, EmptyInter} from "@renderer/utils/types";
 import {Base, Common, File, Time} from "@renderer/utils";
 import {getFileList, getFileArtist} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
@@ -87,12 +89,21 @@ import Pagination from "@renderer/components/Pagination.vue";
 import Tooltips from "@renderer/components/Tooltips.vue";
 import {Archive} from "libarchive.js/main";
 
+interface PageInter {
+    init: boolean,
+    loading: boolean,
+    upload: boolean
+    options: object,
+    actions: object
+}
+
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
-const page:PageInter = reactive({init: false, loading: false, upload: false, actions: {}});
+const page:PageInter = reactive({init: false, loading: false, upload: false, options: {}, actions: {}});
 const load = reactive({
     page: 1,
     pageSize: pageStore.pageSize,
@@ -123,16 +134,19 @@ onMounted(() => {
     load.q = q ?? '';
     load.name = name ?? '';
     load.taxonomy = taxonomy ?? '';
-
-    console.log('laod',load);
     toolbar.view.class = getToolbarViewClass();
 
     init()
 })
 
 const init = function () {
+    const {options} = File.getFileFilterOptions()
     setArchive();
     loadFileList();
+
+    page.options = options
+
+    console.log('page.options',page.options);
 }
 
 const setArchive = function () {
@@ -390,6 +404,17 @@ const onRefresh = function () {
 const getToolbarViewClass = function () {
     const model = pageStore.toolbar.view;
     return `file-main__${model}`;
+}
+
+const onFilefilter = function ({change}) {
+    if(change == false) {
+        return false;
+    }
+
+    const {options} = File.getFileFilterOptions();
+    page.options = options;
+
+    loadFileList();
 }
 
 watch(() => pageStore.pageSize,(value) => {
