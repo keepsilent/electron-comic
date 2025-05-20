@@ -126,7 +126,7 @@
 import {useI18n} from 'vue-i18n';
 import {ref, reactive, onMounted, watch} from "vue";
 import {Base,Config, Common} from "@renderer/utils";
-import type {PageInter, ConfirmInter,SelectInter} from "@renderer/utils/types";
+import type {PageInter, ConfirmInter,SelectInter, switchInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
 import {usePageStore} from '@renderer/stores/page'
 
@@ -204,7 +204,8 @@ const pageing:SelectInter = reactive({
     ]
 })
 
-const shortcuts:SelectInter = reactive({
+
+const shortcuts:switchInter = reactive({
     key: 'shortcuts',
     value: localStorage.getItem('cm_setting_shortcuts') == 'false' ? false : true,
     options:[t('button.on'),t('button.off')]
@@ -256,21 +257,23 @@ const onSelectOption = function (option) {
         case 'pageing':
             pageing.name = option.name;
             pageing.value = option.value;
-            pageStore.setPageSize(option.value);
+
+            pageStore.pageSize = option.value;
             localStorage.setItem('cm_setting_page_size', option.value)
             break
     }
 }
 
-const changeWindow = function (value:string) {
-    const isMaximize = value == 'maximize' ? true: false;
-    localStorage.setItem('cm_setting_maximize', isMaximize)
+const changeWindow = function (value:string):boolean {
+    const isMaximize = value == 'maximize' ? 1: 0;
+    localStorage.setItem('cm_setting_maximize', isMaximize.toString())
     if(isMaximize == 1) {
-        electron.ipcRenderer.send('maximize');
+       // electron.ipcRenderer.send('maximize'); to do
         return false;
     }
 
-    electron.ipcRenderer.send('restore');
+    // electron.ipcRenderer.send('restore'); to do
+    return true;
 }
 
 const changeLanguage = (value: string) => {
@@ -288,18 +291,18 @@ const onToggleSwitch = function (option) {
 }
 
 const onSelectFile = function () {
-    electron.ipcRenderer.send('openDialog',general.path);
+   // electron.ipcRenderer.send('openDialog',general.path); to do
 }
 
-electron.ipcRenderer.on('openDialog',(event,args)=> {
-    const {canceled,filePaths} = args;
-    if(canceled == true) {
-        return false;
-    }
-    const [path] = filePaths;
-    general.path = path;
-    localStorage.setItem('cm_settging_storage_path',path);
-})
+// electron.ipcRenderer.on('openDialog',(event,args)=> {
+//     const {canceled,filePaths} = args;
+//     if(canceled == true) {
+//         return false;
+//     }
+//     const [path] = filePaths;
+//     general.path = path;
+//     localStorage.setItem('cm_settging_storage_path',path);
+// })
 
 watch(() => props.show,(value)=>{
     menu.value = 'general';

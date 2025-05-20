@@ -20,18 +20,18 @@ export interface ConfirmInter {
 
 
 export interface FileInter {
-    file_id:number,
-    file_date: string,
-    file_name: string,
-    file_alias: string,
-    file_author: string,
-    file_intro: string,
-    file_path: string,
-    file_size: string,
-    file_total: number,
-    file_status: string,
-    file_modified: string,
-    file_mine_type: string
+    file_id:number|null,
+    file_date?: string,
+    file_name?: string,
+    file_alias?: string,
+    file_author?: string,
+    file_intro?: string,
+    file_path?: string,
+    file_size?: string,
+    file_total?: number,
+    file_status?: string,
+    file_modified?: string,
+    file_mine_type?: string
 }
 
 
@@ -46,9 +46,16 @@ export interface InterimInter {
     space?: boolean
 }
 
+export interface switchInter {
+    key:string,
+    value: boolean
+    options: any[]
+}
+
+
 export interface SelectInter {
     key: string,
-    name?: string,
-    value?: any,
-    options?: { name?: string, value?: any }[]
+    name: string,
+    value: any,
+    options: { name: string, value: any }[]
 }

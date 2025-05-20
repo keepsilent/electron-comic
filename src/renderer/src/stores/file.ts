@@ -4,7 +4,7 @@ import {defineStore} from 'pinia'
 //组合式API Vue3 Setup 函数
 export const useFileStore = defineStore('file',()=>{
 
-    const id:number = ref(null);
+    const id = ref(null);
     const info:object = reactive({});
 
     return {

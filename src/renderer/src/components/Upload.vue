@@ -75,20 +75,27 @@ interface Page {
     status: boolean
 }
 
+
+
 interface Files {
     show: boolean,
     current: number,
     total: number,
-    data: object
+    data: {
+        status: string,
+        scene?: string,
+        message?: string,
+        file:File
+    }[]
 }
 
 const { t } = useI18n();
 const emit = defineEmits(['hide'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
-const upload = ref(null)
-const filePaste = ref(null)
-const fileInput = ref(null)
+const upload:{value?:any} = ref(null)
+const filePaste:{value?:any} = ref(null)
+const fileInput:{value?:any} = ref(null)
 const page:Page = reactive({
     show: true,
     accept:'.zip,.rar,.7z,.tar',
@@ -99,7 +106,7 @@ const files:Files = reactive({show: false, current: 0, total: 0, data:[] });
 const confirm:ConfirmInter = reactive({show: false});
 
 
-const init = function (value:boolean):boolean {
+const init = function (value:boolean) {
     if(value == false) {
         return false;
     }
@@ -227,7 +234,7 @@ const insertFileInfoRecord = async function (file) {
     }
 }
 
-const handleFileName = async function (fileList){
+const handleFileName = async function (fileList:FileList){
     if(page.status == true) {
         Common.showAlert(confirm,t("uploader.tips"));
         return false;
@@ -246,7 +253,8 @@ const handleFileName = async function (fileList){
         files.total = total + Base.getDataLength(data);
         for (let i in data) {
             files.current++;
-            files.data.unshift({file: data[i], status: 'uploading'})
+            let file:File = data[i];
+            files.data.unshift({file: file, status: 'uploading'})
             files.data[0] = {...files.data[0], ...await preprocessUploadFile(data[i])}
             if(files.data[0].status == 'success') {
                 page.refresh = true;

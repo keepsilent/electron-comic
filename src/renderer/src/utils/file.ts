@@ -80,7 +80,7 @@ const mkdirByRecursive = function(str:string,index:number = 0):boolean|void {
  * @param {Object} data 解压包提出文件数据
  * @return {Number}
  */
-const getExtractFileTotal = function (data:object):number {
+const getExtractFileTotal = function (data:object):any {
     if(Base.isEmpty(data)) {
         return 0
     }
@@ -112,7 +112,7 @@ const getExtractFileCover = async function (data:File):Promise<string> {
  * @param {File} file
  * @return {String}
  */
-const getBase64Image = function (file:File):Promise<string> {
+const getBase64Image = function (file:File):Promise<string>|string {
     if (Base.isEmpty(file)) {
         return '';
     }
@@ -120,11 +120,18 @@ const getBase64Image = function (file:File):Promise<string> {
     return new Promise(function (resolve, reject) {
         const blob = new Blob([file]);
         const reader = new FileReader();
+        // type  Event = {target?: {result?:string}}
 
-        reader.onload = ({target: {result}}) => {
-            if(Base.isEmpty(result)) {
+        reader.onload = (fileReader) => {
+            if(Base.isEmpty(fileReader)) {
                 resolve('')
             }
+
+            if(!fileReader.target || !fileReader.target.result) {
+                resolve('')
+            }
+
+            let result = (fileReader.target && fileReader.target.result) ? fileReader.target.result : '';
 
             if(result.indexOf('data:application/octet-stream;base64,') != -1) {
                 result = (result).replace('data:application/octet-stream;base64,', 'data:image/png;base64,')

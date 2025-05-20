@@ -14,7 +14,7 @@ const { t } = i18n.global;
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showAlert = function (confirm:ConfirmInter, content:string, title:string = '', confirmText:string = '', callback:string = '') {
+const showAlert = function (confirm, content:string, title:string = '', confirmText:string = '', callback:string = '') {
     confirm.show = true;
     confirm.title = title ?? t('alert.default');
     confirm.content = content;
@@ -44,7 +44,7 @@ const showAlert = function (confirm:ConfirmInter, content:string, title:string =
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showConfirm = function (confirm:ConfirmInter, content:string, callback:string= '', title:string, confirmText:string, cancelText:string):void {
+const showConfirm = function (confirm, content:string, callback:string= '', title:string, confirmText:string, cancelText:string):void {
     confirm.show = true;
 
     confirm.title = title ?? t('alert.default');
@@ -56,7 +56,7 @@ const showConfirm = function (confirm:ConfirmInter, content:string, callback:str
     confirm.confirmText = confirmText ?? t('button.confirm');
 }
 
-const operateConfirm = function (confirm:ConfirmInter, page:PageInter):boolean {
+const operateConfirm = function (confirm, page):boolean {
     confirm.show = false;
 
     if(Base.isEmpty(confirm.callback)) {
@@ -64,6 +64,7 @@ const operateConfirm = function (confirm:ConfirmInter, page:PageInter):boolean {
     }
 
     page.actions[confirm.callback]()
+    return true;
 }
 
 /**
@@ -71,7 +72,7 @@ const operateConfirm = function (confirm:ConfirmInter, page:PageInter):boolean {
  * @method cancelConfirm
  * @param {ConfirmInter} confirm
  */
-const cancelConfirm = function (confirm:ConfirmInter):void {
+const cancelConfirm = function (confirm):void {
     confirm.show = false;
 }
 
@@ -81,7 +82,7 @@ const cancelConfirm = function (confirm:ConfirmInter):void {
  * @method showLoading
  * @param {PageInter} page
  */
-const showLoading = function (page:PageInter):void {
+const showLoading = function (page):void {
     page.loading = true
 }
 
@@ -90,7 +91,7 @@ const showLoading = function (page:PageInter):void {
  * @method hideLoading
  * @param {PageInter} page
  */
-const hideLoading = function (page:PageInter):void {
+const hideLoading = function (page):void {
     page.loading = false
 }
 
@@ -100,7 +101,7 @@ const hideLoading = function (page:PageInter):void {
  * @method delayRenderPage
  * @param {PageInter} page
  */
-const lazyRenderPage = function (page:PageInter):void {
+const lazyRenderPage = function (page):void {
     const time = import.meta.env.VITE_APP_DELAY_RENDER_TIME;
     setTimeout(() => {
         page.init = true
@@ -112,7 +113,7 @@ const lazyRenderPage = function (page:PageInter):void {
  * @method setArchive
  * @param {Archive} Archive
  */
-const setArchive = function (Archive:Archive):void {
+const setArchive = function (Archive):void {
     const options = {
         workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
     }
@@ -128,7 +129,7 @@ const setArchive = function (Archive:Archive):void {
  * @param {String} title
  * @param {String} subtitle
  */
-const showEmpty = function (empty:EmptyInter,title:string, subtitle: string,icon:string='icon-file'):void {
+const showEmpty = function (empty,title:string, subtitle: string,icon:string='icon-file'):void {
 
     const object = {
         show: true,
@@ -144,7 +145,7 @@ const showEmpty = function (empty:EmptyInter,title:string, subtitle: string,icon
  * @method showEmpty
  * @param {EmptyInter} empty
  */
-const hideEmpty = function (empty:EmptyInter,):void {
+const hideEmpty = function (empty):void {
 
     const object = {
         show: false
@@ -193,7 +194,7 @@ const setCountUnit = function (value:number):number|string {
         return value;
     }
 
-    return parseInt(value / 1000) + 'k';
+    return parseInt((value / 1000).toString()) + 'k';
 }
 
 

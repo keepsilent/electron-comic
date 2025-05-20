@@ -48,7 +48,7 @@ const isObject = function (value:any): boolean {
  * @param {String} type 类型
  * @return {Bloon}
  */
-const redirect = function (url:string, target:string = null):boolean {
+const redirect = function (url:string, target:string = ''):boolean {
     if(!isEmpty(target)) {
         const a = document.createElement('a');
         a.setAttribute('target', target);
@@ -58,6 +58,7 @@ const redirect = function (url:string, target:string = null):boolean {
     }
 
     window.location.href = url;
+    return true;
 }
 
 const redirectByEvent = function ({currentTarget: {dataset: {url,target}}}):void {
@@ -88,7 +89,7 @@ const getDataLength = function(data:object):number {
  */
 const getObjectFirstKey = function (object:object):string {
     if(!isObject(object)) {
-        return undefined
+        return ''
     }
 
     const [key] = Object.keys(object);
@@ -150,7 +151,7 @@ const inArray = function (arr:object, key:string, value:any):boolean {
  * @param {Object} arr
  * @return {Object}
  */
-const unique = function (arr:object):object {
+const unique = function (arr:any):object {
     if(isEmpty(arr)) {
         return []
     }
@@ -164,7 +165,7 @@ const unique = function (arr:object):object {
  * @method copy
  * @param event
  */
-const copy = async function (event:object):Promise<Void> {
+const copy = async function (event) {
     const text = event.target.dataset.text;
     try {
         await toClipboard(text)

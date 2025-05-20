@@ -37,6 +37,7 @@ import {Base,Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Setting from "@renderer/components/Setting.vue";
+import {PageInter} from "../../utils/types";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -55,8 +56,14 @@ const onSearch = function({keyCode}):boolean|void {
         return false;
     }
 
+    interface ObjectInter {
+        path: string,
+        query: {
+            q?:string
+        }
+    }
     const {keyword} = page;
-    const object = {
+    const object:ObjectInter = {
         path: '/',
         query:{}
     }
@@ -91,7 +98,8 @@ const onClear = function():void {
     }
 }
 
-const onIPC = function({currentTarget: {dataset: {key}}}): void {
+const onIPC = function(event): void {
+    const {currentTarget: {dataset: {key}}} = event
     switch (key) {
         case 'restore':
             page.maximize.name = t('button.maximize');

@@ -20,7 +20,7 @@ export interface queryParam {
     sql: string;
     //params?: any[];
     //params?: object;
-    params: { [key: string]: any };
+    params?: { [key: string]: any };
 }
 
 export interface insertParam {
@@ -47,8 +47,9 @@ export interface Result {
 
 
 class Database {
+    private db;
     private static instance: Database;
-    private db: sqlite3.Database;
+
 
     private constructor() {
         this.db = new sqlite3.Database(dbPath);
@@ -63,12 +64,12 @@ class Database {
         return Database.instance;
     }
 
-    private dataFormat(code:number,message:string = null, data:any = null):Result {
+    private dataFormat(code:number,message:any = '', data:any = null):Result {
         return { code: code, message: message, data: data }
     }
 
-    private open(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    private open(): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
             this.db.serialize(() => {
                 this.db.run("PRAGMA foreign_keys = ON", (err) => {
                     if (err) {
@@ -82,7 +83,7 @@ class Database {
         });
     }
 
-    private async initializeSchema(index:number=0): Promise<boolean> {
+    private async initializeSchema(index:number=0): Promise<any> {
         const options = {
             'cm_file': `CREATE TABLE IF NOT EXISTS cm_file (
                 file_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -154,8 +155,8 @@ class Database {
         // });
     }
 
-    close(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    close(): Promise<Result> {
+        return new Promise<Result>((resolve, reject) => {
             this.db.close((err) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
@@ -186,11 +187,11 @@ class Database {
             const placeholders = keys.map(() => "?").join(",");
             const sql = `INSERT INTO ${param.table} (${keys.join(",")}) VALUES (${placeholders})`;
 
-            this.db.run(sql, values, function (err) {
+            this.db.run(sql, values, (err) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(Database.instance.dataFormat(200,'success',this.lastID));
+                    resolve(Database.instance.dataFormat(200,'success',this.db.lastID));
                 }
             });
         });
@@ -202,11 +203,11 @@ class Database {
             const params = Object.values(param.data);
             const sql = `UPDATE ${param.table} SET ${entries} WHERE ${param.condition}`;
 
-            this.db.run(sql, params, function (err) {
+            this.db.run(sql, params, (err) => {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(Database.instance.dataFormat(200,'success',this.changes));
+                    resolve(Database.instance.dataFormat(200,'success',this.db.changes));
                 }
             });
         });

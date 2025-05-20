@@ -72,13 +72,13 @@
                 <div class="line"></div>
                 <div class="layout">
                     <template v-if="aside.layout == 'two'">
-                        <span :class="{'active': aside.layout == 'one'}" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
-                        <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                        <span :class="[isLayoutActive('one')]" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                        <span :class="[isLayoutActive('three')]" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
                     </template>
                     <template v-else>
-                        <span :class="{'active': aside.layout == 'three'}" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
-                        <span :class="{'active': aside.layout == 'two'}" @click="onPageLayout('two')"><i class="iconfont icon-layout-double"></i></span>
-                        <span :class="{'active': aside.layout == 'one'}" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                        <span :class="[isLayoutActive('three')]" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                        <span :class="[isLayoutActive('two')]" @click="onPageLayout('two')"><i class="iconfont icon-layout-double"></i></span>
+                        <span :class="[isLayoutActive('one')]" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
                     </template>
                 </div>
             </div>
@@ -108,7 +108,12 @@ import Confirm from "@renderer/components/Confirm.vue";
 
 interface Menu {
     current: number,
-    data: object
+    data: {
+        name:string,
+        key:string,
+        url:string
+        icon:string
+    }[]
 }
 
 interface Banner {
@@ -124,11 +129,16 @@ interface User {
     exp:number
 }
 
+interface Aside {
+    layout?:string
+    layoutFold?:string
+}
+
 const { t } = useI18n();
 const router = useRouter()
 const pageStore = usePageStore();
 const fileStore = useFileStore();
-const aside = reactive({
+const aside:Aside = reactive({
     layout: pageStore.layout,
     layoutFold: Common.getLayoutFold(pageStore.layout,'aside-wrap')
 })
@@ -157,7 +167,7 @@ const user:User = reactive({
     level: 5,
     exp: 10000,
 })
-const confirm:ConfirmInter = reactive({});
+const confirm:ConfirmInter = reactive({show: false});
 const page:PageInter = reactive({init: false, loading: false, actions: {}});
 
 const getUserLevelExp = function (level):number {
@@ -194,8 +204,16 @@ const loadRandomFileInfo = debounce(async () => {
     }
 })
 
+const isLayoutActive = function (value) {
+    if(value == aside.layout) {
+        return 'active'
+    }
 
-const onSwitchMenu = function ({currentTarget: {dataset: {index}}}):boolean {
+    return '';
+}
+
+const onSwitchMenu = function (event) {
+    const {currentTarget: {dataset: {index}}} = event
     const {key,url} = menu.data[index];
 
     menu.current = index;

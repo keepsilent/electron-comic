@@ -31,11 +31,11 @@ export const usePageStore = defineStore('page',() => {
         view: localStorage.getItem('cm_setting_view') ?? 'large' //Cache view model method
     })
 
-    const setting:boolean = ref(null); //Control pop setting show status
-    const pageSize:string = ref(localStorage.getItem('cm_setting_page_size') ?? '20');
+    const setting = ref(false); //Control pop setting show status
+    const pageSize = ref(localStorage.getItem('cm_setting_page_size') ?? '20');
 
-    const layout:string = ref(localStorage.getItem('cm_setting_layout') ?? 'three');
-    const aside:string = ref(localStorage.getItem('cm_setting_aside') ?? 'unfold');
+    const layout = ref(localStorage.getItem('cm_setting_layout') ?? 'three');
+    const aside = ref(localStorage.getItem('cm_setting_aside') ?? 'unfold');
 
     return {
         pop: pop,

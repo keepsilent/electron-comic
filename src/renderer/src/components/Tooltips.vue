@@ -25,7 +25,7 @@ const props = defineProps({
 });
 
 const width = ref(0);
-const text = ref(null);
+const text:{value?:any} = ref(null);
 
 const onFoucs = function () {
     width.value = text.value.offsetWidth;

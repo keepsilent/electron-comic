@@ -15,7 +15,7 @@ interface MessageSchema {
     };
 }
 
-const messages: Record<string, MessageSchema> = {
+const messages: Record<string, any> = {
     en:en,
     zh:zh,
 };

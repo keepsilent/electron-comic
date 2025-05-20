@@ -28,7 +28,6 @@ import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
 import Header from '@renderer/layout/Header/index.vue'
-import Footer from '@renderer/layout/Footer/index.vue'
 import Launch from '@renderer/layout/Launch/index.vue'
 
 interface Page  {

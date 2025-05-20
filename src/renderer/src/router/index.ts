@@ -1,29 +1,22 @@
 import type { App } from 'vue';
-// 引入 login.ts
-import LoginRouter from './modules/login';
 // 引入 test.ts
 import { defineAsyncComponent } from 'vue'
 
-import DetailsRouter from './modules/details';
-import ReaderRouter from './modules/reader';
-import taxonomyRouter from './modules/taxonomy';
-import StoreRouter from './modules/store';
+import ReaderRouter from '@renderer/router/modules/reader';
+import taxonomyRouter from '@renderer/router/modules/taxonomy';
 // import { close, start } from '@/utils/nprogress';
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import Taxonomy from "*.vue";
+import Reader from "*.vue";
 
 
 export const publicRoutes: Array<RouteRecordRaw> = [
-    // ...LoginRouter,
-    // ...TestRouter,
-    // ...StoreRouter,
-    ...DetailsRouter,
     ...ReaderRouter,
     ...taxonomyRouter,
     {
         path: '/',
         name: 'homeIndex',
         //component: defineAsyncComponent(() => import('@renderer/views/home/index.vue'))
-        //component: () => import('@renderer/views/Home/index.vue')
          component: () => import('@renderer/views/Home/index.vue')
     }
 ];

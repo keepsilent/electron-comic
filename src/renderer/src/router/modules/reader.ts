@@ -1,8 +1,10 @@
+import Reader from '@renderer/views/Reader/index.vue';
+
 export default [
     {
         path: '/reader',
         name: 'readerIndex',
-        component: () => import('@renderer/views/reader/index.vue'),
+        component: () => Reader,
         meta: {
             title: 'reader'
         }
