@@ -39,7 +39,7 @@
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted} from 'vue'
-import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
+import type { ConfirmInter, EmptyInter} from "@renderer/utils/types";
 import {Base, Common, File} from "@renderer/utils";
 import {getTermList, getTermGroupFristRcord, getTermGroupFristRcordPosition} from "@renderer/api/terms";
 import {debounce, throttle} from "@renderer/utils/throttle";
@@ -51,14 +51,31 @@ import Empty from "@renderer/components/Empty.vue";
 import Upload from "@renderer/components/Upload.vue";
 import Pagination from "@renderer/components/Pagination.vue";
 
+interface PageInter {
+    current:string,
+    menu:{name:string,value:string}[],
+    data:any[],
+    popular:any[],
+    upload:boolean,
+    group:string,
+    sort:any[]
+}
+
+interface LoadInter {
+    page:number,
+    pageSize:number,
+    taxonomy:string,
+    sort:string
+}
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
-const load = reactive({page: 1, pageSize: 100, taxonomy: ''})
+const load:LoadInter = reactive({page: 1, pageSize: 100, taxonomy: '',sort: ''})
 const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
-const empty:EmptyInter = reactive({});
-const page = reactive({
+const empty:EmptyInter = reactive({show: false});
+const page:PageInter = reactive({
     current: 'group',
     menu: [
         {name: 'A-Z',value: 'group'},
@@ -69,7 +86,7 @@ const page = reactive({
 
     upload: false,
     group: '',
-    sort: {}
+    sort: []
 })
 
 onMounted(()=> {
@@ -77,14 +94,14 @@ onMounted(()=> {
 })
 
 const init = function () {
-    const {type, page:current, group, sort} = route.query;
+    const {type, page: current, group, sort} = route.query;
     console.log('route.query',route.query);
 
-    page.group = group ?? '';
-    page.current = sort ?? 'group';
+    page.group = group as string ?? '';
+    page.current = sort as string ?? 'group';
 
-    load.page = current ?? 1;
-    load.taxonomy = getTaxonomy(type);
+    load.page = Number(current as string) ?? 1;
+    load.taxonomy = getTaxonomy(type as string ?? '');
 
     pagination.source = t('aside.menu.'+type);
     loadTermList();
@@ -102,12 +119,12 @@ const loadTermList = async function () {
             return false;
         }
 
-        page.popular = res.data.list;
-
-        pageStore.num = res.data.total;
+        let {list,total} = res.data;
+        page.popular = list ?? [];
+        //pageStore.num = total ?? 0;
 
         setEmpty(res.data);
-        setDataGroup(res.data.list);
+        setDataGroup(list);
         setPagination(res.data)
     } catch (err) {
         pagination.show = false;
@@ -115,7 +132,7 @@ const loadTermList = async function () {
     }
 }
 
-const setEmpty = function ({total}):boolean {
+const setEmpty = function ({total}):boolean|void {
     if(total !== 0 ) {
         return false;
     }
@@ -135,12 +152,12 @@ const setEmpty = function ({total}):boolean {
     Common.showEmpty(empty, title, subtitle, icon)
 }
 
-const setDataGroup = function (data:object[]):void {
+const setDataGroup = function (data:any[]):void {
     const group = {};
     for(let i in data) {
-        let value = data[i].term_group;
-        if(!Base.inArray(group,value,value)) {
-            group[value] = value
+        let {term_group} = data[i];
+        if(!Base.inArray(group,term_group,term_group)) {
+            group[term_group] = term_group
         }
     }
 
@@ -149,10 +166,11 @@ const setDataGroup = function (data:object[]):void {
 }
 
 const getSortData = function(group:object):object[] {
-    const data = createSortDefaultData();
+    const data:any[] = createSortDefaultData();
     for(let i in group) {
         for(let j in data) {
-            if(String.fromCharCode(group[i]) == data[j].name) {
+            let {name} = data[j]
+            if(String.fromCharCode(group[i]) == name) {
                 data[j].selected = true;
             }
         }
@@ -161,12 +179,13 @@ const getSortData = function(group:object):object[] {
     return data
 }
 
-const getGroupData = function(group:object, data:object[]):object[] {
-    const arr = []
+const getGroupData = function(group:object, data:any[]):{name:string,data:object[]}[] {
+    const arr:{name:string,data:object[]}[] = []
     for(let i in group) {
-        let tmp = [];
+        let tmp:any[] = [];
         for(let j in data) {
-            if(group[i] == data[j].term_group) {
+            let {term_group} = data[j]
+            if(group[i] == term_group) {
                 tmp.push(data[j]);
             }
         }
@@ -176,7 +195,7 @@ const getGroupData = function(group:object, data:object[]):object[] {
     return arr;
 }
 
-const getParams = function ():object {
+const getParams = function ():LoadInter {
     const options = {
         page: load.page,
         pageSize: load.pageSize,
@@ -218,7 +237,7 @@ const setPagination = function ({page,totalPage,total}):void {
     pagination.total = total;
 }
 
-const createSortDefaultData = function ():object[] {
+const createSortDefaultData = function ():{name:string,value:number,selected:boolean}[] {
     const data = [{name: '#',value: 35, selected: false}]
     for(let i = 65; i <= 90; i++) {
         data.push({name: String.fromCharCode(i), value: i, selected: false})
@@ -300,7 +319,8 @@ const onChangePage = function ({value}):void {
     router.push(object)
 }
 
-const onSearchTaxonomy = function ({currentTarget: {dataset: {name}}}):void {
+const onSearchTaxonomy = function (event):void {
+    const {currentTarget: {dataset: {name}}} = event
     const object = {
         path: `/`,
         query:  {

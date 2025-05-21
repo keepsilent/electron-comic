@@ -154,32 +154,50 @@ import {usePageStore} from '@renderer/stores/page'
 interface Props {
     show: boolean,
     file: {
+        // file_id:number,
+        // file_date: string,
+        // file_modified:string,
+        // file_name: string,
+        // file_type: string,
+        // file_path: string,
+        // file_size:number,
+        // file_total:number,
+        // file_status: string,
+        // file_tags: any,
+        // file_categories: any,
+        // file_artists: any,
+        // file_languages: any,
+        // file_alias:string,
+        // file_intro:string
+
         file_id:number,
-        file_date: string,
-        file_modified:string,
-        file_name: string,
-        file_type: string,
-        file_path: string,
-        file_size:number,
-        file_total:number,
-        file_status: string,
-        file_tags: any,
-        file_categories: any,
-        file_artists: any,
-        file_languages: any,
-        file_alias:string,
-        file_intro:string
+        file_cover?:string,
+        file_date?: string,
+        file_name?: string,
+        file_alias?: string,
+        file_author?: string,
+        file_intro?: string,
+        file_path?: string,
+        file_size?: string,
+        file_total?: number,
+        file_status?: string,
+        file_modified?: string,
+        file_mine_type?: string,
+        file_tags?: { name:string, count:string}[],
+        file_artists?: { name:string, count:string}[],
+        file_languages?: { name:string, count:string}[],
+        file_categories?: { name:string, count:string}[],
     }
 }
 
 interface Page {
     show:boolean,
-    categories: string,
-    alias:string,
-    tags: string,
-    languages: string,
-    artists: string
-    intro: string
+    categories?: string,
+    alias?:string,
+    tags?: string,
+    languages?: string,
+    artists?: string
+    intro?: string
 }
 
 const { t } = useI18n();
@@ -308,7 +326,7 @@ const getTerm = async function (name:string,taxonomy:string) {
     }
 }
 
-const getNewFilePath = function (file_path:string, file_alias:string, alias:string):string {
+const getNewFilePath = function (file_path:string = '', file_alias:string = '', alias:string = ''):string {
     const ext = File.getFileExt(file_path);
     return file_path.replace(file_alias+'.'+ext, alias.trim()+'.'+ext);
 }
@@ -327,7 +345,7 @@ const onSave = throttle( async () => {
     }
 
     if(file_path != new_file_path) {
-        if(reg.test(alias)) {
+        if(reg.test(alias || '')) {
             Common.showAlert(confirm,t("alert.content.rename"));
             return false;
         }

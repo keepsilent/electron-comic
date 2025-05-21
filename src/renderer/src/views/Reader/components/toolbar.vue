@@ -36,15 +36,17 @@ import Confirm from "@renderer/components/Confirm.vue";
 interface Props {
     file: {
         file_id:number,
-        file_date: string,
-        file_modified:string,
-        file_name: string,
-        file_author: string,
-        file_mine_type: string,
-        file_path: string,
-        file_size:number,
-        file_total:number,
-        file_status: string
+        file_date?: string,
+        file_name?: string,
+        file_alias?: string,
+        file_author?: string,
+        file_intro?: string,
+        file_path?: string,
+        file_size?: string,
+        file_total?: number,
+        file_status?: string,
+        file_modified?: string,
+        file_mine_type?: string
     }
 }
 
@@ -53,29 +55,49 @@ const route = useRoute();
 const router = useRouter();
 const emit = defineEmits(['operate','cancel','refresh','confirm','upload'])
 const props = defineProps<Props>()
-const page:PageInter = reactive({show: false, actions:{}})
-const confirm:ConfirmInter = reactive({show: false});
-const edit:boolean = ref(true);
+const page:PageInter = reactive({show: false, actions:{
+    onDeleteFile:async function () {
+        try {
+            Common.cancelConfirm(confirm);
+            const {file_id, file_path} = props.file;
+            const params = { file_id: file_id};
+            const res = await deleteFileInfoRecord(params);
+            if(res == false) {
+                Common.showAlert(confirm,t("confirm.delete.fail.content"),t("confirm.delete.fail.title"));
+                return false;
+            }
 
-page.actions.onDeleteFile = async function () {
-    try {
-        Common.cancelConfirm(confirm);
-        const {file_id, file_path} = props.file;
-        const params = { file_id: file_id};
-        const res = await deleteFileInfoRecord(params);
-        if(res.code != 200) {
-            Common.showAlert(confirm,t("confirm.delete.fail.content"),t("confirm.delete.fail.title"));
-            return false;
+            const cover_path = File.getFileCoverById(file_id || 0);
+            File.deleteFile(file_path || '');
+            File.deleteFile(cover_path);
+            router.back();
+        } catch (err) {
+            Base.printErrorLog('deleteFileInfoRecord',err);
         }
-
-        const cover_path = File.getFileCoverById(file_id);
-        File.deleteFile(file_path);
-        File.deleteFile(cover_path);
-        router.back();
-    } catch (err) {
-        Base.printErrorLog('deleteFileInfoRecord',err);
     }
-}
+}})
+const confirm:ConfirmInter = reactive({show: false});
+const edit = ref(true);
+
+// page.actions.onDeleteFile = async function () {
+//     try {
+//         Common.cancelConfirm(confirm);
+//         const {file_id, file_path} = props.file;
+//         const params = { file_id: file_id};
+//         const res = await deleteFileInfoRecord(params);
+//         if(res.code != 200) {
+//             Common.showAlert(confirm,t("confirm.delete.fail.content"),t("confirm.delete.fail.title"));
+//             return false;
+//         }
+//
+//         const cover_path = File.getFileCoverById(file_id);
+//         File.deleteFile(file_path);
+//         File.deleteFile(cover_path);
+//         router.back();
+//     } catch (err) {
+//         Base.printErrorLog('deleteFileInfoRecord',err);
+//     }
+// }
 
 const onOpenFolder = function () {
     const path = props.file.file_path;

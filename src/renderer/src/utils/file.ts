@@ -102,7 +102,7 @@ const getExtractFileTotal = function (data:object):any {
  */
 const getExtractFileCover = async function (data:File):Promise<string> {
     const file = getExtractImageFile(data);
-    return await getBase64Image(file);
+    return file && await getBase64Image(file);
 }
 
 
@@ -112,7 +112,7 @@ const getExtractFileCover = async function (data:File):Promise<string> {
  * @param {File} file
  * @return {String}
  */
-const getBase64Image = function (file:File):Promise<string>|string {
+const getBase64Image = function (file:any):Promise<string>|string {
     if (Base.isEmpty(file)) {
         return '';
     }
@@ -131,9 +131,9 @@ const getBase64Image = function (file:File):Promise<string>|string {
                 resolve('')
             }
 
-            let result = (fileReader.target && fileReader.target.result) ? fileReader.target.result : '';
+            let result = (fileReader.target && fileReader.target.result) ? (fileReader.target.result).toString() : '';
 
-            if(result.indexOf('data:application/octet-stream;base64,') != -1) {
+            if(result.includes('data:application/octet-stream;base64,')) {
                 result = (result).replace('data:application/octet-stream;base64,', 'data:image/png;base64,')
             }
 
@@ -187,7 +187,7 @@ const getExtractImageList = function (files:File, list:File[] = []) {
  * @return {File}
  */
 const getExtractImageFile = function (data:File|object):File {
-    let file = null;
+    let file:any = '';
     for(let i in data) {
         if(isFolderByExtract(data[i])) {
             file = getExtractImageFile(data[i])
@@ -210,7 +210,7 @@ const getExtractImageFile = function (data:File|object):File {
  * @param {File|Object} file 提取到的文件对象数据
  * @return {boolean}
  */
-const isFolderByExtract = function (file:File|object):boolean {
+const isFolderByExtract = function (file):boolean {
     if(Base.isEmpty(file)) {
         return false
     }
@@ -228,7 +228,7 @@ const isFolderByExtract = function (file:File|object):boolean {
  * @param {String} path 文件路径径
  * @return {String}
  */
-const getFileExt = function(path:string):string{
+const getFileExt = function(path:string = ''):string{
     if(Base.isEmpty(path)) {
         return '';
     }
@@ -266,7 +266,7 @@ const getFileExt = function(path:string):string{
  * @param {String} path 文件路径
  * @return {Boolean}
  */
-const isImageFileByPath = function (path:string):boolean {
+const isImageFileByPath = function (path:string = ''):boolean {
     const ext = getFileExt(path);
     const data = ['png','gif', 'webp', 'jpg', 'bmp', 'jpeg'];
 
@@ -287,14 +287,14 @@ const isImageFileByPath = function (path:string):boolean {
  * @param {String} name 文件名
  * @param {String} base64 base64图片
  */
-const createCoverByBase64 = function (name:string, base64:string):boolean|void {
+const createCoverByBase64 = function (name:string = '', base64:string = ''):boolean|void {
     if (Base.isEmpty(base64)) {
         return false
     }
 
     //const path = getCoverPathByName(name);
     const path = `${Config.getStoragePath()}${name}.png`;
-    const dataBuffer = new Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
+    const dataBuffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
     fs.writeFile(path, dataBuffer,function(err) {//用fs写入文件
         if(Base.isEmpty(err)) {
            return false
@@ -343,7 +343,7 @@ const getFileCoverById = function (id:number):string {
  * @method formatFileSize
  * @param {Number} filesize
  */
-const formatFileSize = function (filesize:number):string{
+const formatFileSize = function (filesize:number = 0):string{
     if(Base.isEmpty(filesize)) {
         return "0 Bytes";
     }
@@ -360,7 +360,7 @@ const formatFileSize = function (filesize:number):string{
  * @param  {String} value 名称
  * @return {string}
  */
-const getFileAlias = function (value:string):string {
+const getFileAlias = function (value:string = ''):string {
     if(Base.isEmpty(value)) {
         return '';
     }
@@ -384,7 +384,7 @@ const getFileAlias = function (value:string):string {
  * @param {String} path
  * @return {Boolean}
  */
-const isExists = function (path:string):boolean {
+const isExists = function (path:string=''):boolean {
     if (fs.existsSync(path)) {
         return true
     }
@@ -414,22 +414,21 @@ const deleteFile = function (path:string):boolean{
  */
 const getFileFilterOptions = function (): {mode :string, options:object } {
     const options = localStorage.getItem('cm_setting_file_filter');
-    if(Base.isEmpty(options)) {
-        return {
-            mode: 'full',
-            options:{
-                title: true,
-                cover: true,
-                artist: true,
-                date: true,
-                view: true,
-                type: true,
-                size: true
-            }
+
+    const res = {
+        mode: 'full',
+        options:{
+            title: true,
+            cover: true,
+            artist: true,
+            date: true,
+            view: true,
+            type: true,
+            size: true
         }
     }
 
-    return JSON.parse(options);
+    return options ? JSON.parse(options) : res;
 }
 
 export default {

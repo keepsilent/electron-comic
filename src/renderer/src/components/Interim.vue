@@ -12,15 +12,19 @@
 import {reactive, watch} from "vue";
 
 interface Props {
+    // interim: {
+    //     show?: {
+    //         type: boolean,
+    //         default: true
+    //     },
+    //     space?: {
+    //         type: boolean,
+    //         default: true
+    //     }
+    // }
     interim: {
-        show?: {
-            type: boolean,
-            default: true
-        },
-        space?: {
-            type: boolean,
-            default: true
-        }
+        show?: boolean,
+        space?: boolean
     }
 }
 

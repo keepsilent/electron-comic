@@ -60,7 +60,7 @@
                     <p v-if="meta.title.show" class="subtitle" v-html="formatTitle(meta.title.title)"></p>
                     <p v-if="meta.id.show" class="no" ><span>#</span>{{meta.id.id}}</p>
 
-                    <div v-if="file.file_tags.length > 0" class="taxonomy">
+                    <div v-if="Base.getDataLength(file.file_tags) > 0" class="taxonomy">
                         <label>{{t('details.tags')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_tags" :key="index" :data-name="item.name" data-type="tag" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
@@ -68,7 +68,7 @@
                         </span>
                     </div>
 
-                    <div v-if="file.file_artists.length > 0" class="taxonomy">
+                    <div v-if="Base.getDataLength(file.file_artists) > 0" class="taxonomy">
                         <label>{{t('details.artists')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_artists" :key="index" :data-name="item.name" data-type="artist" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
@@ -76,7 +76,7 @@
                         </span>
                     </div>
 
-                    <div v-if="file.file_languages.length > 0" class="taxonomy">
+                    <div v-if="Base.getDataLength(file.file_languages) > 0" class="taxonomy">
                         <label>{{t('details.languages')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_languages" :key="index" :data-name="item.name" data-type="language" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
@@ -84,7 +84,7 @@
                         </span>
                     </div>
 
-                    <div v-if="file.file_categories.length > 0" class="taxonomy">
+                    <div v-if="Base.getDataLength(file.file_categories) > 0" class="taxonomy">
                         <label>{{t('details.categories')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_categories" :key="index" :data-name="item.name" data-type="category" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
@@ -171,19 +171,54 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+
+interface ThumbnailInter {
+    name?:string,
+    cover?:string,
+    alias?:string,
+    origin?: { type: string, width: string, height: string}
+    width?:number,
+    height?:number
+    status?:string
+}
+
+interface SettingsInter {
+    page?: {
+        show: boolean,
+        num: number,
+        total: number,
+        layout: string
+    },
+    scrollTop?: number,
+    zoom?: number,
+    space?: number
+    thumbnail?: { index?:string,width?:string,height?:string }[],
+}
+
+interface ScrollbarInter {
+    value?: {
+        addEventListener?:any,
+        removeEventListener?:any
+    }
+}
+
+
 const pageStore = usePageStore();
 const fileStore = useFileStore();
 const fs = require("fs") as typeof import("fs");
-const scrollbar = ref(null);
-const menubar = ref(null);
-const fileEdit:boolean = ref(false);
+const scrollbar:any = ref(null);
+const menubar:any = ref(null);
+const fileEdit = ref(false);
 const page:PageInter = reactive({init: false, loading: false, upload: false, layout:pageStore.layout, actions: {}});
-const confirm:ConfirmInter = reactive({});
-const file:FileInter = reactive({});
-const interim:InterimInter = reactive({});
-const empty:EmptyInter = reactive({});
-const thumbnail = reactive([])
-const meta = reactive({id: {show: false}, title: {show: false}});
+const confirm:ConfirmInter = reactive({show:false});
+const file:FileInter = reactive({file_id: 0});
+const interim:InterimInter = reactive({show: true, space: true});
+const empty:EmptyInter = reactive({show: false});
+const thumbnail:ThumbnailInter[] = reactive([])
+const meta = reactive({
+    id: {show: false, id: 0, source: ''},
+    title: {show:  false, title: '',source: ''},
+});
 
 const settings = reactive({
     page: {
@@ -219,15 +254,16 @@ watch(() => page.init,(value) => {
             return false;
         }
         prerenderThumbnail();
-        scrollbar.value.addEventListener("scroll", onScroll);
-        scrollbar.value.addEventListener("click", onContent);
+        scrollbar.value.addEventListener("scroll", onScroll)
+        scrollbar.value.addEventListener("click", onContent)
+
     },4)
 })
 
-page.actions.onGoBack = function ():void {
-    Common.cancelConfirm(confirm);
-    router.back()
-}
+// page.actions.onGoBack = function ():void {
+//     Common.cancelConfirm(confirm);
+//     router.back()
+// }
 
 const init = function () {
     setArchive();
@@ -287,14 +323,14 @@ const setFileStatus = async function ({file_id}) {
     }
 }
 
-const resetFileData = async function (data):boolean {
+const resetFileData = async function (data) {
     if(Base.isEmpty(data)) {
         return false
     }
 
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
-    file.file_size = File.formatFileSize(file.file_size);
+    file.file_size = File.formatFileSize(Number(file.file_size));
     file.file_modified = getTimeAgo(file.file_modified,'YYYY/MM/DD HH:mm:ss');
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
@@ -317,6 +353,7 @@ const setFileMetaId = async function (file_id):Promise<boolean> {
         source: res.source,
         show: true,
     }
+    return true
 }
 
 const setFileMetaTitle = async function (file_id, file_name):Promise<boolean> {
@@ -335,6 +372,7 @@ const setFileMetaTitle = async function (file_id, file_name):Promise<boolean> {
     }
 
     formatTitle(subtitle);
+    return true
 }
 
 const getFileTitleLanguage = function (data:object, name:string):string {
@@ -358,7 +396,7 @@ const getFileTitleLanguage = function (data:object, name:string):string {
     return ''
 }
 
-const formatTitle = function (title:string):string {
+const formatTitle = function (title:string = ''):string {
     if(Base.isEmpty(title)) {
         return title
     }
@@ -408,7 +446,7 @@ const renderStatus = function (file) {
     // pageStore.setStatusPath(file.file_path,'path');
 }
 
-const renderFilesThumbnail = async function (file:File):void {
+const renderFilesThumbnail = async function (file):Promise<void> {
     try {
         //const now = (new Date()).valueOf();
         const fileBuffer = fs.readFileSync(file.file_path);
@@ -430,7 +468,7 @@ const readImageFile = async function (data):Promise<boolean> {
     }
 
     for(let i in data) {
-        data[i].cover = (i == 0) ? await File.getBase64Image(data[i]) : '';
+        data[i].cover = (Number(i) == 0) ? await File.getBase64Image(data[i]) : '';
         data[i].alias = File.getFileAlias(data[i].name);
         data[i].origin = getThumbnailOrigin(i);
         data[i].width = getThumbnailPreviewSizeEquation(data[i].origin.width);
@@ -438,19 +476,24 @@ const readImageFile = async function (data):Promise<boolean> {
         data[i].status = 'loading';
     }
 
+
+
     Object.assign(thumbnail, data)
     setThumbnailPage()
     autoCreateCover();
+    return true;
 }
 
 const getThumbnailOrigin = function (index) {
+
     const {thumbnail} = settings;
     const width = import.meta.env.VITE_APP_COMIC_WIDTH;
     const height = import.meta.env.VITE_APP_COMIC_HEIGHT;
 
     for(let i in thumbnail) {
-        if(index == thumbnail[i].index) {
-            return { type: 'real', width: thumbnail[i].width, height: thumbnail[i].height}
+        let item:{index?:string,width?:string,height?:string} = thumbnail[i] || {index: 0, width: '', height: ''}
+        if(index == item.index) {
+            return { type: 'real', width: item.width, height: item.height}
         }
     }
 
@@ -472,10 +515,10 @@ const autoCreateCover = function () {
     }
 
     file.file_cover = cover;
-    File.createCoverByBase64(file_id, cover);
+    File.createCoverByBase64(file_id.toString(), cover);
 }
 
-const renderCover = async function ({file_id}):void {
+const renderCover = async function ({file_id}) {
     try {
         const path = File.getFileCoverById(file_id);
 
@@ -491,8 +534,10 @@ const renderCover = async function ({file_id}):void {
 
         const fileBuffer = fs.readFileSync(path);
         file.file_cover = await File.getBase64Image(fileBuffer);
+        return true;
     } catch (err) {
         Base.printErrorLog('loadCover readFileSync',err)
+        return false;
     }
 }
 
@@ -505,7 +550,7 @@ const onOperateConfirm = function () {
 }
 
 const setDefaultImage = function () {
-    file.cover = Common.getDefaultImage();
+    file.file_cover = Common.getDefaultImage();
 }
 
 const onScroll = function (event) {
@@ -523,23 +568,23 @@ const getThumbnailTotal = function () {
 
 const renderThumbnailPage = function (scrollTop) {
     const total = getThumbnailTotal();
-    const offset = parseInt( window.screen.height / 2);
+    const offset = parseInt( (window.screen.height / 2).toString());
 
     if (isScrollbarTouchBottom()) {
-        settings.page = { ...settings.page, num:　parseInt(total)+1}
+        settings.page = { ...settings.page, num:　Number(total)+1}
         return false;
     }
 
     for(let i in thumbnail) {
         const position = getImageScrollPosition(i,total);
 
-        if(scrollTop >= position.top - offset && scrollTop < position.bottom - offset && i != total ){
-            settings.page = { ...settings.page, num:　parseInt(i)+1}
+        if(scrollTop >= position.top - offset && scrollTop < position.bottom - offset && Number(i) != total ){
+            settings.page = { ...settings.page, num:　Number(i)+1}
             break;
         }
 
-        if(scrollTop >= position.bottom - offset && i == total ){
-            settings.page = { ...settings.page, num:　parseInt(i)+1}
+        if(scrollTop >= position.bottom - offset && Number(i) == total ){
+            settings.page = { ...settings.page, num:　Number(i)+1}
             break;
         }
     }
@@ -547,6 +592,9 @@ const renderThumbnailPage = function (scrollTop) {
 
 const isScrollbarTouchBottom = function () {
     const scrollableElement = document.getElementById("scrollbar");
+    if(!scrollableElement) {
+        return false;
+    }
     const elementHeight = scrollableElement.scrollHeight;
     const visibleHeight = scrollableElement.clientHeight;
     const scrollTop = scrollableElement.scrollTop;
@@ -560,13 +608,16 @@ const isScrollbarTouchBottom = function () {
 
 const prerenderThumbnail = function () {
     const {page, scrollTop} = settings
-    const index = parseInt(page.num) - 1;
-    const total = parseInt(page.total) - 1;
+    const index = Number(page.num) - 1;
+    const total = Number(page.total) - 1;
 
     settings.page.num = page.num;
 
     runPrerenderThumbnailScheme(index,total,scrollTop);
-    document.getElementById('scrollbar').scrollTop = scrollTop;
+    const scrollbar = document.getElementById('scrollbar')
+    if(scrollbar) {
+        scrollbar.scrollTop = scrollTop;
+    }
 }
 
 const runPrerenderThumbnailScheme = function (index, total, scrollTop) {
@@ -609,7 +660,7 @@ const renderThumbnail = function (scrollTop) {
                 break;
             }
 
-            if(position.top == position.bottom && i == total){
+            if(position.top == position.bottom && Number(i) == total){
                 showThumbnail(i);
                 break;
             }
@@ -630,7 +681,7 @@ const showThumbnail = async function (index) {
     }
 
     //已获取过图片真实大小
-    if(thumbnail[index].origin.type == 'real') {
+    if(thumbnail[index].origin && thumbnail[index].origin.type == 'real') {
         return false;
     }
 
@@ -638,7 +689,7 @@ const showThumbnail = async function (index) {
 }
 
 const setThumbnailPreviewSize = function (index) {
-    const img = new Image();
+    const img:{src:any, width: any, height:any, onload:any,onerror:any} = new Image();
     img.src = thumbnail[index].cover;
     img.onload = function() {
         thumbnail[index] = {
@@ -648,8 +699,8 @@ const setThumbnailPreviewSize = function (index) {
                 width: img.width,
                 height: img.height
             },
-            width: getThumbnailPreviewSizeEquation(img.width),
-            height: getThumbnailPreviewSizeEquation(img.height)
+            width: getThumbnailPreviewSizeEquation(Number(img.width)),
+            height: getThumbnailPreviewSizeEquation(Number(img.height))
         }
     }
 
@@ -658,7 +709,7 @@ const setThumbnailPreviewSize = function (index) {
     }
 }
 
-const getThumbnailPreviewSizeEquation = function (value):number {
+const getThumbnailPreviewSizeEquation = function (value:number = 0):number {
     const {zoom} = settings;
     return value * zoom / 100
 }
@@ -690,14 +741,14 @@ const getElementPagePosition = function(element) {
     return {x: left, y: top};
 }
 
-const isExistFileSetttings = async function () {
+const isExistFileSetttings = async function ():Promise<boolean> {
     if(Base.isEmpty(file)) {
         return false;
     }
 
     try {
-        const {id} = file;
-        const params = {id: id, key: 'settings'}
+        const {file_id} = file;
+        const params = {id: file_id, key: 'settings'}
         const res = await isFileMetaExist(params);
         if (res.code !== 200) {
             return false;
@@ -737,7 +788,7 @@ const getFileSettings = async function() {
         return false;
     }
 
-    if(isExistFileSetttings() == false) {
+    if(await isExistFileSetttings() == false) {
         return false;
     }
 
@@ -771,7 +822,10 @@ const updateFileView = async function () {
 
     try {
         const {file_id, file_view} = file
-        const params = { file_id: file_id, data: {file_view: file_view+1} }
+        const params = {
+            file_id: file_id,
+            data: {file_view: file_view ? file_view+1: 1}
+        }
         await updateFileInfo(params)
 
     } catch (err) {
@@ -788,7 +842,7 @@ const updateFileSettings = async function () {
     const key = 'settings'
     const value = {
         current: settings.page.num,
-        scrollTop: parseInt(settings.scrollTop),
+        scrollTop: parseInt((settings.scrollTop).toString()),
         zoom: settings.zoom,
         space: settings.space,
         thumbnail: JSON.stringify(getThumbnailCacheData())
@@ -812,9 +866,9 @@ const updateFileSettings = async function () {
 }
 
 const getThumbnailCacheData = function ():object {
-    const data = [];
+    const data: { index:string,width:string,height:string }[] = [];
     for(let i in thumbnail) {
-        if(thumbnail[i].origin.type == 'real') {
+        if(thumbnail[i].origin && thumbnail[i].origin.type == 'real') {
             data.push({
                 index: i,
                 width:thumbnail[i].origin.width,
@@ -835,8 +889,9 @@ const onUpdateSettings = function ({key,value}) {
         case 'zoom':
             settings.zoom = value;
             for(let i in thumbnail) {
-                thumbnail[i].width = getThumbnailPreviewSizeEquation(thumbnail[i].origin.width)
-                thumbnail[i].height = getThumbnailPreviewSizeEquation(thumbnail[i].origin.height)
+                const {width, height} = thumbnail[i]
+                thumbnail[i].width = getThumbnailPreviewSizeEquation(width)
+                thumbnail[i].height = getThumbnailPreviewSizeEquation(height)
             }
             break;
     }
@@ -858,7 +913,7 @@ const onCancelFileEdit = function ():void {
     fileEdit.value = false;
 }
 
-const onUpdateFileEdit = function (data:object):boolean {
+const onUpdateFileEdit = function (data):boolean {
     if(Base.isEmpty(data)) {
         return false;
     }
@@ -867,18 +922,19 @@ const onUpdateFileEdit = function (data:object):boolean {
     file.file_alias = data.file_alias;
     file.file_intro = data.file_intro;
     console.log('onUpdateFileEdit',data);
+    return true;
 }
 
 const onCopy = function (event) {
     Base.copy(event);
 }
 
-const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+const getTimeAgo = function (date:string='', format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
     if (Base.isEmpty(date)) {
         return '';
     }
 
-    const timeStamp = Time.dateToTimestamp(date);
+    const timeStamp = Time.dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
     const value = now - parseInt(timeStamp); //时间差
 
@@ -914,7 +970,8 @@ const setCountUnit = function (value) {
     return Common.setCountUnit(value);
 }
 
-const onSearchTaxonomy = function ({currentTarget: {dataset: {name,type}}}):void {
+const onSearchTaxonomy = function (event):void {
+    const {currentTarget: {dataset: {name,type}}} = event
     const object = {
         path: `/`,
         query:  {

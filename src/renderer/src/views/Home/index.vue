@@ -4,7 +4,7 @@
 
         <!-- Skeleton -->
         <div v-if="page.init == false" :class="['file-main','file-main__skeleton',toolbar.view.class]">
-            <div v-for="(item,index) in parseInt(load.pageSize)" :key="index" class="file-item">
+            <div v-for="(item,index) in parseInt((load.pageSize).toString())" :key="index" class="file-item">
                 <div class="cover"></div>
                 <p class="title"></p>
                 <p class="subtitle"></p>
@@ -41,7 +41,7 @@
                                 <template v-if="item.file_artist.status == 'success'">
                                     <template v-for="(artist,index) in item.file_artist.data">
                                         <em>{{artist.name}}</em>
-                                        <template v-if="index + 1 != (item.file_artist.data).length">
+                                        <template v-if="index + 1 != item.file_artist.total">
                                             <i class="ml-xs mr-xs">·</i>
                                         </template>
                                     </template>
@@ -93,10 +93,53 @@ interface PageInter {
     init: boolean,
     loading: boolean,
     upload: boolean
-    options: object,
+    options: {
+        title?: boolean,
+        cover?: boolean,
+        artist?: boolean,
+        date?: boolean,
+        view?: boolean,
+        type?: boolean,
+        size?: boolean
+    },
     actions: object
 }
 
+interface loadInter {
+    page: string,
+    pageSize: string,
+    list: {
+        file_id:number,
+        file_name?:string,
+        file_cover:string,
+        file_view:number,
+        file_ext:string,
+        file_size:string,
+        file_status:string,
+        file_date: string,
+        file_artist: {
+            status: string,
+            data: {name: string}[],
+            total: number
+        }
+    }[],
+    order: {
+        mode: string,
+        sort:string
+    },
+    q?: string,
+    name?: string
+    taxonomy?: string
+}
+
+interface ListInter {
+    page: string,
+    pageSize: number,
+    q?:string,
+    order?: {mode:string, sort:string},
+    name?:string,
+    taxonomy?:string
+}
 
 const { t } = useI18n();
 const route = useRoute();
@@ -104,8 +147,8 @@ const router = useRouter();
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
 const page:PageInter = reactive({init: false, loading: false, upload: false, options: {}, actions: {}});
-const load = reactive({
-    page: 1,
+const load:loadInter = reactive({
+    page: '1',
     pageSize: pageStore.pageSize,
     list:[],
     q: '',
@@ -118,8 +161,8 @@ const load = reactive({
 })
 const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0})
 
-const empty:EmptyInter = reactive({});
-const confirm:ConfirmInter = reactive({});
+const empty:EmptyInter = reactive({show: false});
+const confirm:ConfirmInter = reactive({show: false});
 const scrollbar = ref(null);
 const toolbar = reactive({
     file: {},
@@ -130,10 +173,10 @@ onMounted(() => {
     const {q, page, name, taxonomy} = route.query;
     //console.log('route.query',route.query);
 
-    load.page = page ?? 1;
-    load.q = q ?? '';
-    load.name = name ?? '';
-    load.taxonomy = taxonomy ?? '';
+    load.page = page as string ?? '1';
+    load.q = q as string ?? '';
+    load.name = name as string ?? '';
+    load.taxonomy = taxonomy as string ?? '';
     toolbar.view.class = getToolbarViewClass();
 
     init()
@@ -153,17 +196,19 @@ const setArchive = function () {
     Common.setArchive(Archive);
 }
 
-const getParams = function () {
-    const params = {
+
+
+const getParams = function ():ListInter {
+    const params:ListInter = {
         page: load.page,
-        pageSize: load.pageSize
+        pageSize: Number(load.pageSize)
     }
 
     if(!Base.isEmpty(load.q )) {
         params.q = load.q
     }
 
-    if(!Base.isEmpty(load.order )) {
+    if(!Base.isEmpty(load.order)) {
         params.order = load.order
     }
 
@@ -177,7 +222,7 @@ const getParams = function () {
 
 const loadFileList = async function () {
     try {
-        const params = getParams();
+        const params:ListInter = getParams();
         const res = await getFileList(params)
         if(res.code != 200) {
             return false;
@@ -195,7 +240,7 @@ const loadFileList = async function () {
 }
 
 const setDelayDisplay = function () {
-    if(load.page != 1) {
+    if(Number(load.page) != 1) {
         page.init = true;
         return false;
     }
@@ -226,9 +271,10 @@ const setEmpty = function ({total}):boolean {
     title = t('empty.repositories.title');
     subtitle = t('empty.repositories.subtitle');
     Common.showEmpty(empty,title, subtitle)
+    return true;
 }
 
-const setFileList = async function (data:object[]) {
+const setFileList = async function (data) {
     if(Base.isEmpty(data)) {
         load.list = [];
         return false;
@@ -256,7 +302,7 @@ const getTimeAgo = function (date:number):string {   //dateTimeStamp是一个时
         return '';
     }
 
-    const timeStamp = Time.dateToTimestamp(date);
+    const timeStamp = Time.dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
     const value = now - parseInt(timeStamp); //时间差
 
@@ -285,7 +331,7 @@ const getTimeAgo = function (date:number):string {   //dateTimeStamp是一个时
         return t('time.now');
     }
 
-    if(Time.formatDate(timeStamp, 'YYYY') == new Date().getFullYear()) {
+    if(Time.formatDate(timeStamp, 'YYYY') == new Date().getFullYear().toString()) {
         return Time.formatDate(timeStamp, 'MM-DD');
     } else {
         return Time.formatDate(timeStamp, 'YYYY-MM-DD');
@@ -299,7 +345,7 @@ const setPagination = function ({page,totalPage,total}):void {
     pagination.total = total;
 }
 
-const getCover = async function ({file_id}):Promise<string> {
+const getCover = async function ({file_id}):Promise<string>{
     try {
         const path = File.getFileCoverById(file_id);
 
@@ -308,9 +354,10 @@ const getCover = async function ({file_id}):Promise<string> {
         }
 
         const fileBuffer = fs.readFileSync(path);
-        return await File.getBase64Image(fileBuffer);
+        return await (File.getBase64Image(fileBuffer)).toString();
     } catch (err) {
         Base.printErrorLog('loadCover readFileSync',err)
+        return  ''
     }
 }
 
@@ -325,17 +372,18 @@ const loadFileArtist = async function (object_id) {
 
         console.log('res',res);
         if(res.code != 200 || Base.isEmpty(res.data)) {
-            return { status: 'fail', data: []};
+            return { status: 'fail', data: [], total: 0};
         }
 
-        return { status: 'success', data: res.data};
+        return { status: 'success', data: res.data, total: Base.getDataLength(res.data)};
     } catch (err) {
         Base.printErrorLog('getFileArtist',err)
-        return  { status: 'fail', data: []}
+        return  { status: 'fail', data: [],total: 0}
     }
 }
 
-const onRedirect = function ({currentTarget: {dataset: {id}}}):void {
+const onRedirect = function (event):void {
+    const {currentTarget: {dataset: {id}}} = event
     const object = {
         path: '/reader',
         query: {
@@ -350,12 +398,23 @@ const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
-const setDefaultImage = function ({currentTarget: {dataset: {index}}}) :void{
-    load.list[index].cover = Common.getDefaultImage();
+const setDefaultImage = function (event) :void{
+    const  {currentTarget: {dataset: {index}}} = event
+    load.list[index].file_cover = Common.getDefaultImage();
 }
 
 const onChangePage = function ({value}):void {
-    const object = {
+    type Object = {
+        path:string,
+        query: {
+            page: string,
+            pageSize: string,
+            q?:string,
+            name?:string
+            taxonomy?:string
+        }
+    }
+    const object:Object = {
         path: '/',
         query:  {
             page: value,
@@ -385,7 +444,7 @@ const onShowUpload = function ():void {
     page.upload = true
 }
 
-const onHideUpload = function ({refresh}):boolean {
+const onHideUpload = function ({refresh}):boolean|void {
     if(refresh == false) {
         page.upload = false;
         return false;

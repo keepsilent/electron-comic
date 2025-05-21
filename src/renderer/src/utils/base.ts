@@ -7,7 +7,7 @@ const { toClipboard } = useClipboard();
  * @param {string/number/object/array} value 需要较验的值
  * @returns {boolean}
  */
-const isEmpty = function (value:any): boolean {
+const isEmpty = function (value:any = undefined): boolean {
     if (value === '' || value === undefined || value === null) {
         return true;
     }
@@ -29,7 +29,7 @@ const isEmpty = function (value:any): boolean {
  * @param {Any} value 需要较验的值
  * @returns {boolean}
  */
-const isObject = function (value:any): boolean {
+const isObject = function (value:any = undefined): boolean {
     if(isEmpty(value)) {
         return false;
     }
@@ -71,7 +71,7 @@ const redirectByEvent = function ({currentTarget: {dataset: {url,target}}}):void
  * @param {Object} data 检查的数据
  * @return {Number}
  */
-const getDataLength = function(data:object):number {
+const getDataLength = function(data:any = undefined):number {
     let len = 0;
     for (let i in data) {
         len++;

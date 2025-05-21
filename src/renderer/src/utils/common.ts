@@ -44,7 +44,7 @@ const showAlert = function (confirm, content:string, title:string = '', confirmT
  * @param {String} title 提示标题
  * @param {String} confirmText 按钮文本
  */
-const showConfirm = function (confirm, content:string, callback:string= '', title:string, confirmText:string, cancelText:string):void {
+const showConfirm = function (confirm, content:string, callback:string= '', title:string='', confirmText:string='', cancelText:string=''):void {
     confirm.show = true;
 
     confirm.title = title ?? t('alert.default');

@@ -23,8 +23,8 @@ import {reactive, watch} from "vue";
 interface Props {
     empty: {
         show: boolean,
-        icon: string,
-        title: string,
+        icon?: string,
+        title?: string,
         subtitle?: string
     }
 }

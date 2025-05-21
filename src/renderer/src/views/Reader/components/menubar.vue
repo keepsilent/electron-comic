@@ -51,11 +51,19 @@ import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 
 interface Props {
     settings: {
-        zoom:number|string,
-        space:number|string,
-        scrollTop: number|string,
+        zoom?:number,
+        space?:number,
+        scrollTop?: number
     }
 }
+
+interface Settings {
+    show: boolean,
+    zoom?: number,
+    space?: number,
+    scrollTop?: number
+}
+
 
 const { t } = useI18n();
 const route = useRoute();
@@ -65,12 +73,12 @@ const emit = defineEmits(['update'])
 const props = defineProps<Props>()
 const page:PageInter = reactive({show: false, actions:{}})
 const confirm:ConfirmInter = reactive({show: false});
-const settings = reactive({show: false, zoom: 0, space: 0, scrollTop: 0});
+const settings:Settings = reactive({show: false, zoom: 0, space: 0, scrollTop: 0});
 
 onMounted(() => {
-    settings.zoom = props.settings.zoom;
-    settings.space = props.settings.space;
-    settings.scrollTop = props.settings.scrollTop;
+    settings.zoom = props.settings.zoom ?? 100;
+    settings.space = props.settings.space ?? 25;
+    settings.scrollTop = props.settings.scrollTop ?? 0;
 })
 
 const onHideSetting = function () {
@@ -113,7 +121,11 @@ const asyncUpdate = function (key) {
 }
 
 const onReturnTop = function () {
-    document.getElementById('scrollbar').scrollTop = 0;
+    const element = document.getElementById('scrollbar');
+
+    if (element) {
+        element.scrollTop = 0;
+    }
 }
 
 watch(() => props.settings.zoom,(value)=>{

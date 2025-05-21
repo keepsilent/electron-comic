@@ -273,7 +273,7 @@ watch(() => pageStore.layout,(value)=>{
 })
 
 watch(() => fileStore.id,(value)=>{
-    file.file_id = value;
+    file.file_id = value || 0;
 })
 
 </script>

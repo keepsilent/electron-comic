@@ -26,13 +26,16 @@ import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
     pagination: {
-        page:number,
-        totalPage: string,
-        total:string,
-        source: string
+        show:boolean
+        page?:number,
+        totalPage?: number,
+        total?:number,
+        source?: string
     },
     load: {
-        q:string
+        q?:string,
+        name?: string,
+        type?: string
     }
 }
 

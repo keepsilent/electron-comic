@@ -1,7 +1,7 @@
 
-export const debounce = function (fn, delay = 300) {
-    let timer = null;
-    return function(...args) {
+export const debounce = (fn, delay = 300) => {
+    let timer:any = null;
+    return (...args) => {
         timer && clearTimeout(timer);
         timer = setTimeout(() => {
             fn.apply(this, args);
@@ -11,8 +11,8 @@ export const debounce = function (fn, delay = 300) {
 
 
 export const throttle = (fn, delay = 300)=> {
-    let timer = null
-    return function(...args) {
+    let timer:any = null
+    return (...args:any) => {
         if (timer) {
             return
         }

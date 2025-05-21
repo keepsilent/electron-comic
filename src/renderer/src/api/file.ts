@@ -107,7 +107,7 @@ const getFileListJoin = function ({name, taxonomy}):string {
     return join;
 }
 
-const getFileListOrderBy = function ({mode='name',sort= 'desc'}):string {
+const getFileListOrderBy = function ({mode ='name',sort= 'desc'}):string {
     const options = {
         'name':'file_name',
         'size': 'file_size',
@@ -120,21 +120,30 @@ const getFileListOrderBy = function ({mode='name',sort= 'desc'}):string {
     return `ORDER BY ${options[mode]} ${sort.toUpperCase()}`;
 }
 
-export const getFileList = async function ({page, pageSize, q, name, taxonomy, order}):Promise<Result> {
+interface ListInter {
+    page: string,
+    pageSize: number,
+    q?:string,
+    order?: {mode:string, sort:string},
+    name?:string,
+    taxonomy?:string
+}
+export const getFileList = async function (params:ListInter):Promise<Result> {
     try {
+        const {page, pageSize, q, name, taxonomy, order} = params;
         console.log('getFileList order',order);
         const total = await getFileTotal({q, name, taxonomy});
         const totalPage = Base.getTotalPage(total, pageSize);
         const join = getFileListJoin({name, taxonomy})
         const where = getFileListWhere({q, name, taxonomy});
-        const orderby = getFileListOrderBy(order);
+        const orderby = getFileListOrderBy(order ? order: {mode:'name',sort: 'desc'});
 
         const sql = `SELECT * FROM cm_file ${join} WHERE ${where} ${orderby} LIMIT $page, $pageSize`;
         console.log('sql',sql);
         const data: queryParam = {
             sql: sql,
             params: {
-                $page:  Base.getPage(page, totalPage) * pageSize,
+                $page: Base.getPage(Number(page), totalPage) * pageSize,
                 $pageSize: pageSize
             }
         }
@@ -147,7 +156,7 @@ export const getFileList = async function ({page, pageSize, q, name, taxonomy, o
             code: 200,
             data: {
                 list: res.data,
-                page:  Base.getPage(page, totalPage) == totalPage ? totalPage :  Base.getPage(page, totalPage) + 1,
+                page:  Base.getPage(Number(page), totalPage) == totalPage ? totalPage :  Base.getPage(Number(page), totalPage) + 1,
                 pageSize: pageSize,
                 total: total,
                 totalPage: totalPage,

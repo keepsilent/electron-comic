@@ -6,7 +6,7 @@ import Base from "./base";
  * @param {String} value 日期值：字符串或时间戳
  * @return {String}
  */
-const compatibleDate = function (value:string|number):string {
+const compatibleDate = function (value:number|string):number|string {
     if (Base.isEmpty(value)) {
         return ''
     }
@@ -24,13 +24,13 @@ const compatibleDate = function (value:string|number):string {
  * @param {String} date 日期字符串
  * @return {String}
  */
-const dateToTimestamp = function (date:string):string {
+const dateToTimestamp = function (date:number|string):number|string {
     if (Base.isEmpty(date)) {
         return ''
     }
 
     date = compatibleDate(date);
-    return Math.round(new Date(date));
+    return Math.round(Number(new Date(date)));
 }
 
 
@@ -41,12 +41,12 @@ const dateToTimestamp = function (date:string):string {
  * @param {String} format 日期格式,默认：YYYY-MM-DD HH:mm:ss
  * @return {String}
  */
-const getTimeAgo = function (date:number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+const getTimeAgo = function (date:number|string, format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
     if (Base.isEmpty(date)) {
         return '';
     }
 
-    const timeStamp = dateToTimestamp(date);
+    const timeStamp = dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
     const value = now - parseInt(timeStamp); //时间差
 

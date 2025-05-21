@@ -24,11 +24,12 @@ import type {PageInter, ConfirmInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
-    show: boolean,
+    show?: boolean,
     pagination: {
-        page:number,
-        totalPage: string,
-        total:string,
+        show: boolean
+        page: number,
+        totalPage: number,
+        total: number,
         source: string
     },
     group:string

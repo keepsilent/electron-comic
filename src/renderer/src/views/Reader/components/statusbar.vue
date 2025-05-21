@@ -6,7 +6,7 @@
             <div class="statusbar-left">
                 <template v-for="(item,index) in page.path">
                     <span class="item" :title="item.value" :data-index="index" @click="onOpenFolder">{{item.name}}</span>
-                    <template v-if="index + 1 != (page.path).length">
+                    <template v-if="index + 1 != page.total">
                         <i class="iconfont icon-return"></i>
                     </template>
                 </template>
@@ -30,51 +30,65 @@ import {useI18n} from "vue-i18n";
 import {reactive,onMounted, watch} from 'vue'
 import {Base,Common,File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
-import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/utils/types";
 
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
-    show: boolean,
+    show?: boolean,
     file: {
         file_id:number,
-        file_date: string,
-        file_modified:string,
-        file_name: string,
-        file_type: string,
-        file_path: string,
-        file_size:number,
-        file_total:number,
-        file_status: string,
-        file_categories: object,
-        file_artists: object,
-        file_alias:string,
-        file_intro:string
+        file_cover?:string,
+        file_date?: string,
+        file_name?: string,
+        file_alias?: string,
+        file_author?: string,
+        file_intro?: string,
+        file_path?: string,
+        file_size?: string,
+        file_total?: number,
+        file_status?: string,
+        file_modified?: string,
+        file_mine_type?: string,
+        file_tags?: { name:string, count:string}[],
+        file_artists?: { name:string, count:string}[],
+        file_languages?: { name:string, count:string}[],
+        file_categories?: { name:string, count:string}[],
     },
     settings: {
         page: {
             num: number,
             total: number
         },
-        scrollTop: 0,
+        scrollTop: number,
         zoom: number,
         space: number,
     }
 }
 
+interface PageInter {
+    show:boolean,
+    total:number,
+    path:{name?:string,value?:string}[],
+    layout:string
+}
+
 const { t } = useI18n();
 const pageStore = usePageStore();
 const props = defineProps<Props>()
-const page = reactive({
+const page:PageInter = reactive({
     show: false,
+    total: 0,
+    path: [],
     layout: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
 })
 const confirm:ConfirmInter = reactive({show: false});
 
 
-const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
+const onOpenFolder = function (event) {
+    const {currentTarget: {dataset: {index}}} = event
     const path = page.path[index].value;
-    if(!File.isExists(path)) {
+    if(!File.isExists(path || '')) {
         Common.showAlert(confirm,t("alert.content.inexistence"));
         return false;
     }
@@ -82,12 +96,12 @@ const onOpenFolder = function ({currentTarget: {dataset: {index}}}) {
     window.electron.ipcRenderer.send('openpath', path);
 }
 
-const analyzePath = function (path:string):object {
+const analyzePath = function (path:string = ''):{name:string,value:string}[] {
     if(Base.isEmpty(path)) {
         return [];
     }
 
-    const list = [];
+    const list:{name:string,value:string}[] = [];
     const data = path.split('\\');
     const len = Base.getDataLength(data);
 
@@ -95,7 +109,7 @@ const analyzePath = function (path:string):object {
 
     for(let i in data) {
         let path = '';
-        for(let j = 0; j <= i; j++) {
+        for(let j = 0; j <= Number(i); j++) {
             path += data[j]+'\\';
         }
 
@@ -119,6 +133,7 @@ const onOperateConfirm = function () {
 
 watch(() => props.file.file_path,(value)=>{
     page.path = analyzePath(value);
+    page.total = Base.getDataLength(page.path);
 })
 
 watch(() => pageStore.layout,(value) => {

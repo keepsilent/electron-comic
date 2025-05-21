@@ -170,17 +170,17 @@ import FileFilter from "@renderer/components/FileFilter.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
-    file: {
-        id:number,
-        date: string,
-        modified:string,
-        name: string,
-        author: string,
-        type: string,
-        path: string,
-        size:number,
-        total:number,
-        status: string
+    file?: {
+        id?:number,
+        date?: string,
+        modified?:string,
+        name?: string,
+        author?: string,
+        type?: string,
+        path?: string,
+        size?:number,
+        total?:number,
+        status?: string
     }
 }
 
@@ -190,12 +190,31 @@ const router = useRouter();
 const emit = defineEmits(['cancel','confirm','order','upload','filter','refresh'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
-const open = ref(null);
-const view = ref(null);
-const order = ref(null);
+const open:any = ref(null);
+const view:any = ref(null);
+const order:any = ref(null);
 const page = reactive({
     show: false,
-    actions:{},
+    actions:{
+        onDeleteFile:  async function() {
+            // try {
+            //     const {id} = props.file;
+            //     // if (File.deleteFile(path) == false) {
+            //     //     Common.showAlert(confirm,t("alert.content.delete.fail"));
+            //     //     return false;
+            //     // }
+            //     const params = { id: id, status: 'delete'};
+            //     const res = await updateFileStatus(params);
+            //     if(res.code != 200) {
+            //         return false;
+            //     }
+            // } catch (err) {
+            //     Base.printErrorLog('deleteFile',err);
+            // } finally {
+            //     Common.cancelConfirm(confirm);
+            // }
+        }
+    },
     more: false,
     filter: false,
     open: {
@@ -247,33 +266,18 @@ const page = reactive({
 })
 const confirm:ConfirmInter = reactive({show: false});
 
-page.actions.onDeleteFile = async function () {
-    try {
-        const {id} = props.file;
-        // if (File.deleteFile(path) == false) {
-        //     Common.showAlert(confirm,t("alert.content.delete.fail"));
-        //     return false;
-        // }
-        const params = { id: id, status: 'delete'};
-        const res = await updateFileStatus(params);
-        if(res.code != 200) {
-            return false;
-        }
-    } catch (err) {
-        Base.printErrorLog('deleteFile',err);
-    } finally {
-        Common.cancelConfirm(confirm);
-    }
-}
+// page.actions.onDeleteFile = async function () {
+//
+// }
 
 const onOpenFolder = function () {
-    const path = props.file.path;
-    if(!File.isExists(path)) {
-        Common.showAlert(confirm,t("alert.content.inexistence"));
-        return false;
-    }
-
-    window.electron.ipcRenderer.send('openpath', path);
+    // const path = props.file.path;
+    // if(!File.isExists(path)) {
+    //     Common.showAlert(confirm,t("alert.content.inexistence"));
+    //     return false;
+    // }
+    //
+    // window.electron.ipcRenderer.send('openpath', path);
 }
 
 const onDeleteFile = function () {
@@ -321,7 +325,8 @@ const onShowViewMenu = function () {
     pageStore.toolbar.submenu.order = false;
 }
 
-const onSwitchOrderMode = function ({currentTarget: {dataset: {value}}}) {
+const onSwitchOrderMode = function (event) {
+    const  {currentTarget: {dataset: {value}}} = event;
     const mode = page.order.mode.current
     if(value == 'more') {
         return false;
@@ -342,7 +347,8 @@ const onSwitchOrderMode = function ({currentTarget: {dataset: {value}}}) {
     setOrderConfig();
 }
 
-const onSwitchOrderSort = function ({currentTarget: {dataset: {value}}}) {
+const onSwitchOrderSort = function (event) {
+    const {currentTarget: {dataset: {value}}} = event
     const mode = page.order.sort.current
     if(mode == value) {
         setHideMoreMenu()
@@ -382,7 +388,8 @@ const setHideMoreMenu = function () {
     pageStore.toolbar.more = false;
 }
 
-const onSubItemFoucs = async function ({currentTarget: {dataset: {key}}}) {
+const onSubItemFoucs = async function (event) {
+    const {currentTarget: {dataset: {key}}} = event
     if(page.submenu[key].width != 0) {
         return false;
     }
@@ -405,7 +412,8 @@ const onSubItemFoucs = async function ({currentTarget: {dataset: {key}}}) {
     console.log('page.submenu',page.submenu);
 }
 
-const onSwitchView = function ({currentTarget: {dataset: {value}}}) {
+const onSwitchView = function (event) {
+    const {currentTarget: {dataset: {value}}} = event
     page.view.show = false;
     page.view.current = value;
 

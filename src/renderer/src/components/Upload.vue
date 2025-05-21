@@ -65,7 +65,7 @@ import Tooltips from "@renderer/components/Tooltips.vue";
 import {Archive} from 'libarchive.js/main.js';
 
 interface Props {
-    show: boolean,
+    show?: boolean,
 }
 
 interface Page {
