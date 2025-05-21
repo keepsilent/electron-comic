@@ -72,7 +72,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
-const load:LoadInter = reactive({page: 1, pageSize: 100, taxonomy: '',sort: ''})
+const load:LoadInter = reactive({ page: 1, pageSize: 100, taxonomy: '', sort: ''})
 const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
 const empty:EmptyInter = reactive({show: false});
 const page:PageInter = reactive({
@@ -100,8 +100,8 @@ const init = function () {
     page.group = group as string ?? '';
     page.current = sort as string ?? 'group';
 
-    load.page = Number(current as string) ?? 1;
-    load.taxonomy = getTaxonomy(type as string ?? '');
+    load.page = Number(current as string) || 1;
+    load.taxonomy = getTaxonomy(type as string);
 
     pagination.source = t('aside.menu.'+type);
     loadTermList();
@@ -206,7 +206,7 @@ const getParams = function ():LoadInter {
     return options
 }
 
-const getTaxonomy = function (key:string):string {
+const getTaxonomy = function (key:string = ''):string {
     const options = {
         tags: 'tag',
         artists: 'artist',

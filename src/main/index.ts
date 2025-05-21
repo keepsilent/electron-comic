@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-// import icon from '../../resources/icon.png?asset'
+import icon from '../../resources/icon.png?asset'
 
 //app.commandLine.appendSwitch('disable-site-isolation-trials');
 
@@ -16,8 +16,7 @@ const createWindow = async function() {
         frame: false, //无边框
         show: false, // 初始时不显示窗口
         autoHideMenuBar: true,// 自动隐藏菜单栏
-        //...(process.platform === 'linux' ? { icon } : { icon: '../../resources/icon.ico?asset'}),
-        icon: join(__dirname,'.../../resources/icon.png?asset'),
+        ...(process.platform === 'linux' ? { icon } : { icon: '../../resources/icon.ico?asset'}),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'), // 预加载脚本路径
             sandbox: false, // 禁用沙盒模式

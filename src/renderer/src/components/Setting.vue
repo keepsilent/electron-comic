@@ -268,11 +268,11 @@ const changeWindow = function (value:string):boolean {
     const isMaximize = value == 'maximize' ? 1: 0;
     localStorage.setItem('cm_setting_maximize', isMaximize.toString())
     if(isMaximize == 1) {
-       // electron.ipcRenderer.send('maximize'); to do
+       electron?.ipcRenderer.send('maximize');
         return false;
     }
 
-    // electron.ipcRenderer.send('restore'); to do
+    electron?.ipcRenderer.send('restore');
     return true;
 }
 
@@ -291,7 +291,7 @@ const onToggleSwitch = function (option) {
 }
 
 const onSelectFile = function () {
-   // electron.ipcRenderer.send('openDialog',general.path); to do
+   electron?.ipcRenderer.send('openDialog',general.path);
 }
 
 // electron.ipcRenderer.on('openDialog',(event,args)=> {
