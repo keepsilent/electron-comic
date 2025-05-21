@@ -362,7 +362,7 @@ const onSave = throttle( async () => {
             file_name: alias + '.' + ext,
             file_intro: intro,
             old_file_path: file_path,
-            new_file_path: new_file_path,
+            new_file_path: new_file_path
         }
         const res = await updateFileInfoRecord(params);
         // if(res.code != 200) {

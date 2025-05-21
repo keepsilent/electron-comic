@@ -195,14 +195,6 @@ interface SettingsInter {
     thumbnail?: { index?:string,width?:string,height?:string }[],
 }
 
-interface ScrollbarInter {
-    value?: {
-        addEventListener?:any,
-        removeEventListener?:any
-    }
-}
-
-
 const pageStore = usePageStore();
 const fileStore = useFileStore();
 const fs = require("fs") as typeof import("fs");
@@ -256,7 +248,6 @@ watch(() => page.init,(value) => {
         prerenderThumbnail();
         scrollbar.value.addEventListener("scroll", onScroll)
         scrollbar.value.addEventListener("click", onContent)
-
     },4)
 })
 
@@ -475,8 +466,6 @@ const readImageFile = async function (data):Promise<boolean> {
         data[i].height = getThumbnailPreviewSizeEquation(data[i].origin.height);
         data[i].status = 'loading';
     }
-
-
 
     Object.assign(thumbnail, data)
     setThumbnailPage()
@@ -827,7 +816,6 @@ const updateFileView = async function () {
             data: {file_view: file_view ? file_view+1: 1}
         }
         await updateFileInfo(params)
-
     } catch (err) {
         Base.printErrorLog('updateFileInfo',err)
     }
@@ -929,14 +917,14 @@ const onCopy = function (event) {
     Base.copy(event);
 }
 
-const getTimeAgo = function (date:string='', format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+const getTimeAgo = function (date:string|number='', format:string = 'YYYY/MM/DD HH:mm:ss'):string {
     if (Base.isEmpty(date)) {
         return '';
     }
 
-    const timeStamp = Time.dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
-    const value = now - parseInt(timeStamp); //时间差
+    const timeStamp = Time.dateToTimestamp(date);
+    const value = now - timeStamp; //时间差
 
     const day = Math.floor(value / (1000 * 60 * 60) / 24);
     const hour = Math.floor(value / (1000 * 60 * 60));

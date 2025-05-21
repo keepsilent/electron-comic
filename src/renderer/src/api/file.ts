@@ -169,7 +169,7 @@ export const getFileList = async function (params:ListInter):Promise<Result> {
 }
 
 export const addFile = async function (data:{ [key: string]: any }):Promise<Result> {
-    const date = Time.formatDate(new Date().getTime().toString());
+    const date = Time.formatDate(new Date().getTime());
     const params:insertParam = {
         table: 'cm_file',
         data: {
@@ -196,11 +196,10 @@ export const updateFileStatus = async function ({id, status}):Promise<Result> {
 
 
 export const updateFileInfo = async function ({file_id, data}):Promise<Result> {
-    const date = Time.formatDate(new Date().getTime().toString());
+
     const params:updateParam = {
         table: 'cm_file',
         data: {
-            'file_modified': date,
             ...data
         },
         condition: `file_id = ${file_id}`
@@ -236,7 +235,8 @@ export const updateFileInfoRecord = async function ({file_id, file_name, file_in
                 data: {
                     file_name: file_name,
                     file_intro: file_intro,
-                    file_path: old_file_path == new_file_path ? old_file_path : new_file_path
+                    file_path: old_file_path == new_file_path ? old_file_path : new_file_path,
+                    file_modified: Time.formatDate(new Date().getTime())
                 }
             }
 

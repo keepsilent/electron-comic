@@ -3,10 +3,10 @@ import Base from "./base";
 /**
  * 兼容日期,支持IOS日期转换
  * @method compatibleDate
- * @param {String} value 日期值：字符串或时间戳
- * @return {String}
+ * @param {String|Number} value 日期值：日期字符串或时间戳
+ * @return {String|Number}
  */
-const compatibleDate = function (value:number|string):number|string {
+const compatibleDate = function(value:string|number):string|number {
     if (Base.isEmpty(value)) {
         return ''
     }
@@ -21,34 +21,33 @@ const compatibleDate = function (value:number|string):number|string {
 /**
  * 日期转时间戳
  * @method dateToTimestamp
- * @param {String} date 日期字符串
- * @return {String}
+ * @param {String|Number} value 日期值：日期字符串或时间戳
+ * @return {Number}
  */
-const dateToTimestamp = function (date:number|string):number|string {
-    if (Base.isEmpty(date)) {
-        return ''
+const dateToTimestamp = function (value:string|number):number {
+    if (Base.isEmpty(value)) {
+        return 0
     }
 
-    date = compatibleDate(date);
+    const date = compatibleDate(value);
     return Math.round(Number(new Date(date)));
 }
-
 
 /**
  * 获得之前间时间
  * @method getTimeAgo
- * @param {Number} timeStamp 时间戳
+ * @param {Number} date 日期值：日期字符串或时间戳
  * @param {String} format 日期格式,默认：YYYY-MM-DD HH:mm:ss
  * @return {String}
  */
-const getTimeAgo = function (date:number|string, format:string = 'YYYY/MM/DD HH:mm:ss'):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+const getTimeAgo = function (date:string|number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {
     if (Base.isEmpty(date)) {
         return '';
     }
 
-    const timeStamp = dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
-    const value = now - parseInt(timeStamp); //时间差
+    const timeStamp = dateToTimestamp(date);
+    const value = now - timeStamp; //时间差
 
     const day = Math.floor(value / (1000 * 60 * 60) / 24);
     const hour = Math.floor(value / (1000 * 60 * 60));
@@ -85,7 +84,7 @@ const getTimeAgo = function (date:number|string, format:string = 'YYYY/MM/DD HH:
  * @param {String} format 日期格式,默认：YYYY-MM-DD HH:mm:ss
  * @return {String}
  */
-const formatDate = function(value:string, format:string = 'YYYY/MM/DD HH:mm:ss'):string {
+const formatDate = function(value:string|number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {
     if (Base.isEmpty(value)) {
         return '';
     }

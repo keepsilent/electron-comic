@@ -4,7 +4,7 @@ export default [
     {
         path: '/reader',
         name: 'readerIndex',
-        component: () => Reader,
+        component: Reader,
         meta: {
             title: 'reader'
         }

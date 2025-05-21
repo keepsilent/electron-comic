@@ -4,7 +4,7 @@ export default [
     {
         path: '/taxonomy',
         name: 'taxonomyIndex',
-        component: () => Taxonomy,
+        component: Taxonomy,
         meta: {
             title: 'taxonomy'
         }

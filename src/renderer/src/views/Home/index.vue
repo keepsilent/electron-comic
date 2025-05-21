@@ -4,7 +4,7 @@
 
         <!-- Skeleton -->
         <div v-if="page.init == false" :class="['file-main','file-main__skeleton',toolbar.view.class]">
-            <div v-for="(item,index) in parseInt((load.pageSize).toString())" :key="index" class="file-item">
+            <div v-for="(item,index) in Number(load.pageSize)" :key="index" class="file-item">
                 <div class="cover"></div>
                 <p class="title"></p>
                 <p class="subtitle"></p>
@@ -297,14 +297,14 @@ const getFileExt = function (path) {
     return File.getFileExt(path).toUpperCase();
 }
 
-const getTimeAgo = function (date:number):string {   //dateTimeStamp是一个时间毫秒，注意时间戳是秒的形式，在这个毫秒的基础上除以1000，就是十位数的时间戳。13位数的都是时间毫秒。
+const getTimeAgo = function (date:string|number):string {
     if (Base.isEmpty(date)) {
         return '';
     }
 
-    const timeStamp = Time.dateToTimestamp(date).toString();
     const now = new Date().getTime();   //获取当前时间毫秒
-    const value = now - parseInt(timeStamp); //时间差
+    const timeStamp = Time.dateToTimestamp(date);
+    const value = now - timeStamp; //时间差
 
     const day = Math.floor(value / (1000 * 60 * 60) / 24);
     const hour = Math.floor(value / (1000 * 60 * 60));
@@ -345,19 +345,17 @@ const setPagination = function ({page,totalPage,total}):void {
     pagination.total = total;
 }
 
-const getCover = async function ({file_id}):Promise<string>{
+const getCover = async function ({file_id}):Promise<any>{
     try {
         const path = File.getFileCoverById(file_id);
-
         if (File.isExists(path) == false) {
             return Common.getDefaultImage();
         }
 
         const fileBuffer = fs.readFileSync(path);
-        return await (File.getBase64Image(fileBuffer)).toString();
+        return await File.getBase64Image(fileBuffer);
     } catch (err) {
         Base.printErrorLog('loadCover readFileSync',err)
-        return  ''
     }
 }
 

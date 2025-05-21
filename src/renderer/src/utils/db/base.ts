@@ -187,11 +187,12 @@ class Database {
             const placeholders = keys.map(() => "?").join(",");
             const sql = `INSERT INTO ${param.table} (${keys.join(",")}) VALUES (${placeholders})`;
 
-            this.db.run(sql, values, (err) => {
+            this.db.run(sql, values, function (this:any, err:string)  {
                 if (err) {
                     reject(Database.instance.dataFormat(500,err));
                 } else {
-                    resolve(Database.instance.dataFormat(200,'success',this.db.lastID));
+                    let {lastID} = this;
+                    resolve(Database.instance.dataFormat(200,'success',lastID));
                 }
             });
         });
@@ -203,11 +204,12 @@ class Database {
             const params = Object.values(param.data);
             const sql = `UPDATE ${param.table} SET ${entries} WHERE ${param.condition}`;
 
-            this.db.run(sql, params, (err) => {
+            this.db.run(sql, params, function(this:any, err:string) {
                 if (err) {
-                    reject(Database.instance.dataFormat(500,err));
+                    reject(Database.instance.dataFormat(500, err));
                 } else {
-                    resolve(Database.instance.dataFormat(200,'success',this.db.changes));
+                    let {changes} = this;
+                    resolve(Database.instance.dataFormat(200,'success',changes));
                 }
             });
         });

@@ -166,11 +166,13 @@
 		"increase": "Increase File",
 		"sort": "Sort Order",
 		"filter": "Filter File Show...",
-		"open": {
-			"title": "Open",
-			"app": "Open App Folder",
-			"cache": "Open Cache Folder",
-			"database": "Open DataBase Folder"
+		"more": {
+			"open": {
+				"title": "Open",
+				"app": "Open App Folder",
+				"cache": "Open Cache Folder",
+				"database": "Open DataBase Folder"
+			}
 		},
 		"order": {
 			"title": "Order",

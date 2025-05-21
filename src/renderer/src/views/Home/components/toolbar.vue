@@ -122,7 +122,7 @@
             <div class="item" data-key="open" @mouseenter="onSubItemFoucs">
                 <span>
                     <i :class="['iconfont','icon-file1'] "></i>
-                    <em class="title">{{$t('tool.open.title')}}</em>
+                    <em class="title">{{$t('tool.more.open.title')}}</em>
                 </span>
                 <i class="iconfont icon-return"></i>
 
@@ -219,9 +219,9 @@ const page = reactive({
     filter: false,
     open: {
         data: [
-            {name: t('tool.open.app'), value: 'app'},
-            {name: t('tool.open.cache'), value: 'cache'},
-            {name: t('tool.open.database'), value: 'database'}
+            {name: t('tool.more.open.app'), value: 'app'},
+            {name: t('tool.more.open.cache'), value: 'cache'},
+            {name: t('tool.more.open.database'), value: 'database'}
         ]
     },
     view: {
