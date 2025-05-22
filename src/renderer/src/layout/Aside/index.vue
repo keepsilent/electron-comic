@@ -1,14 +1,6 @@
 <template>
-    <div :class="['aside-wrap',aside.layoutFold]">
+    <div :class="['aside-wrap',aside.fold]">
         <div class="aside-inner">
-
-            <!-- 用户头像 -->
-            <div class="side-header hide">
-                <h1 class="tc">
-                    <img src="@renderer/assets/electron.svg" width="22" height="22" alt="comic++">
-                    <i>C</i>omi<i>c</i>++
-                </h1>
-            </div>
 
             <!-- 左侧菜单 -->
             <div class="aside-main">
@@ -17,35 +9,6 @@
                     <div class="user-info">
                         <img class="avatar" :src="user.avatar" :alt="user.nicename" width="48" height="48">
                         <p class="title">{{user.nicename}}</p>
-<!--                        <p class="level">Lv.{{user.level}}</p>-->
-                    </div>
-
-                    <div class="user-menu">
-                        <div class="user-menu-header">
-                            <h3 class="title  mt-m">{{user.nicename}}</h3>
-                            <dl class="level">
-                                <dt>
-                                    <span>等级<i class="ml-5">{{user.level}}</i></span>
-                                    <span class="exp">{{user.exp}}/{{getUserLevelExp(user.level)}}</span>
-                                </dt>
-                                <dd class="progress">
-                                    <div></div>
-                                    <div :style="{ width: getUserExpProgress(user.level,user.exp)+'%' }"></div>
-                                </dd>
-                            </dl>
-                        </div>
-
-                        <div class="user-menu-main">
-                            <ul>
-                                <li><label class="iconfont icon-personal"></label>个人信息</li>
-                                <li><label class="iconfont icon-password"></label>修改密码</li>
-                            </ul>
-                        </div>
-                        <div class="user-menu-footer">
-                            <ul>
-                                <li><label class="iconfont icon-exit"></label>退出</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
@@ -72,13 +35,13 @@
                 <div class="line"></div>
                 <div class="layout">
                     <template v-if="aside.layout == 'two'">
-                        <span :class="[isLayoutActive('one')]" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
-                        <span :class="[isLayoutActive('three')]" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                        <span :class="[isLayoutActive('one')]" @click="onChangePageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                        <span :class="[isLayoutActive('three')]" @click="onChangePageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
                     </template>
                     <template v-else>
-                        <span :class="[isLayoutActive('three')]" @click="onPageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
-                        <span :class="[isLayoutActive('two')]" @click="onPageLayout('two')"><i class="iconfont icon-layout-double"></i></span>
-                        <span :class="[isLayoutActive('one')]" @click="onPageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
+                        <span :class="[isLayoutActive('three')]" @click="onChangePageLayout('three')"><i class="iconfont icon-layout-three"></i></span>
+                        <span :class="[isLayoutActive('two')]" @click="onChangePageLayout('two')"><i class="iconfont icon-layout-double"></i></span>
+                        <span :class="[isLayoutActive('one')]" @click="onChangePageLayout('one')"><i class="iconfont icon-layout-single"></i></span>
                     </template>
                 </div>
             </div>
@@ -86,7 +49,7 @@
     </div>
 
     <!-- Layout Fold -->
-    <div v-if="aside.layout == 'one'" class="aside-toggle" @click="onPageLayout('reset')">
+    <div v-if="aside.layout == 'one'" class="aside-toggle" @click="onChangePageLayout('reset')">
         <i class="iconfont icon-return"></i>
     </div>
 
@@ -95,55 +58,43 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref, reactive, watch} from "vue";
-import { useRouter } from 'vue-router'
-import {Base,Common,User} from "@renderer/utils";
+import {useRouter} from 'vue-router'
+import {reactive, watch} from "vue";
+import {Base, Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import {useFileStore} from '@renderer/stores/file'
 import {debounce, throttle} from "@renderer/utils/throttle";
 import {getRandomFileInfo} from "@renderer/api/file";
-import {ConfirmInter, FileInter, PageInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/types/common";
+import type {PageInter, AsideInter, MenuInter, BannerInter, UserInter} from "@renderer/types/layout/aside";
 
 import Confirm from "@renderer/components/Confirm.vue";
-
-interface Menu {
-    current: number,
-    data: {
-        name:string,
-        key:string,
-        url:string
-        icon:string
-    }[]
-}
-
-interface Banner {
-    name: string,
-    image: string,
-    url: string
-}
-
-interface User {
-    nicename: string,
-    avatar: string,
-    level: number,
-    exp:number
-}
-
-interface Aside {
-    layout?:string
-    layoutFold?:string
-}
 
 const { t } = useI18n();
 const router = useRouter()
 const pageStore = usePageStore();
 const fileStore = useFileStore();
-const aside:Aside = reactive({
+const page:PageInter = reactive({
+    init: false,
+    file: {
+        id: ''
+    },
+    actions: {}
+});
+
+const aside:AsideInter = reactive({
+    prefix: 'aside-wrap',
     layout: pageStore.layout,
-    layoutFold: Common.getLayoutFold(pageStore.layout,'aside-wrap')
+    fold: Common.getLayoutFold(pageStore.layout,'aside-wrap')
 })
-const file:FileInter = reactive({file_id: 0})
-const menu:Menu = reactive({ current: 0,
+
+const user:UserInter = reactive({
+    nicename: 'Comic++',
+    avatar: './src/assets/electron.svg'
+})
+
+const menu:MenuInter = reactive({
+    current: 0,
     data:[
         {name: t('aside.menu.home'), key:'home', url: '/',icon: 'icon-home'},
         {name: t('aside.menu.random'), key:'random', url: '',icon: 'icon-discover'},
@@ -155,34 +106,19 @@ const menu:Menu = reactive({ current: 0,
     ]
 })
 
-const banner:Banner = reactive({
+const banner:BannerInter = reactive({
     name: '阿里云服务器（ECS）等，高性能服务器，就选阿里云 ',
     image:'./src/assets/images/banner/banner-01.png',
     url: 'https://s.click.taobao.com/Viylruu'}
 )
 
-const user:User = reactive({
-    nicename: 'Comic++',
-    avatar: './src/assets/electron.svg',
-    level: 5,
-    exp: 10000,
-})
-const confirm:ConfirmInter = reactive({show: false});
-const page:PageInter = reactive({init: false, loading: false, actions: {}});
-
-const getUserLevelExp = function (level):number {
-    return User.getUserLevelExp(level);
-}
-const getUserExpProgress = function (level,exp):number {
-    return User.getUserExpProgress(level,exp);
-}
+const confirm:ConfirmInter = reactive({show: false, content: ''});
 
 const loadRandomFileInfo = debounce(async () => {
     try {
-
-        const params = {id: file.file_id}
+        const {file: {id} } = page
+        const params = {id: id}
         const res = await getRandomFileInfo(params);
-
         if(res.code != 200) {
             return false;
         }
@@ -192,12 +128,7 @@ const loadRandomFileInfo = debounce(async () => {
             return false;
         }
 
-        const object = {
-            path: `/reader`,
-            query:  {id: res.data[0].file_id}
-        }
-
-        router.push(object)
+        router.push({path:'/reader',query:{id: res.data[0].file_id}})
     } catch (err) {
         Base.printErrorLog('getRandomFileInfo',err)
         Common.showAlert(confirm,t('aside.random.anomaly'));
@@ -222,13 +153,7 @@ const onSwitchMenu = function (event) {
         return false;
     }
 
-    console.log('url',url);
-   // Base.redirect(url)
-
-    const query = { //query是个配置项
-        type: key
-    }
-    router.push({path: url, query: query})
+    router.push({path: url, query: {type:key}})
 }
 
 const onRedirectByEvent = function (event) {
@@ -243,12 +168,7 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-const onResetPageLayout = function () {
-    const layout = localStorage.getItem('cm_setting_layout_old')
-    onPageLayout(layout);
-}
-
-const onPageLayout = throttle((layout)=>{
+const onChangePageLayout = throttle((layout)=>{
     if(pageStore.layout == layout) {
         return false;
     }
@@ -258,7 +178,7 @@ const onPageLayout = throttle((layout)=>{
     }
 
     aside.layout = layout;
-    aside.layoutFold = Common.getLayoutFold(layout,'aside-wrap');
+    aside.fold = Common.getLayoutFold(layout,aside.prefix);
     pageStore.layout = layout;
 
     localStorage.setItem('cm_setting_layout',layout)
@@ -269,11 +189,11 @@ const onPageLayout = throttle((layout)=>{
 
 watch(() => pageStore.layout,(value)=>{
     aside.layout = value;
-    aside.layoutFold = Common.getLayoutFold(value,'aside-wrap');
+    aside.fold = Common.getLayoutFold(value,aside.prefix);
 })
 
 watch(() => fileStore.id,(value)=>{
-    file.file_id = value || 0;
+    page.file.id = value as string || '0';
 })
 </script>
 <style src="./index.scss" lang="scss" scoped></style>

@@ -5,56 +5,61 @@ import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
 const { t } = i18n.global;
 
 /**
- * 显示Alert
- * @method {showAlert}
+ * 显示提示框
+ * @method showAlert
  * @param {Object} confirm
  * @param {String} content 提示内容
  * @param {String} title 提示标题
- * @param {String} confirmText 按钮文本
+ * @param {String} confirmText 确认按钮文本
+ * @param {String} callback 回调函数名称
+ * @return Void
  */
-const showAlert = function (confirm, content:string, title:string = '', confirmText:string = '', callback:string = '') {
-    confirm.show = true;
-    confirm.title = title ?? t('alert.default');
-    confirm.content = content;
-    confirm.callback = callback;
+const showAlert = function (confirm, content:string, title:string = '', confirmText:string = '', callback:string = ''):void {
+    const object = {
+        show: true,
+        title: title || t('alert.default'),
+        content: content,
+        callback: callback,
+        showCancel: false,
+        cancelText: '',
+        confirmText: confirmText || t('button.ok')
+    }
 
-    confirm.showCancel = false;
-    confirm.cancelText = '';
-    confirm.confirmText = confirmText ?? t('button.ok') ;
-    // const object = {
-    //     show: true,
-    //     title: title,
-    //     content: content,
-    //     callback: callback,
-    //     showCancel: false,
-    //     cancelText: '',
-    //     confirmText: confirmText
-    // }
-    //
-    // Object.assign(confirm,object)
+    Object.assign(confirm,object)
 }
 
 /**
- * 显示Confirm
- * @method {showConfirm}
- * @param {Object} that
+ * 显示同意框
+ * @method showConfirm
+ * @param {Object} confirm
  * @param {String} content 提示内容
+ * @param {String} callback 回调函数名称
  * @param {String} title 提示标题
- * @param {String} confirmText 按钮文本
+ * @param {String} confirmText 确认按钮文本
+ * @param {String} cancelText 取消按钮文本
  */
-const showConfirm = function (confirm, content:string, callback:string= '', title:string='', confirmText:string='', cancelText:string=''):void {
-    confirm.show = true;
+const showConfirm = function (confirm, content:string, callback:string = '', title:string = '', confirmText:string = '', cancelText:string = ''):void {
+    const object = {
+        show: true,
+        title: title || t('alert.default'),
+        content: content,
+        callback: callback,
 
-    confirm.title = title ?? t('alert.default');
-    confirm.content = content;
-    confirm.callback = callback;
+        showCancel: true,
+        cancelText: cancelText || t('button.cancel'),
+        confirmText: confirmText || t('button.confirm')
+    }
 
-    confirm.showCancel = true;
-    confirm.cancelText = cancelText ?? t('button.cancel');
-    confirm.confirmText = confirmText ?? t('button.confirm');
+    Object.assign(confirm,object)
 }
 
-const operateConfirm = function (confirm, page):boolean {
+/**
+ * 操作同意框
+ * @method operateConfirm
+ * @param {Object} confirm
+ * @param {String} page
+ */
+const operateConfirm = function (confirm, page):boolean|void {
     confirm.show = false;
 
     if(Base.isEmpty(confirm.callback)) {
@@ -62,7 +67,6 @@ const operateConfirm = function (confirm, page):boolean {
     }
 
     page.actions[confirm.callback]()
-    return true;
 }
 
 /**
@@ -91,7 +95,6 @@ const showLoading = function (page):void {
 const hideLoading = function (page):void {
     page.loading = false
 }
-
 
 /**
  * 延时渲染页面
@@ -126,12 +129,12 @@ const setArchive = function (Archive):void {
  * @param {String} title
  * @param {String} subtitle
  */
-const showEmpty = function (empty,title:string, subtitle: string,icon:string='icon-file'):void {
+const showEmpty = function (empty,title:string, subtitle: string = '',icon:string='icon-file'):void {
     const object = {
         show: true,
         icon: icon,
         title: title,
-        subtitle: subtitle ?? '',
+        subtitle: subtitle || '',
     }
     Object.assign(empty,object)
 }
@@ -204,6 +207,8 @@ const setCountUnit = function (count:number = 0):string {
 }
 
 export default {
+    showEmpty: showEmpty,
+    hideEmpty: hideEmpty,
     showLoading: showLoading,
     hideLoading: hideLoading,
 
@@ -212,12 +217,10 @@ export default {
     cancelConfirm: cancelConfirm,
     operateConfirm: operateConfirm,
 
-    showEmpty: showEmpty,
-    hideEmpty: hideEmpty,
-
     lazyRenderPage: lazyRenderPage,
     setArchive:setArchive,
     setCountUnit: setCountUnit,
-    getDefaultImage: getDefaultImage,
+
     getLayoutFold: getLayoutFold,
+    getDefaultImage: getDefaultImage
 }
