@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref,reactive,watch} from "vue";
+import {ref, reactive, watch} from "vue";
 import { useRouter } from 'vue-router'
 import {Base,Common,User} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
@@ -275,8 +275,5 @@ watch(() => pageStore.layout,(value)=>{
 watch(() => fileStore.id,(value)=>{
     file.file_id = value || 0;
 })
-
 </script>
-<style lang="scss" scoped>
-@use "./index.scss";
-</style>
+<style src="./index.scss" lang="scss" scoped></style>

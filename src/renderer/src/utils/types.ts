@@ -3,8 +3,9 @@ export interface PageInter {
     init?: boolean,
     loading?: boolean,
     upload?: boolean
-    layout?: string,
+
     aside?: string,
+    layout?: string,
     actions?: object
 }
 
@@ -17,7 +18,6 @@ export interface ConfirmInter {
     cancelText?: string,
     confirmText?: string
 }
-
 
 export interface FileInter {
     file_id:number,

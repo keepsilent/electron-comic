@@ -1,8 +1,5 @@
 {
-	"welcome": "Welcome",
-	"message": {
-		"hello": "Hello, {name}!"
-	},
+	"launch": "App is running, Please wait...",
 	"home": {
 		"lose": "It might have been renamed, moved or deleted.",
 		"unknown": "unknown"

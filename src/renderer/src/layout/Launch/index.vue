@@ -17,12 +17,13 @@
                     </div>
                 </div>
             </div>
-            <div class="launch-footer">App is running, Please wait...</div>
+            <div class="launch-footer">{{t('launch')}}</div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import {useI18n} from "vue-i18n";
 import {reactive, watch} from "vue";
 
 interface Props {
@@ -33,14 +34,12 @@ interface Page {
     show: boolean
 }
 
+const { t } = useI18n();
 const props = defineProps<Props>()
-const page:Page = reactive({show: true})
+const page = reactive<Page>({show: true})
 
 watch(() => props.show,(value)=>{
-    //延时显示，动画效果更佳
     setTimeout(()=> {page.show = value},10)
 })
 </script>
-<style lang="scss" scoped>
-@use "./index.scss";
-</style>
+<style src="./index.scss" lang="scss" scoped></style>

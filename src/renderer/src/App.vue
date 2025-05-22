@@ -1,5 +1,5 @@
 <template>
-    <div class="wrap" @click="onBubbling">
+    <div class="wrap" @click="onWatchBubbling">
         <Aside></Aside>
         <div class="inner">
             <Header></Header>
@@ -20,54 +20,53 @@
     <Launch :show="page.launch"></Launch>
 </template>
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
 import {reactive, watch} from "vue";
-import {storeToRefs} from 'pinia'
-import {Base,Common} from "@renderer/utils";
+import {Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
 import Header from '@renderer/layout/Header/index.vue'
 import Launch from '@renderer/layout/Launch/index.vue'
 
-interface Page  {
+interface Page {
     launch: boolean,
     layout: string
 }
 
-const {locale} = useI18n();
 const pageStore = usePageStore();
-const page:Page = reactive({launch: true, layout: Common.getLayoutFold(pageStore.layout,'main')})
+const page:Page = reactive({
+    launch: true,
+    layout: Common.getLayoutFold(pageStore.layout,'main')
+})
 
-
-// const ipcHandle = (): void => window.electron.ipcRenderer.send('maximize')
-// window.electron.ipcRenderer.on('resize',(event,args)=> {
-//     const {x, y, width, height} = args;
-//
-//     pageStore.x = x;
-//     pageStore.y = y;
-//     pageStore.width = width;
-//     pageStore.height = height;
-// })
-
-const onBubbling = function () {
+const onWatchBubbling = function ():void {
     pageStore.toolbar.more = false;
     pageStore.toolbar.submenu.view = false;
     pageStore.toolbar.submenu.order = false;
 }
 
-window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
+const setLaunch = function ():void {
     page.launch = false;
+}
 
-    if(localStorage.getItem('cm_setting_maximize') == 'true') {
-        window.electron.ipcRenderer.send('maximize');
+const setMaximize = function ():boolean|void {
+    const maximize = localStorage.getItem('cm_setting_maximize') ?? '';
+
+    if(maximize !== 'true') {
+        return false
     }
+
+    window.electron?.ipcRenderer.send('maximize');
+}
+
+window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
+    setLaunch();
+    setMaximize();
 })
 
-watch(() => pageStore.layout,(value)=>{
+watch(() => pageStore.layout,(value) => {
     page.layout = Common.getLayoutFold(value,'main');
 })
-
 </script>
 <style scoped lang="scss">
 .main {

@@ -1,10 +1,8 @@
-import Base from '@renderer/utils/base';
 import {i18n} from '@renderer/locales';
+import Base from '@renderer/utils/base';
 import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
 
 const { t } = i18n.global;
-
-
 
 /**
  * 显示Alert
@@ -76,7 +74,6 @@ const cancelConfirm = function (confirm):void {
     confirm.show = false;
 }
 
-
 /**
  * 显示加载动画
  * @method showLoading
@@ -130,7 +127,6 @@ const setArchive = function (Archive):void {
  * @param {String} subtitle
  */
 const showEmpty = function (empty,title:string, subtitle: string,icon:string='icon-file'):void {
-
     const object = {
         show: true,
         icon: icon,
@@ -146,7 +142,6 @@ const showEmpty = function (empty,title:string, subtitle: string,icon:string='ic
  * @param {EmptyInter} empty
  */
 const hideEmpty = function (empty):void {
-
     const object = {
         show: false
     }
@@ -169,35 +164,44 @@ const getDefaultImage = function (type:string = ''):string {
     return img;
 }
 
-const getLayoutFold = function (value, key) {
+/**
+ * 获取布局类型
+ * @param {String} type 布局类型
+ * @param {String} prefix 样式前缀
+ * @return {String}
+ */
+const getLayoutFold = function (type:string = '', prefix:string = ''):string {
     let fold = '';
-    switch (value) {
+    switch (type) {
         case 'one':
-            fold = key+'__fold';
+            fold = prefix+'__fold';
             break
         case 'two':
-            fold = key+'__fold-2';
+            fold = prefix+'__fold-2';
             break
     }
 
     return fold;
 }
 
-
 /**
  * 设置统计单位
  * @method setCountUnit
- * @param {number} value
+ * @param {Number} count
+ * @return {String}
  */
-const setCountUnit = function (value:number):number|string {
-    if(value < 1000) {
-        return value;
+const setCountUnit = function (count:number = 0):string {
+    if(count < 1000) {
+        return count as string;
     }
 
-    return parseInt((value / 1000).toString()) + 'k';
+    let num = count / 1000;
+    if(Number.isInteger(num) == false) {
+        num = Math.round(num * 10) / 10;
+    }
+
+    return `${num}k`;
 }
-
-
 
 export default {
     showLoading: showLoading,
