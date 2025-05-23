@@ -19,11 +19,11 @@ export const isFileExist = async function ({name}):Promise<Result> {
     return await DB.query(data);
 }
 
-export const getRandomFileInfo = async function ({id}):Promise<Result> {
-    const sql = `SELECT * FROM cm_file WHERE file_id != $id AND file_status = 'normal' ORDER BY RANDOM() LIMIT 1`;
+export const getRandomFileInfo = async function ({file_id}):Promise<Result> {
+    const sql = `SELECT * FROM cm_file WHERE file_id != $file_id AND file_status = 'normal' ORDER BY RANDOM() LIMIT 1`;
     const data:queryParam = {
         sql: sql,
-        params: {$id: id}
+        params: {$file_id: file_id}
     }
     console.log('getRandomFileInfo',sql);
     return await DB.query(data);

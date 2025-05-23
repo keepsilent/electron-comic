@@ -195,7 +195,7 @@ const getLayoutFold = function (type:string = '', prefix:string = ''):string {
  */
 const setCountUnit = function (count:number = 0):string {
     if(count < 1000) {
-        return count as string;
+        return count.toString();
     }
 
     let num = count / 1000;

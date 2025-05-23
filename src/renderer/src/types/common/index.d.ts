@@ -3,6 +3,20 @@ export interface Page {
     actions: object
 }
 
+export interface File {
+    file_id: number,
+    file_date: string,
+    file_modified: string,
+    file_name: string,
+    file_path: string,
+    file_status: string,
+    file_size: string,
+    file_total: string,
+    file_mine_type: string,
+    file_view :number,
+    file_intro: string,
+}
+
 export interface ConfirmInter {
     show: boolean,
     content: string,

@@ -2,7 +2,7 @@ import type {Page} from "@renderer/types/common";
 
 export interface PageInter extends Page {
     file: {
-        id: string
+        file_id: string
     }
 }
 

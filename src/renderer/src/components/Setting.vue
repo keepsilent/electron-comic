@@ -149,7 +149,7 @@ interface About {
 }
 
 const { t, locale} = useI18n();
-const emit = defineEmits(['hide'])
+const emit = defineEmits(['hide','electron'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
 const page:Page = reactive({show: true})
@@ -268,11 +268,12 @@ const changeWindow = function (value:string):boolean {
     const isMaximize = value == 'maximize' ? 1: 0;
     localStorage.setItem('cm_setting_maximize', isMaximize.toString())
     if(isMaximize == 1) {
-       electron?.ipcRenderer.send('maximize');
+        emit('electron',{key:'maximize'})
+       //electron!.ipcRenderer.send('maximize');
         return false;
     }
-
-    electron?.ipcRenderer.send('restore');
+    emit('electron',{key:'restore'})
+    //electron!.ipcRenderer.send('restore');
     return true;
 }
 
@@ -291,7 +292,8 @@ const onToggleSwitch = function (option) {
 }
 
 const onSelectFile = function () {
-   electron?.ipcRenderer.send('openDialog',general.path);
+    emit('electron',{key:'openDialog',data:general.path})
+   //electron!.ipcRenderer.send('openDialog',general.path);
 }
 
 // electron.ipcRenderer.on('openDialog',(event,args)=> {

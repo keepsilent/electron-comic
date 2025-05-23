@@ -77,7 +77,7 @@ const fileStore = useFileStore();
 const page:PageInter = reactive({
     init: false,
     file: {
-        id: ''
+        file_id: ''
     },
     actions: {}
 });
@@ -116,8 +116,8 @@ const confirm:ConfirmInter = reactive({show: false, content: ''});
 
 const loadRandomFileInfo = debounce(async () => {
     try {
-        const {file: {id} } = page
-        const params = {id: id}
+        const {file: {file_id} } = page
+        const params = {file_id: file_id}
         const res = await getRandomFileInfo(params);
         if(res.code != 200) {
             return false;
@@ -193,7 +193,7 @@ watch(() => pageStore.layout,(value)=>{
 })
 
 watch(() => fileStore.id,(value)=>{
-    page.file.id = value as string || '0';
+    page.file.file_id = value ? value as string : '0';
 })
 </script>
 <style src="./index.scss" lang="scss" scoped></style>
