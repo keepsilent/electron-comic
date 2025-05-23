@@ -1,4 +1,7 @@
 import Base from "./base";
+import {i18n} from '@renderer/locales';
+
+const { t } = i18n.global;
 
 /**
  * 兼容日期,支持IOS日期转换
@@ -37,10 +40,11 @@ const dateToTimestamp = function (value:string|number):number {
  * 获得之前间时间
  * @method getTimeAgo
  * @param {Number} date 日期值：日期字符串或时间戳
- * @param {String} format 日期格式,默认：YYYY-MM-DD HH:mm:ss
+ * @param {String} format 日期格式,默认：YYYY/MM/DD HH:mm:ss
+ * @param {String} short 日期短格式,默认：MM/DD HH:mm:ss
  * @return {String}
  */
-const getTimeAgo = function (date:string|number, format:string = 'YYYY/MM/DD HH:mm:ss'):string {
+const getTimeAgo = function (date:string|number, format:string = 'YYYY/MM/DD HH:mm:ss',short:string= 'MM/DD HH:mm:ss'):string {
     if (Base.isEmpty(date)) {
         return '';
     }
@@ -49,38 +53,51 @@ const getTimeAgo = function (date:string|number, format:string = 'YYYY/MM/DD HH:
     const timeStamp = dateToTimestamp(date);
     const value = now - timeStamp; //时间差
 
+    const year = new Date().getFullYear().toString();
     const day = Math.floor(value / (1000 * 60 * 60) / 24);
     const hour = Math.floor(value / (1000 * 60 * 60));
     const minute = Math.floor(value / (1000 * 60));
     const second = Math.floor(value / 1000);
 
-    if (day >= 1 && day <= 3) {
-        return `${day} day, ${hour - day * 24} hours ago`;
+    if (day >= 1 && day <= 6) {
+        if(hour - day * 24 == 0) {
+            return t('time.dayAgo', {day: day});
+        } else {
+            return t('time.day', {day: day, hour: hour - day * 24});
+        }
     }
 
     if (hour >= 1 && hour <= 23) {
-        return `${hour} hours, ${minute - hour * 60} minutes ago`;
+        if(minute - hour * 60 == 0) {
+            return t('time.hourAgo', {hour: hour});
+        } else {
+            return t('time.hour', {hour: hour, minute: minute - hour * 60});
+        }
     }
 
     if (minute >= 1 && minute <= 59) {
-        return `${minute} minutes ago`;
+        return t('time.minute',{minute:minute});
     }
 
     if(second >= 4 && second <= 59) {
-        return `${second} seconds ago`;
+        return t('time.second',{second:second})
     }
 
     if(second >= 0 && second <= 3) {
-        return 'just now';
+        return t('time.now');
     }
 
-    return formatDate(timeStamp, format);
+    if(formatDate(timeStamp, 'YYYY') == year) {
+        return formatDate(timeStamp, short);
+    } else {
+        return formatDate(timeStamp, format);
+    }
 }
 
 /**
  * 格式化日期
  * @method formatDate
- * @param {String} value 日期值，字符串或时间戳
+ * @param {String|Number} value 日期值，字符串或时间戳
  * @param {String} format 日期格式,默认：YYYY-MM-DD HH:mm:ss
  * @return {String}
  */

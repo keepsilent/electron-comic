@@ -322,7 +322,7 @@ const resetFileData = async function (data) {
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(Number(file.file_size));
-    file.file_modified = getTimeAgo(file.file_modified,'YYYY/MM/DD HH:mm:ss');
+    file.file_modified = Time.getTimeAgo(file.file_modified,'YYYY/MM/DD HH:mm:ss');
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
     file.file_artists = await loadFileTaxonomy(file.file_id,'artist');
@@ -915,43 +915,6 @@ const onUpdateFileEdit = function (data):boolean {
 
 const onCopy = function (event) {
     Base.copy(event);
-}
-
-const getTimeAgo = function (date:string|number='', format:string = 'YYYY/MM/DD HH:mm:ss'):string {
-    if (Base.isEmpty(date)) {
-        return '';
-    }
-
-    const now = new Date().getTime();   //获取当前时间毫秒
-    const timeStamp = Time.dateToTimestamp(date);
-    const value = now - timeStamp; //时间差
-
-    const day = Math.floor(value / (1000 * 60 * 60) / 24);
-    const hour = Math.floor(value / (1000 * 60 * 60));
-    const minute = Math.floor(value / (1000 * 60));
-    const second = Math.floor(value / 1000);
-
-    if (day >= 1 && day <= 6) {
-        return t('time.day',{day:day, hour:hour - day * 24});
-    }
-
-    if (hour >= 1 && hour <= 23) {
-        return t('time.hour',{hour:hour, minute:minute - hour * 60});
-    }
-
-    if (minute >= 1 && minute <= 59) {
-        return t('time.minute',{minute:minute});
-    }
-
-    if(second >= 4 && second <= 59) {
-        return t('time.second',{second:second})
-    }
-
-    if(second >= 0 && second <= 3) {
-        return t('time.now');
-    }
-
-    return Time.formatDate(timeStamp, format);
 }
 
 const setCountUnit = function (value) {

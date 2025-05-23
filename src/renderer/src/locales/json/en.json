@@ -277,7 +277,9 @@
 	},
 	"time": {
 		"day": "{day} day, {hour} hours ago",
+		"dayAgo": "{day} day ago",
 		"hour": "{hour} hours, {minute} minutes ago",
+		"hourAgo": "{hour} hours ago",
 		"minute": "{minute} minutes ago",
 		"second": "{second} seconds ago",
 		"now": "just now"

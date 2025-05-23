@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref, reactive, watch} from "vue";
+import {reactive, watch} from "vue";
 import {useRouter,useRoute} from 'vue-router'
 import {Base,Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
@@ -58,7 +58,6 @@ const page:PageInter = reactive({
 })
 
 const confirm:ConfirmInter = reactive({show: false, content: ''});
-
 
 const onSearch = function({keyCode}):boolean|void {
     if(keyCode !== 13) {

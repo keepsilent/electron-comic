@@ -171,7 +171,6 @@ const toolbar = reactive({
 
 onMounted(() => {
     const {q, page, name, taxonomy} = route.query;
-    //console.log('route.query',route.query);
 
     load.page = page as string ?? '1';
     load.q = q as string ?? '';
@@ -188,8 +187,6 @@ const init = function () {
     loadFileList();
 
     page.options = options
-
-    console.log('page.options',page.options);
 }
 
 const setArchive = function () {
@@ -287,7 +284,7 @@ const setFileList = async function (data) {
         data[i].file_ext = getFileExt(data[i].file_path);
         data[i].file_view = setCountUnit(data[i].file_view);
         data[i].file_size = File.formatFileSize(data[i].file_size);
-        data[i].file_date = getTimeAgo(data[i].file_date);
+        data[i].file_date = Time.getTimeAgo(data[i].file_date,'YYYY-MM-DD','MM-DD');
         data[i].file_artist = await loadFileArtist(data[i].file_id);
     }
     load.list = data;
@@ -295,47 +292,6 @@ const setFileList = async function (data) {
 
 const getFileExt = function (path) {
     return File.getFileExt(path).toUpperCase();
-}
-
-const getTimeAgo = function (date:string|number):string {
-    if (Base.isEmpty(date)) {
-        return '';
-    }
-
-    const now = new Date().getTime();   //获取当前时间毫秒
-    const timeStamp = Time.dateToTimestamp(date);
-    const value = now - timeStamp; //时间差
-
-    const day = Math.floor(value / (1000 * 60 * 60) / 24);
-    const hour = Math.floor(value / (1000 * 60 * 60));
-    const minute = Math.floor(value / (1000 * 60));
-    const second = Math.floor(value / 1000);
-
-    if (day >= 1 && day <= 6) {
-        return t('time.day',{day:day, hour:hour - day * 24});
-    }
-
-    if (hour >= 1 && hour <= 23) {
-        return t('time.hour',{hour:hour, minute:minute - hour * 60});
-    }
-
-    if (minute >= 1 && minute <= 59) {
-        return t('time.minute',{minute:minute});
-    }
-
-    if(second >= 4 && second <= 59) {
-        return t('time.second',{second:second})
-    }
-
-    if(second >= 0 && second <= 3) {
-        return t('time.now');
-    }
-
-    if(Time.formatDate(timeStamp, 'YYYY') == new Date().getFullYear().toString()) {
-        return Time.formatDate(timeStamp, 'MM-DD');
-    } else {
-        return Time.formatDate(timeStamp, 'YYYY-MM-DD');
-    }
 }
 
 const setPagination = function ({page,totalPage,total}):void {
