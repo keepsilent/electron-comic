@@ -44,7 +44,7 @@ const dateToTimestamp = function (value:string|number):number {
  * @param {String} short 日期短格式,默认：MM/DD HH:mm:ss
  * @return {String}
  */
-const getTimeAgo = function (date:string|number, format:string = 'YYYY/MM/DD HH:mm:ss',short:string= 'MM/DD HH:mm:ss'):string {
+const getTimeAgo = function (date:string|number = '', format:string = 'YYYY/MM/DD HH:mm:ss',short:string= 'MM/DD HH:mm:ss'):string {
     if (Base.isEmpty(date)) {
         return '';
     }

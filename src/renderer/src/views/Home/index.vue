@@ -1,5 +1,5 @@
 <template>
-    <Toolbar :file="toolbar.file" @order="onSwitchOrder" @upload="onShowUpload" @filter="onFilefilter" @refresh="onRefresh"/>
+    <Toolbar @order="onSwitchOrder" @upload="onShowUpload" @filter="onFilefilter" @refresh="onRefresh"/>
     <div ref="scrollbar" class="file-wrap scrollbar">
 
         <!-- Skeleton -->
@@ -64,7 +64,6 @@
 
     <Statusbar :pagination="pagination" :load="load"></Statusbar>
 
-    <Loading :show="page.loading"></Loading>
     <Upload :show="page.upload" @hide="onHideUpload"></Upload>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
@@ -74,14 +73,15 @@ import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted} from 'vue'
 
-import type { ConfirmInter, EmptyInter} from "@renderer/utils/types";
-import {Base, Common, File, Time} from "@renderer/utils";
+import {Base,Common,File,Time} from "@renderer/utils";
 import {getFileList, getFileArtist} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
+import type {ConfirmInter,EmptyInter,PaginationInter} from "@renderer/types/common";
+import type {PageInter,loadInter, LoadParamsInter, PaginationRouterInter, toolbarInter } from "@renderer/types/views/home";
 
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
-import Loading from "@renderer/components/Loading.vue";
+
 import Empty from "@renderer/components/Empty.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 import Upload from "@renderer/components/Upload.vue";
@@ -89,64 +89,18 @@ import Pagination from "@renderer/components/Pagination.vue";
 import Tooltips from "@renderer/components/Tooltips.vue";
 import {Archive} from "libarchive.js/main";
 
-interface PageInter {
-    init: boolean,
-    loading: boolean,
-    upload: boolean
-    options: {
-        title?: boolean,
-        cover?: boolean,
-        artist?: boolean,
-        date?: boolean,
-        view?: boolean,
-        type?: boolean,
-        size?: boolean
-    },
-    actions: object
-}
-
-interface loadInter {
-    page: string,
-    pageSize: string,
-    list: {
-        file_id:number,
-        file_name?:string,
-        file_cover:string,
-        file_view:number,
-        file_ext:string,
-        file_size:string,
-        file_status:string,
-        file_date: string,
-        file_artist: {
-            status: string,
-            data: {name: string}[],
-            total: number
-        }
-    }[],
-    order: {
-        mode: string,
-        sort:string
-    },
-    q?: string,
-    name?: string
-    taxonomy?: string
-}
-
-interface ListInter {
-    page: string,
-    pageSize: number,
-    q?:string,
-    order?: {mode:string, sort:string},
-    name?:string,
-    taxonomy?:string
-}
-
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
-const page:PageInter = reactive({init: false, loading: false, upload: false, options: {}, actions: {}});
+const scrollbar = ref(null);
+const page:PageInter = reactive({
+    init: false,
+    upload: false,
+    options: {},
+    actions: {}}
+);
 const load:loadInter = reactive({
     page: '1',
     pageSize: pageStore.pageSize,
@@ -159,15 +113,10 @@ const load:loadInter = reactive({
         sort: pageStore.order.file.sort
     }
 })
-const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0})
-
 const empty:EmptyInter = reactive({show: false});
-const confirm:ConfirmInter = reactive({show: false});
-const scrollbar = ref(null);
-const toolbar = reactive({
-    file: {},
-    view: { class: '', model: pageStore.toolbar.view }
-})
+const confirm:ConfirmInter = reactive({show: false, content: ''});
+const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0})
+const toolbar:toolbarInter = reactive({view: { class: '', model: pageStore.toolbar.view }})
 
 onMounted(() => {
     const {q, page, name, taxonomy} = route.query;
@@ -193,10 +142,8 @@ const setArchive = function () {
     Common.setArchive(Archive);
 }
 
-
-
-const getParams = function ():ListInter {
-    const params:ListInter = {
+const getParams = function ():LoadParamsInter {
+    const params:LoadParamsInter = {
         page: load.page,
         pageSize: Number(load.pageSize)
     }
@@ -219,7 +166,7 @@ const getParams = function ():ListInter {
 
 const loadFileList = async function () {
     try {
-        const params:ListInter = getParams();
+        const params = getParams();
         const res = await getFileList(params)
         if(res.code != 200) {
             return false;
@@ -279,7 +226,6 @@ const setFileList = async function (data) {
 
     for(let i in data) {
         data[i].file_name = File.getFileAlias(data[i].file_name);
-
         data[i].file_cover = await getCover(data[i]);
         data[i].file_ext = getFileExt(data[i].file_path);
         data[i].file_view = setCountUnit(data[i].file_view);
@@ -353,22 +299,13 @@ const onOperateConfirm = function():void {
 }
 
 const setDefaultImage = function (event) :void{
-    const  {currentTarget: {dataset: {index}}} = event
+    const {currentTarget: {dataset: {index}}} = event
     load.list[index].file_cover = Common.getDefaultImage();
 }
 
 const onChangePage = function ({value}):void {
-    type Object = {
-        path:string,
-        query: {
-            page: string,
-            pageSize: string,
-            q?:string,
-            name?:string
-            taxonomy?:string
-        }
-    }
-    const object:Object = {
+
+    const object:PaginationRouterInter = {
         path: '/',
         query:  {
             page: value,
@@ -440,5 +377,4 @@ watch(() => pageStore.toolbar.view,(value) => {
     toolbar.view.class = getToolbarViewClass();
 })
 </script>
-
 <style src="./index.scss" lang="scss" scoped></style>

@@ -322,7 +322,7 @@ const resetFileData = async function (data) {
     Object.assign(file,data[0])
     file.file_alias = File.getFileAlias(file.file_name);
     file.file_size = File.formatFileSize(Number(file.file_size));
-    file.file_modified = Time.getTimeAgo(file.file_modified,'YYYY/MM/DD HH:mm:ss');
+    file.file_modified = Time.getTimeAgo(file.file_modified);
 
     file.file_tags = await loadFileTaxonomy(file.file_id,'tag');
     file.file_artists = await loadFileTaxonomy(file.file_id,'artist');

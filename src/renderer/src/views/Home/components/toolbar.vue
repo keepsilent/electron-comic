@@ -170,18 +170,7 @@ import FileFilter from "@renderer/components/FileFilter.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
-    file?: {
-        id?:number,
-        date?: string,
-        modified?:string,
-        name?: string,
-        author?: string,
-        type?: string,
-        path?: string,
-        size?:number,
-        total?:number,
-        status?: string
-    }
+
 }
 
 const { t } = useI18n();
