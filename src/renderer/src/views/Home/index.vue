@@ -64,6 +64,7 @@
 
     <Statusbar :pagination="pagination" :load="load"></Statusbar>
 
+    <!-- 浮动框 -->
     <Upload :show="page.upload" @hide="onHideUpload"></Upload>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
@@ -71,13 +72,13 @@
 <script lang="ts" setup>
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
-import {ref, reactive, watch, onMounted} from 'vue'
+import {ref,reactive,watch,onMounted} from 'vue'
 
 import {Base,Common,File,Time} from "@renderer/utils";
-import {getFileList, getFileArtist} from "@renderer/api/file";
+import {getFileList,getFileArtist} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
 import type {ConfirmInter,EmptyInter,PaginationInter} from "@renderer/types/common";
-import type {PageInter,loadInter, LoadParamsInter, PaginationRouterInter, toolbarInter } from "@renderer/types/views/home";
+import type {PageInter,LoadInter,ToolbarInter} from "@renderer/types/views/home";
 
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
@@ -89,7 +90,7 @@ import Pagination from "@renderer/components/Pagination.vue";
 import Tooltips from "@renderer/components/Tooltips.vue";
 import {Archive} from "libarchive.js/main";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
@@ -101,7 +102,7 @@ const page:PageInter = reactive({
     options: {},
     actions: {}}
 );
-const load:loadInter = reactive({
+const load:LoadInter = reactive({
     page: '1',
     pageSize: pageStore.pageSize,
     list:[],
@@ -116,7 +117,7 @@ const load:loadInter = reactive({
 const empty:EmptyInter = reactive({show: false});
 const confirm:ConfirmInter = reactive({show: false, content: ''});
 const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0})
-const toolbar:toolbarInter = reactive({view: { class: '', model: pageStore.toolbar.view }})
+const toolbar:ToolbarInter = reactive({view: { class: '', model: pageStore.toolbar.view }})
 
 onMounted(() => {
     const {q, page, name, taxonomy} = route.query;
@@ -130,41 +131,35 @@ onMounted(() => {
     init()
 })
 
-const init = function () {
-    const {options} = File.getFileFilterOptions()
+const init = function ():void {
     setArchive();
+    setDisplayOptions();
     loadFileList();
-
-    page.options = options
 }
 
-const setArchive = function () {
+const setArchive = function ():void {
     Common.setArchive(Archive);
 }
 
-const getParams = function ():LoadParamsInter {
-    const params:LoadParamsInter = {
-        page: load.page,
-        pageSize: Number(load.pageSize)
-    }
+const setDisplayOptions = function ():void {
+    const {options} = File.getFileFilterOptions()
+    page.options = options
+}
 
-    if(!Base.isEmpty(load.q )) {
-        params.q = load.q
+const getParams = function ():object {
+    const {page, pageSize, q, order, name, taxonomy } = load;
+    const params = {
+        page: page,
+        pageSize: Number(pageSize),
+        q: q,
+        order: order,
+        name:name,
+        taxonomy: taxonomy,
     }
-
-    if(!Base.isEmpty(load.order)) {
-        params.order = load.order
-    }
-
-    if(!Base.isEmpty(load.name) && !Base.isEmpty(load.taxonomy)) {
-        params.name = load.name
-        params.taxonomy = load.taxonomy
-    }
-
     return params
 }
 
-const loadFileList = async function () {
+const loadFileList = async function ():Promise<boolean|void> {
     try {
         const params = getParams();
         const res = await getFileList(params)
@@ -183,7 +178,7 @@ const loadFileList = async function () {
     }
 }
 
-const setDelayDisplay = function () {
+const setDelayDisplay = function ():boolean|void {
     if(Number(load.page) != 1) {
         page.init = true;
         return false;
@@ -194,11 +189,11 @@ const setDelayDisplay = function () {
     },150)
 }
 
-const setCountUnit = function (value) {
+const setCountUnit = function (value):string {
     return Common.setCountUnit(value);
 }
 
-const setEmpty = function ({total}):boolean {
+const setEmpty = function ({total}):boolean|void {
     if(total != 0) {
         empty.show = false;
         return false;
@@ -215,10 +210,9 @@ const setEmpty = function ({total}):boolean {
     title = t('empty.repositories.title');
     subtitle = t('empty.repositories.subtitle');
     Common.showEmpty(empty,title, subtitle)
-    return true;
 }
 
-const setFileList = async function (data) {
+const setFileList = async function (data):Promise<boolean|void> {
     if(Base.isEmpty(data)) {
         load.list = [];
         return false;
@@ -236,18 +230,18 @@ const setFileList = async function (data) {
     load.list = data;
 }
 
-const getFileExt = function (path) {
+const getFileExt = function(path):string {
     return File.getFileExt(path).toUpperCase();
 }
 
-const setPagination = function ({page,totalPage,total}):void {
+const setPagination = function({page,totalPage,total}):void {
     pagination.show = true;
     pagination.page = page;
     pagination.totalPage = totalPage;
     pagination.total = total;
 }
 
-const getCover = async function ({file_id}):Promise<any>{
+const getCover = async function({file_id}):Promise<any>{
     try {
         const path = File.getFileCoverById(file_id);
         if (File.isExists(path) == false) {
@@ -265,12 +259,11 @@ const onCancelConfirm = function():void {
     Common.cancelConfirm(confirm);
 }
 
-const loadFileArtist = async function (object_id) {
+const loadFileArtist = async function(object_id):Promise<Record<string, any>> {
     try {
         const params = {object_id: object_id}
         const res = await getFileArtist(params);
 
-        console.log('res',res);
         if(res.code != 200 || Base.isEmpty(res.data)) {
             return { status: 'fail', data: [], total: 0};
         }
@@ -278,11 +271,11 @@ const loadFileArtist = async function (object_id) {
         return { status: 'success', data: res.data, total: Base.getDataLength(res.data)};
     } catch (err) {
         Base.printErrorLog('getFileArtist',err)
-        return  { status: 'fail', data: [],total: 0}
+        return  { status: 'fail', data: [], total: 0}
     }
 }
 
-const onRedirect = function (event):void {
+const onRedirect = function(event):void {
     const {currentTarget: {dataset: {id}}} = event
     const object = {
         path: '/reader',
@@ -298,44 +291,38 @@ const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
-const setDefaultImage = function (event) :void{
+const setDefaultImage = function(event):void{
     const {currentTarget: {dataset: {index}}} = event
     load.list[index].file_cover = Common.getDefaultImage();
 }
 
-const onChangePage = function ({value}):void {
-
-    const object:PaginationRouterInter = {
+const onChangePage = function({value}):void {
+    const {q, name, taxonomy } = load;
+    const object = {
         path: '/',
         query:  {
             page: value,
-            pageSize: load.pageSize
+            pageSize: load.pageSize,
+            q: q,
+            name:name,
+            taxonomy: taxonomy,
         }
-    }
-
-    if(!Base.isEmpty(load.q)) {
-        object.query.q = load.q;
-    }
-
-    if(!Base.isEmpty(load.name) && !Base.isEmpty(load.taxonomy)) {
-        object.query.name = load.name;
-        object.query.taxonomy = load.taxonomy;
     }
 
     router.push(object)
 }
 
-const onSwitchOrder = function ({mode, sort}):void {
+const onSwitchOrder = function({mode, sort}):void {
     load.order = { mode: mode, sort: sort}
     loadFileList();
 }
 
 
-const onShowUpload = function ():void {
+const onShowUpload = function():void {
     page.upload = true
 }
 
-const onHideUpload = function ({refresh}):boolean|void {
+const onHideUpload = function({refresh}):boolean|void {
     if(refresh == false) {
         page.upload = false;
         return false;
@@ -346,17 +333,17 @@ const onHideUpload = function ({refresh}):boolean|void {
     init();
 }
 
-const onRefresh = function () {
+const onRefresh = function():void {
     page.init = false;
     init();
 }
 
-const getToolbarViewClass = function () {
+const getToolbarViewClass = function():string {
     const model = pageStore.toolbar.view;
     return `file-main__${model}`;
 }
 
-const onFilefilter = function ({change}) {
+const onFilefilter = function({change}):boolean|void {
     if(change == false) {
         return false;
     }

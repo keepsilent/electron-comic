@@ -120,18 +120,9 @@ const getFileListOrderBy = function ({mode ='name',sort= 'desc'}):string {
     return `ORDER BY ${options[mode]} ${sort.toUpperCase()}`;
 }
 
-interface ListInter {
-    page: string,
-    pageSize: number,
-    q?:string,
-    order?: {mode:string, sort:string},
-    name?:string,
-    taxonomy?:string
-}
-export const getFileList = async function (params:ListInter):Promise<Result> {
+export const getFileList = async function (params:Record<string, any>):Promise<Result> {
     try {
         const {page, pageSize, q, name, taxonomy, order} = params;
-        console.log('getFileList order',order);
         const total = await getFileTotal({q, name, taxonomy});
         const totalPage = Base.getTotalPage(total, pageSize);
         const join = getFileListJoin({name, taxonomy})
@@ -196,7 +187,6 @@ export const updateFileStatus = async function ({id, status}):Promise<Result> {
 
 
 export const updateFileInfo = async function ({file_id, data}):Promise<Result> {
-
     const params:updateParam = {
         table: 'cm_file',
         data: {

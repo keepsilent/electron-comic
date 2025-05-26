@@ -27,7 +27,7 @@ export interface PageInter extends Page {
     }
 }
 
-export interface loadInter {
+export interface LoadInter {
     page: string,
     pageSize: string,
     list: FileItem[],
@@ -40,29 +40,7 @@ export interface loadInter {
     taxonomy?: string
 }
 
-
-export interface LoadParamsInter {
-    page: string,
-    pageSize: number,
-    q?:string,
-    order?: {mode:string, sort:string},
-    name?:string,
-    taxonomy?:string
-}
-
-
-export interface PaginationRouterInter {
-    path:string,
-    query: {
-        page: string,
-        pageSize: string,
-        q?:string,
-        name?:string
-        taxonomy?:string
-    }
-}
-
-export interface toolbarInter {
+export interface ToolbarInter {
     view: {
         class: string,
         model: string
