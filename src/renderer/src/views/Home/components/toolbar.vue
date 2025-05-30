@@ -147,9 +147,7 @@
 <!--            <div class="item" @click="onShowSetting"><span><i class="iconfont icon-setting"></i><em>{{t('button.settings')}}</em></span></div>-->
 
             <div class="item" @click="onGoBack"><span><i class="iconfont icon-back"></i><em class="title">{{t('button.return')}}</em></span></div>
-
             <div class="item" @click="onRefresh"><span><i class="iconfont icon-refresh"></i><em class="title">{{t('button.refresh')}}</em></span></div>
-
         </div>
     </div>
 
@@ -169,11 +167,41 @@ import {usePageStore} from '@renderer/stores/page'
 import FileFilter from "@renderer/components/FileFilter.vue";
 import Confirm from "@renderer/components/Confirm.vue";
 
-interface Props {
+interface Props {}
 
+interface PageInter {
+    show:boolean,
+    more:boolean,
+    filter:boolean,
+    actions:any,
+    open:{
+        data:{name:string,value:string}[]
+    },
+    view: {
+        show:boolean,
+        current:string,
+        data:{name:string,value:string,icon:string}[]
+    },
+    order: {
+        show:boolean,
+        mode: {
+            current:string,
+            data:{name:string,value:string}[],
+            more:{name:string,value:string}[]
+        },
+        sort: {
+            current:string,
+            data:{name:string,value:string}[]
+        }
+    },
+    submenu: {
+        open: {width: number,left:number},
+        view: {width: number,left:number},
+        order: {width: number,left:number}
+    }
 }
 
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 const emit = defineEmits(['cancel','confirm','order','upload','filter','refresh'])
@@ -182,10 +210,10 @@ const pageStore = usePageStore();
 const open:any = ref(null);
 const view:any = ref(null);
 const order:any = ref(null);
-const page = reactive({
+const page = reactive<PageInter>({
     show: false,
     actions:{
-        onDeleteFile:  async function() {
+        onDeleteFile: async function() {
             // try {
             //     const {id} = props.file;
             //     // if (File.deleteFile(path) == false) {
@@ -279,15 +307,7 @@ const onDeleteFile = function () {
     Common.showConfirm(confirm,t("confirm.delete.content"),'onDeleteFile',t("confirm.delete.title"));
 }
 
-const onCancelConfirm = function () {
-    Common.cancelConfirm(confirm);
-}
-
-const onOperateConfirm = function () {
-    Common.operateConfirm(confirm, page);
-}
-
-const onShowMoreMenu = function () {
+const onShowMoreMenu = function():void {
     page.more = true;
     page.view.show = false;
     page.order.show = false;
@@ -296,7 +316,7 @@ const onShowMoreMenu = function () {
     pageStore.toolbar.submenu.order = false;
 }
 
-const onShowOrderMenu = function () {
+const onShowOrderMenu = function():void {
     page.more = false;
     page.order.show = true;
     page.view.show = false;
@@ -336,7 +356,7 @@ const onSwitchOrderMode = function (event) {
     setOrderConfig();
 }
 
-const onSwitchOrderSort = function (event) {
+const onSwitchOrderSort = function (event):boolean|void {
     const {currentTarget: {dataset: {value}}} = event
     const mode = page.order.sort.current
     if(mode == value) {
@@ -355,29 +375,24 @@ const onSwitchOrderSort = function (event) {
     setOrderConfig();
 }
 
-const setOrderConfig = function () {
+const setOrderConfig = function():void {
     emit('order',{
         'mode': page.order.mode.current,
         'sort': page.order.sort.current
     })
 }
 
-const onShowSetting = function () {
+const onShowSetting = function():void {
     setHideMoreMenu()
     pageStore.pop.setting = true;
 }
 
-const onGoBack = async function () {
-    setHideMoreMenu();
-    router.back();
-}
-
-const setHideMoreMenu = function () {
+const setHideMoreMenu = function():void {
     page.more = false;
     pageStore.toolbar.more = false;
 }
 
-const onSubItemFoucs = async function (event) {
+const onSubItemFoucs = function (event):boolean|void {
     const {currentTarget: {dataset: {key}}} = event
     if(page.submenu[key].width != 0) {
         return false;
@@ -398,14 +413,12 @@ const onSubItemFoucs = async function (event) {
 
     page.submenu[key].width = width;
     page.submenu[key].left = ((width - 5) * - 1) + 'px';
-    console.log('page.submenu',page.submenu);
 }
 
-const onSwitchView = function (event) {
+const onSwitchView = function(event):void {
     const {currentTarget: {dataset: {value}}} = event
     page.view.show = false;
     page.view.current = value;
-
 
     pageStore.toolbar.more = false;
     pageStore.toolbar.view = value;
@@ -413,35 +426,41 @@ const onSwitchView = function (event) {
     localStorage.setItem('cm_setting_view',value);
 }
 
-const onSwitchOpen = function () {
-
+const onGoBack = function():void {
+    setHideMoreMenu();
+    router.back();
 }
 
-const onShowUpload = function () {
+const onShowUpload = function():void {
     emit('upload');
     pageStore.toolbar.more = false;
 }
 
-const onRefresh = function () {
+const onSwitchOpen = function(event):void {
+    const {currentTarget: {dataset: {value}}} = event
+    Common.openFolder(value);
+}
+
+const onRefresh = function():void {
     emit('refresh');
     pageStore.toolbar.more = false;
 }
 
-const getViewIcon = function () {
+const getViewIcon = function():string {
     let icon = '';
-    switch (page.view.current) {
+    const {view:{current}} = page
+    switch (current) {
         case 'super':
             icon = 'icon-large-icon';
             break;
         default:
-            icon = `icon-${page.view.current}-icon`;
+            icon = `icon-${current}-icon`;
             break
     }
     return icon;
 }
 
-const isOrderModeMore = function (value) {
-
+const isOrderModeMore = function(value):boolean {
     const options = ['name', 'type', 'date', 'more'];
     if(options.includes(value)) {
         if(page.order.mode.current == value && value != 'more') {
@@ -455,14 +474,22 @@ const isOrderModeMore = function (value) {
     return false;
 }
 
-const onShowFileFilter = function () {
+const onShowFileFilter = function():void {
     page.filter = true;
     pageStore.toolbar.more = false;
 }
 
-const onCancelFileFilter = function ({change}) {
+const onCancelFileFilter = function({change}):void {
     page.filter = false
     emit('filter',{change:change})
+}
+
+const onCancelConfirm = function():void {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function():void {
+    Common.operateConfirm(confirm, page);
 }
 
 watch(() => pageStore.toolbar.more,(value)=> {

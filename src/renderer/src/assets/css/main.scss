@@ -396,7 +396,9 @@ img { -webkit-user-drag: none; }
         align-items: center;
 
         span {
-            margin-right: var(--spacing-m);
+            display: flex;
+            align-items: center;
+            margin-right: var(--spacing-s);
             &:last-child {
                 margin-right: 0;
             }

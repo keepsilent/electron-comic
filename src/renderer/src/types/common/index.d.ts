@@ -38,7 +38,8 @@ export interface PaginationInter {
     show: boolean,
     page: number,
     totalPage: number,
-    total: number
+    total: number,
+    source?:string
 }
 
 export interface InterimInter {

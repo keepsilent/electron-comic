@@ -869,7 +869,6 @@ const getThumbnailCacheData = function ():object {
 }
 
 const onUpdateSettings = function ({key,value}) {
-    console.log('onUpdateSettings',key,value);
     switch (key) {
         case 'space':
             settings.space = value;

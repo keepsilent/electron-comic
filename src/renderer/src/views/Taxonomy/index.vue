@@ -1,17 +1,17 @@
 <template>
-    <Toolbar @upload="onShowUpload"/>
+    <Toolbar @upload="onShowUpload" @refresh="onRefresh"/>
     <div class="taxonomy-wrap scrollbar">
         <div v-if="empty.show != true" class="taxonomy-header">
             <div class="menu">
-                <span v-for="(item,index) in page.menu" :key="index" :class="{'active':page.current == item.value}"  @click="onSwitchSort(item.value)">{{item.name}}</span>
+                <span v-for="(item,index) in menu.data" :key="index" :class="{'active':menu.current == item.value}"  @click="onSwitchSort(item.value)">{{item.name}}</span>
             </div>
-            <div v-if="page.current == 'group'" class="sort" >
-                <span v-for="(item,index) in page.sort" :key="index" :class="{'selected':item.selected}" @click="onSwitchGroup(item.value)">{{item.name}}</span>
+            <div v-if="menu.current == 'group'" class="sort" >
+                <span v-for="(item,index) in menu.sort" :key="index" :class="{'selected':item.selected}" @click="onSwitchGroup(item.value)">{{item.name}}</span>
             </div>
         </div>
         <div v-if="empty.show != true"  class="taxonomy-main">
-            <template v-if="page.current == 'group'">
-                <section v-for="(items,indexs) in page.data" :key="indexs" :class="{active: page.group == items.name}">
+            <template v-if="menu.current == 'group'">
+                <section v-for="(items,indexs) in load.list" :key="indexs" :class="{active: menu.group == items.name}">
                     <h3>{{items.name}}</h3>
                     <span v-for="(item, index) in items.data" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                         <em>{{item.name}}</em>
@@ -20,14 +20,14 @@
                 </section>
             </template>
 
-            <template v-if="page.current == 'popular'">
-                <span v-for="(item,index) in page.popular" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
+            <template v-if="menu.current == 'popular'">
+                <span v-for="(item,index) in load.popular" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                     <em>{{item.name}}</em>
                     <i>{{setCountUnit(item.count)}}</i>
                 </span>
             </template>
         </div>
-        <Statusbar :pagination="pagination" :group="page.group"></Statusbar>
+        <Statusbar :pagination="pagination" :group="menu.group"></Statusbar>
 
         <Empty :empty="empty" style="margin-top:20%"></Empty>
         <Upload :show="page.upload" @hide="onHideUpload"></Upload>
@@ -37,57 +37,43 @@
 
 <script lang="ts" setup>
 import {useI18n} from 'vue-i18n';
+import {reactive,onMounted} from 'vue'
 import {useRouter,useRoute} from 'vue-router'
-import {ref, reactive, watch, onMounted} from 'vue'
-import type { ConfirmInter, EmptyInter} from "@renderer/utils/types";
-import {Base, Common, File} from "@renderer/utils";
+import {Base, Common} from "@renderer/utils";
+import type {ConfirmInter,EmptyInter,PaginationInter} from "@renderer/types/common";
+import type {PageInter,LoadInter,MenuInter,SortInter,TermInter} from "@renderer/types/views/taxonomy";
 import {getTermList, getTermGroupFristRcord, getTermGroupFristRcordPosition} from "@renderer/api/terms";
-import {debounce, throttle} from "@renderer/utils/throttle";
-
+import {throttle} from "@renderer/utils/throttle";
 import {usePageStore} from '@renderer/stores/page'
+
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
 import Empty from "@renderer/components/Empty.vue";
 import Upload from "@renderer/components/Upload.vue";
 import Pagination from "@renderer/components/Pagination.vue";
 
-interface PageInter {
-    current:string,
-    menu:{name:string,value:string}[],
-    data:any[],
-    popular:any[],
-    upload:boolean,
-    group:string,
-    sort:any[]
-}
-
-interface LoadInter {
-    page:number,
-    pageSize:number,
-    taxonomy:string,
-    sort:string
-}
-
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
-const load:LoadInter = reactive({ page: 1, pageSize: 100, taxonomy: '', sort: ''})
-const pagination = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
-const empty:EmptyInter = reactive({show: false});
 const page:PageInter = reactive({
+    init:false,
+    actions: {},
+    upload: false,
+})
+const menu:MenuInter = reactive({
     current: 'group',
-    menu: [
+    group: '',
+    sort: [],
+    data: [
         {name: 'A-Z',value: 'group'},
         {name:'Popular',value: 'popular'}
-    ],
-    data:[],
-    popular:[],
-
-    upload: false,
-    group: '',
-    sort: []
+    ]
 })
+const load:LoadInter = reactive({ page: '1', pageSize: 100, list:[], popular:[], taxonomy: '', sort: ''})
+const empty:EmptyInter = reactive({show: false});
+const confirm:ConfirmInter = reactive({show: false, content: ''});
+const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
 
 onMounted(()=> {
     init();
@@ -95,23 +81,24 @@ onMounted(()=> {
 
 const init = function () {
     const {type, page: current, group, sort} = route.query;
-    console.log('route.query',route.query);
 
-    page.group = group as string ?? '';
-    page.current = sort as string ?? 'group';
+    menu.group = group as string ?? '';
+    menu.current = sort as string ?? 'group';
 
-    load.page = Number(current as string) || 1;
+    load.page = current as string ?? '1';
     load.taxonomy = getTaxonomy(type as string);
 
-    pagination.source = t('aside.menu.'+type);
+    pagination.source = t('aside.menu.'+type) as string || '';
     loadTermList();
 }
 
-const setCountUnit = function (value) {
-    return Common.setCountUnit(value);
+const onRefresh = function():void {
+    page.init = false;
+    load.page = '1';
+    loadTermList();
 }
 
-const loadTermList = async function () {
+const loadTermList = async function():Promise<boolean|void> {
     try {
         const params = getParams()
         const res = await getTermList(params);
@@ -119,9 +106,8 @@ const loadTermList = async function () {
             return false;
         }
 
-        let {list,total} = res.data;
-        page.popular = list ?? [];
-        //pageStore.num = total ?? 0;
+        let {list} = res.data;
+        load.popular = list ?? [];
 
         setEmpty(res.data);
         setDataGroup(list);
@@ -132,7 +118,7 @@ const loadTermList = async function () {
     }
 }
 
-const setEmpty = function ({total}):boolean|void {
+const setEmpty = function({total}):boolean|void {
     if(total !== 0 ) {
         return false;
     }
@@ -152,7 +138,7 @@ const setEmpty = function ({total}):boolean|void {
     Common.showEmpty(empty, title, subtitle, icon)
 }
 
-const setDataGroup = function (data:any[]):void {
+const setDataGroup = function(data:any[]):void {
     const group = {};
     for(let i in data) {
         let {term_group} = data[i];
@@ -161,11 +147,11 @@ const setDataGroup = function (data:any[]):void {
         }
     }
 
-    page.sort = getSortData(group);
-    page.data = getGroupData(group, data);
+    menu.sort = getSortData(group);
+    load.list = getGroupData(group, data);
 }
 
-const getSortData = function(group:object):object[] {
+const getSortData = function(group:object):SortInter[] {
     const data:any[] = createSortDefaultData();
     for(let i in group) {
         for(let j in data) {
@@ -179,8 +165,8 @@ const getSortData = function(group:object):object[] {
     return data
 }
 
-const getGroupData = function(group:object, data:any[]):{name:string,data:object[]}[] {
-    const arr:{name:string,data:object[]}[] = []
+const getGroupData = function(group:object, data:any[]):{name:string,data:TermInter[]}[] {
+    const arr:{name:string,data:TermInter[]}[] = []
     for(let i in group) {
         let tmp:any[] = [];
         for(let j in data) {
@@ -195,18 +181,18 @@ const getGroupData = function(group:object, data:any[]):{name:string,data:object
     return arr;
 }
 
-const getParams = function ():LoadInter {
+const getParams = function() {
     const options = {
         page: load.page,
         pageSize: load.pageSize,
         taxonomy: load.taxonomy,
-        sort: page.current
+        sort: menu.current
     }
 
     return options
 }
 
-const getTaxonomy = function (key:string = ''):string {
+const getTaxonomy = function(key:string = ''):string {
     const options = {
         tags: 'tag',
         artists: 'artist',
@@ -218,7 +204,7 @@ const getTaxonomy = function (key:string = ''):string {
     return options[key];
 }
 
-const getTaxonomys = function (key:string):string {
+const getTaxonomys = function(key:string):string {
     const options = {
         tag: 'tags',
         artist: 'artists',
@@ -230,14 +216,14 @@ const getTaxonomys = function (key:string):string {
     return options[key];
 }
 
-const setPagination = function ({page,totalPage,total}):void {
+const setPagination = function({page,totalPage,total}):void {
     pagination.show = true;
     pagination.page = page;
     pagination.totalPage = totalPage;
     pagination.total = total;
 }
 
-const createSortDefaultData = function ():{name:string,value:number,selected:boolean}[] {
+const createSortDefaultData = function():{name:string,value:number,selected:boolean}[] {
     const data = [{name: '#',value: 35, selected: false}]
     for(let i = 65; i <= 90; i++) {
         data.push({name: String.fromCharCode(i), value: i, selected: false})
@@ -251,7 +237,7 @@ const onSwitchSort = throttle((type)=>{
         path: `/taxonomy`,
         query:  {
             type: getTaxonomys(load.taxonomy),
-            page: 1,
+            page: '1',
             sort: type
         }
     }
@@ -268,7 +254,7 @@ const onSwitchGroup = throttle(async (group)=>{
         }
 
         if(Base.isEmpty(res.data)) {
-            return  false;
+            return false;
         }
         const {name} = res.data[0];
         await loadTermGroupFristRcordPosition(name,group);
@@ -277,7 +263,7 @@ const onSwitchGroup = throttle(async (group)=>{
     }
 })
 
-const loadTermGroupFristRcordPosition = async function (name, group) {
+const loadTermGroupFristRcordPosition = async function(name, group):Promise<boolean|void> {
     try {
         const {taxonomy} = load;
         const params = {taxonomy: taxonomy, name: name}
@@ -296,7 +282,7 @@ const loadTermGroupFristRcordPosition = async function (name, group) {
                 type: getTaxonomys(load.taxonomy),
                 page: Math.ceil(total / load.pageSize) || 1,
                 group: String.fromCharCode(group),
-                sort: page.current
+                sort: menu.current
             }
         }
         router.push(object)
@@ -306,20 +292,20 @@ const loadTermGroupFristRcordPosition = async function (name, group) {
     }
 }
 
-const onChangePage = function ({value}):void {
+const onChangePage = function({value}):void {
     const object = {
         path: `/taxonomy`,
         query:  {
             type: getTaxonomys(load.taxonomy),
             page: value,
-            sort: page.current
+            sort: menu.current
         }
     }
 
     router.push(object)
 }
 
-const onSearchTaxonomy = function (event):void {
+const onSearchTaxonomy = function(event):void {
     const {currentTarget: {dataset: {name}}} = event
     const object = {
         path: `/`,
@@ -332,12 +318,24 @@ const onSearchTaxonomy = function (event):void {
     router.push(object)
 }
 
-const onShowUpload = function () {
+const onShowUpload = function():void {
     page.upload = true
 }
 
-const onHideUpload = function () {
+const onHideUpload = function():void {
     page.upload = false;
+}
+
+const onCancelConfirm = function():void {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function():void {
+    Common.operateConfirm(confirm, page);
+}
+
+const setCountUnit = function (value) {
+    return Common.setCountUnit(value);
 }
 </script>
 

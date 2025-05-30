@@ -14,12 +14,12 @@
 
                 <!-- 菜单 -->
                 <div class="menu pt-xl">
-                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" v-show="index < 2" :data-index="index" :title="item.name" @click="onSwitchMenu">
+                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data" :key="index" v-show="index < 2" :data-index="index" @click="onSwitchMenu">
                         <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill' : 'iconfont '+item.icon"></i>
                         <em>{{item.name}}</em>
                     </div>
                     <span class="line mt-s mb-s"></span>
-                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data"  v-show="index >= 2" :key="index" :data-index="index" :title="item.name" @click="onSwitchMenu">
+                    <div :class="{'active': index == menu.current }" v-for="(item,index) in menu.data"  v-show="index >= 2" :key="index" :data-index="index" @click="onSwitchMenu">
                         <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill' : 'iconfont '+item.icon"></i>
                         <em>{{item.name}}</em>
                     </div>

@@ -1,8 +1,28 @@
 import {i18n} from '@renderer/locales';
 import Base from '@renderer/utils/base';
+import Config from '@renderer/utils/config';
+
 import type {PageInter, ConfirmInter, EmptyInter} from "@renderer/utils/types";
 
-const { t } = i18n.global;
+const {t} = i18n.global;
+
+const openFolder = function (type:string) {
+    let path = ''
+    switch (type) {
+        case 'app':
+            path = 'open app folder'
+            break
+        case 'cache':
+            path = Config.getStoragePath()// 用于获取当前用户的主目录路径
+            break
+        case 'database':
+            const os = require('os') as typeof import("os");
+            path = os.homedir(); // 用于获取当前用户的主目录路径
+            break
+    }
+
+    window.electron.ipcRenderer.send('openpath', path);
+}
 
 /**
  * 显示提示框
@@ -217,6 +237,7 @@ export default {
     cancelConfirm: cancelConfirm,
     operateConfirm: operateConfirm,
 
+    openFolder:openFolder,
     lazyRenderPage: lazyRenderPage,
     setArchive:setArchive,
     setCountUnit: setCountUnit,

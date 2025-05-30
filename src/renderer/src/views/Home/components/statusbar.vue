@@ -3,7 +3,7 @@
         <div :class="['statusbar-inner',page.layout.fold]">
             <div class="statusbar-left">
                 <template v-if="load.q">{{t('status.search',{q:load.q})}}</template>
-                <template v-if="load.name && load.type">{{t('status.taxonomy',{name:load.name, type: load.type})}}</template>
+                <template v-if="load.name && load.taxonomy">{{t('status.taxonomy',{name:load.name, type:load.taxonomy})}}</template>
             </div>
             <div class="statusbar-right">
                 <span>{{t('status.current')}} {{pagination.page}}, {{t('status.total')}} {{pagination.total}}</span>
@@ -26,31 +26,29 @@ import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
     pagination: {
-        show: boolean
-        page: number,
-        totalPage: number,
-        total: number
+        show:boolean,
+        page:number,
+        totalPage:number,
+        total:number
     },
     load: {
         q?:string,
-        name?: string,
-        type?: string
+        name?:string,
+        taxonomy?:string
     }
 }
 
 interface PageInter {
-    show:boolean,
     layout: {
         prefix:string,
         fold:string
     }
 }
 
-const { t } = useI18n();
+const {t} = useI18n();
 const pageStore = usePageStore();
 const props = defineProps<Props>()
 const page = reactive<PageInter>({
-    show: false,
     layout: {
         prefix: 'statusbar-inner',
         fold: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
@@ -58,17 +56,17 @@ const page = reactive<PageInter>({
 })
 const confirm = reactive<ConfirmInter>({show: false, content: ''});
 
-
-const onCancelConfirm = function () {
+const onCancelConfirm = function():void {
     Common.cancelConfirm(confirm);
 }
 
-const onOperateConfirm = function () {
+const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
 watch(() => pageStore.layout,(value)=>{
-    const prefix = page.layout.prefix;
+    //const prefix = page.layout.prefix;
+    const {layout: {prefix}} = page;
     page.layout.fold = Common.getLayoutFold(value,prefix);
 })
 </script>

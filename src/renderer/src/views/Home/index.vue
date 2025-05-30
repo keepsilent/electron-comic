@@ -255,10 +255,6 @@ const getCover = async function({file_id}):Promise<any>{
     }
 }
 
-const onCancelConfirm = function():void {
-    Common.cancelConfirm(confirm);
-}
-
 const loadFileArtist = async function(object_id):Promise<Record<string, any>> {
     try {
         const params = {object_id: object_id}
@@ -287,10 +283,6 @@ const onRedirect = function(event):void {
     router.push(object)
 }
 
-const onOperateConfirm = function():void {
-    Common.operateConfirm(confirm, page);
-}
-
 const setDefaultImage = function(event):void{
     const {currentTarget: {dataset: {index}}} = event
     load.list[index].file_cover = Common.getDefaultImage();
@@ -317,22 +309,6 @@ const onSwitchOrder = function({mode, sort}):void {
     loadFileList();
 }
 
-
-const onShowUpload = function():void {
-    page.upload = true
-}
-
-const onHideUpload = function({refresh}):boolean|void {
-    if(refresh == false) {
-        page.upload = false;
-        return false;
-    }
-
-    page.init = false;
-    page.upload = false;
-    init();
-}
-
 const onRefresh = function():void {
     page.init = false;
     init();
@@ -352,6 +328,29 @@ const onFilefilter = function({change}):boolean|void {
     page.options = options;
 
     loadFileList();
+}
+
+const onShowUpload = function():void {
+    page.upload = true
+}
+
+const onHideUpload = function({refresh}):boolean|void {
+    if(refresh == false) {
+        page.upload = false;
+        return false;
+    }
+
+    page.init = false;
+    page.upload = false;
+    init();
+}
+
+const onCancelConfirm = function():void {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function():void {
+    Common.operateConfirm(confirm, page);
 }
 
 watch(() => pageStore.pageSize,(value) => {

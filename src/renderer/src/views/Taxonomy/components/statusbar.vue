@@ -1,6 +1,6 @@
 <template>
     <div class="statusbar-wrap">
-        <div :class="['statusbar-inner',page.layout]">
+        <div :class="['statusbar-inner',page.layout.fold]">
             <div class="statusbar-left">
                 <template v-if="group">{{t('status.group',{group:group})}}</template>
             </div>
@@ -16,43 +16,52 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {reactive,onMounted, watch} from 'vue'
-import {Base,Common,File} from "@renderer/utils";
+import {reactive,watch} from 'vue'
+import {Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
-import type {PageInter, ConfirmInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/types/common";
 
 import Confirm from "@renderer/components/Confirm.vue";
 
 interface Props {
-    show?: boolean,
     pagination: {
-        show: boolean
-        page: number,
-        totalPage: number,
-        total: number,
-        source: string
+        show:boolean
+        page:number,
+        totalPage:number,
+        total:number,
+        source?:string
     },
     group:string
 }
 
-const { t } = useI18n();
+interface PageInter {
+    layout: {
+        prefix:string,
+        fold:string
+    }
+}
+
+const {t} = useI18n();
 const pageStore = usePageStore();
 const props = defineProps<Props>()
-const page = reactive({
-    show: false,
-    layout: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
+const page = reactive<PageInter>({
+    layout: {
+        prefix: 'statusbar-inner',
+        fold: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
+    }
 })
-const confirm:ConfirmInter = reactive({show: false});
+const confirm = reactive<ConfirmInter>({show: false, content: ''});
 
-const onCancelConfirm = function () {
+const onCancelConfirm = function():void {
     Common.cancelConfirm(confirm);
 }
 
-const onOperateConfirm = function () {
+const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
-watch(() => pageStore.layout,(value) => {
-    page.layout = Common.getLayoutFold(value,'statusbar-inner');
+watch(() => pageStore.layout,(value)=>{
+    const {layout: {prefix}} = page;
+    page.layout.fold = Common.getLayoutFold(value,prefix);
 })
 </script>
