@@ -1,7 +1,6 @@
 <template>
-    <Toolbar @upload="onShowUpload" @refresh="onRefresh"/>
+    <Toolbar @upload="onUpload" @refresh="onRefresh"/>
     <div class="taxonomy-wrap scrollbar">
-
         <!-- Menu -->
         <div v-if="empty.show != true" class="taxonomy-header">
             <div class="menu">
@@ -35,7 +34,7 @@
         <Statusbar :pagination="pagination" :group="menu.group"></Statusbar>
 
         <Empty :empty="empty" style="margin-top:20%"></Empty>
-        <Upload :show="page.upload" @hide="onHideUpload"></Upload>
+        <Upload :show="page.upload" @hide="onUpload(false)"></Upload>
         <Pagination :pagination="pagination" @chagePage="onChangePage"></Pagination>
     </div>
 </template>
@@ -53,6 +52,7 @@ import {usePageStore} from '@renderer/stores/page'
 
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
+
 import Empty from "@renderer/components/Empty.vue";
 import Upload from "@renderer/components/Upload.vue";
 import Pagination from "@renderer/components/Pagination.vue";
@@ -75,7 +75,7 @@ const menu:MenuInter = reactive({
         {name:'Popular',value: 'popular'}
     ]
 })
-const load:LoadInter = reactive({ page: '1', pageSize: 100, taxonomy: '', sort: '',list:[], popular:[]})
+const load:LoadInter = reactive({ page: '1', pageSize: 1, taxonomy: '', sort: '',list:[], popular:[]})
 const empty:EmptyInter = reactive({show: false});
 const confirm:ConfirmInter = reactive({show: false, content: ''});
 const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
@@ -141,7 +141,6 @@ const loadTermGroupFristRcordPosition = async function(name, group):Promise<bool
             }
         }
         router.push(object)
-
     } catch (err) {
         Base.printErrorLog('getTermGroupFristRcord',err);
     }
@@ -213,7 +212,7 @@ const getTaxonomy = function(key:string = ''):string {
     return options[key];
 }
 
-const getTaxonomys = function(key:string):string {
+const getTaxonomys = function(key:string='tags'):string {
     const options = {
         tag: 'tags',
         artist: 'artists',
@@ -224,8 +223,6 @@ const getTaxonomys = function(key:string):string {
 
     return options[key];
 }
-
-
 
 const createSortDefaultData = function():{name:string,value:number,selected:boolean}[] {
     const data = [{name: '#',value: 35, selected: false}]
@@ -294,7 +291,6 @@ const onSwitchGroup = throttle(async (group)=>{
     }
 })
 
-
 const onChangePage = function({value}):void {
     const object = {
         path: `/taxonomy`,
@@ -321,18 +317,14 @@ const onSearchTaxonomy = function(event):void {
     router.push(object)
 }
 
+const onUpload = function (show:boolean=true):void {
+    page.upload = show
+}
+
 const onRefresh = function():void {
     page.init = false;
     load.page = '1';
     loadTermList();
-}
-
-const onShowUpload = function():void {
-    page.upload = true
-}
-
-const onHideUpload = function():void {
-    page.upload = false;
 }
 
 const onCancelConfirm = function():void {

@@ -440,6 +440,7 @@ const onShowUpload = function():void {
 const onSwitchOpen = function(event):void {
     const {currentTarget: {dataset: {value}}} = event
     Common.openFolder(value);
+    pageStore.toolbar.more = false;
 }
 
 const onRefresh = function():void {

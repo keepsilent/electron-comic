@@ -7,10 +7,12 @@
             <template v-else-if="item.name == 'next'">
                 <i class="iconfont icon-next"></i>
             </template>
-             <template v-else-if="item.name == 'prev-double'">
+            <template v-else-if="item.name == 'prev-double'">
+                <em>...</em>
                 <i class="iconfont icon-prev-double"></i>
             </template>
              <template v-else-if="item.name == 'next-double'">
+                <em>...</em>
                 <i class="iconfont icon-next-double"></i>
             </template>
             <template v-else>{{item.name}}</template>
@@ -55,6 +57,10 @@ const onPage = throttle((value) => {
     if(props.pagination.page == value) {
         return false
     }
+
+    if(value < 1 || value > props.pagination.totalPage) {
+        return false;
+    }
     emit('chagePage',{value: value})
 })
 
@@ -76,11 +82,13 @@ const createPagination = function () {
     const begin = getBegin(page, middle);
     const end = getEnd(page, middle, totalPage);
 
-    data = addPrevDoubleBtn(data, page, totalPage, middle);
     data = addPrevBtn(data, page);
+    data = addPrevDoubleBtn(data, page, begin, totalPage, middle)
+
     data = addPageBtn(data, begin, end, page)
+    data = addNextDoubleBtn(data, page, end, totalPage, middle)
     data = addNextBtn(data, page, totalPage);
-    data = addNextDoubleBtn(data, page, totalPage, middle)
+
     //page.data = data;
     assignData(data);
 }
@@ -114,47 +122,33 @@ const addPageBtn = function(data:any[], begin:number, end:number, current:number
     return data;
 }
 
-const addPrevDoubleBtn = function(data:dataInter[],page:number, totalPage: number, middle:number):dataInter[] {
-    if(totalPage <= middle) {
+const addPrevDoubleBtn = function(data:dataInter[],page:number, begin:number, totalPage: number, middle:number):dataInter[] {
+    if(totalPage <= middle || page == 1 || begin == 1) {
         return data;
     }
 
-    if(page == 1) {
-        return data;
-    }
-
-    data.push({ name: 'prev-double', value: 1, scene:''})
+    data.push({ name: '1', value: 1, scene:''})
+    data.push({ name: 'prev-double', value: page - middle, scene:'els'});
     return data;
 }
 
 const addPrevBtn = function(data:dataInter[],page:number):dataInter[] {
-    if(page - 1 <= 0) {
-        return data;
-    }
-
-    data.push({ name: 'prev', value: page - 1, scene:''})
+    data.push({ name: 'prev', value: page - 1, scene: page - 1 <= 0 ? 'disabled': 'normal'})
     return data;
 }
 
 const addNextBtn = function(data:dataInter[], page:number, totalPage:number):dataInter[] {
-    if(page + 1 > totalPage) {
-        return data;
-    }
-
-    data.push({ name: 'next', value: page + 1, scene:''})
+    data.push({ name: 'next', value: page + 1, scene:page + 1 > totalPage ? 'disabled': 'normal'})
     return data;
 }
 
-const addNextDoubleBtn = function(data:dataInter[],page:number, totalPage:number,middle:number):dataInter[] {
-    if(totalPage <= middle) {
+const addNextDoubleBtn = function(data:dataInter[],page:number, end: number, totalPage:number,middle:number):dataInter[] {
+    if(totalPage <= middle || page == totalPage || end == totalPage) {
         return data;
     }
 
-    if(page == totalPage) {
-        return data;
-    }
-
-    data.push({ name: 'next-double', value: totalPage, scene:''})
+    data.push({ name: 'next-double', value: page + middle, scene:'els'});
+    data.push({ name: totalPage as string, value: totalPage, scene:''})
     return data;
 }
 
@@ -192,20 +186,26 @@ const assignData = function (data):void {
 
             &.els {
                 color: var(--content-color-tertiary);
-                font-weight: normal;
-                background: #FFF;
-                cursor: inherit;
+                background: transparent;
+                i {display: none}
                 &:hover {
-                    color: var(--content-color-tertiary);
                     font-weight: normal;
-                    background: #FFF;
+                    background: var(--background-color-tertiary);
+                    i {
+                        display: block;
+                        text-align: center;
+                        font-size: 13px;
+                        font-weight: bolder;
+                        color: var(--content-color-secondary);
+                    }
+                    em { display: none}
                 }
             }
 
             &.disabled {
                 color: var(--content-color-tertiary);
                 font-weight: normal;
-                background: #FFF;
+                background: transparent;
                 cursor: inherit;
 
                 &:hover {

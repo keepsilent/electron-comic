@@ -1,5 +1,5 @@
 <template>
-    <Toolbar @order="onSwitchOrder" @upload="onShowUpload" @filter="onFilefilter" @refresh="onRefresh"/>
+    <Toolbar @order="onSwitchOrder" @filter="onFilefilter" @upload="onUpload" @refresh="onRefresh"/>
     <div ref="scrollbar" class="file-wrap scrollbar">
 
         <!-- Skeleton -->
@@ -330,8 +330,8 @@ const onFilefilter = function({change}):boolean|void {
     loadFileList();
 }
 
-const onShowUpload = function():void {
-    page.upload = true
+const onUpload = function(show:boolean=true):void {
+    page.upload = show
 }
 
 const onHideUpload = function({refresh}):boolean|void {

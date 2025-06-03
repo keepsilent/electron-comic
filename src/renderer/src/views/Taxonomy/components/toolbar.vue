@@ -140,12 +140,12 @@ const onShowUpload = function():void {
 const onSwitchOpen = function(event):void {
     const {currentTarget: {dataset: {value}}} = event
     Common.openFolder(value);
+    pageStore.toolbar.more = false;
 }
 
 const onGoBack = function():void {
     setHideMoreMenu();
     router.back();
-    console.log('onGoBack');
     pageStore.page.back = pageStore.page.back+1;
 }
 
