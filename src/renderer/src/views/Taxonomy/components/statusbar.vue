@@ -47,7 +47,7 @@ const props = defineProps<Props>()
 const page = reactive<PageInter>({
     layout: {
         prefix: 'statusbar-inner',
-        fold: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
+        fold: Common.getLayoutFold(pageStore.page.layout,'statusbar-inner')
     }
 })
 const confirm = reactive<ConfirmInter>({show: false, content: ''});
@@ -60,7 +60,7 @@ const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
-watch(() => pageStore.layout,(value)=>{
+watch(() => pageStore.page.layout,(value)=>{
     const {layout: {prefix}} = page;
     page.layout.fold = Common.getLayoutFold(value,prefix);
 })

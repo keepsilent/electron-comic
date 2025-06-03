@@ -201,7 +201,7 @@ const fs = require("fs") as typeof import("fs");
 const scrollbar:any = ref(null);
 const menubar:any = ref(null);
 const fileEdit = ref(false);
-const page:PageInter = reactive({init: false, loading: false, upload: false, layout:pageStore.layout, actions: {}});
+const page:PageInter = reactive({init: false, loading: false, upload: false, layout:pageStore.page.layout, actions: {}});
 const confirm:ConfirmInter = reactive({show:false});
 const file:FileInter = reactive({file_id: 0});
 const interim:InterimInter = reactive({show: true, space: true});
@@ -217,7 +217,7 @@ const settings = reactive({
         show: false,
         num: 1,
         total: 1,
-        layout: Common.getLayoutFold(pageStore.layout,'detail-page')
+        layout: Common.getLayoutFold(pageStore.page.layout,'detail-page')
     },
     scrollTop: 0,
     zoom: import.meta.env.VITE_APP_COMIC_ZOOM,
@@ -946,7 +946,7 @@ const onRefresh = function () {
     init();
 }
 
-watch(() => pageStore.layout,(value)=>{
+watch(() => pageStore.page.layout,(value)=>{
     page.layout = value;
     settings.page.layout = Common.getLayoutFold(value,'detail-page');
 })

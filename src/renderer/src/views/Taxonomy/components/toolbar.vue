@@ -145,10 +145,13 @@ const onSwitchOpen = function(event):void {
 const onGoBack = function():void {
     setHideMoreMenu();
     router.back();
+    console.log('onGoBack');
+    pageStore.page.back = pageStore.page.back+1;
 }
 
 const onRefresh = function():void {
     emit('refresh');
+
     pageStore.toolbar.more = false;
 }
 

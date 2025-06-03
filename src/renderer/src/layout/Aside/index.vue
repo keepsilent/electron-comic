@@ -84,8 +84,8 @@ const page:PageInter = reactive({
 
 const aside:AsideInter = reactive({
     prefix: 'aside-wrap',
-    layout: pageStore.layout,
-    fold: Common.getLayoutFold(pageStore.layout,'aside-wrap')
+    layout: pageStore.page.layout,
+    fold: Common.getLayoutFold(pageStore.page.layout,'aside-wrap')
 })
 
 const user:UserInter = reactive({
@@ -143,6 +143,25 @@ const isLayoutActive = function (value) {
     return '';
 }
 
+const setBackMenu = function():void {
+    setTimeout(()=> {//响应路由会有延时问题,需要定时器
+        const {currentRoute:{value:{path,query:{type}}}} = router
+        const {data} = menu;
+        switch (path) {
+            case '/':
+                menu.current = 0;
+                break;
+            case '/taxonomy':
+                for(let i in data) {
+                    if(data[i].url == path && data[i].key == type) {
+                        menu.current = i;
+                    }
+                }
+                break;
+        }
+    },10)
+}
+
 const onSwitchMenu = function (event) {
     const {currentTarget: {dataset: {index}}} = event
     const {key,url} = menu.data[index];
@@ -169,7 +188,7 @@ const onOperateConfirm = function () {
 }
 
 const onChangePageLayout = throttle((layout)=>{
-    if(pageStore.layout == layout) {
+    if(pageStore.page.layout == layout) {
         return false;
     }
 
@@ -179,7 +198,7 @@ const onChangePageLayout = throttle((layout)=>{
 
     aside.layout = layout;
     aside.fold = Common.getLayoutFold(layout,aside.prefix);
-    pageStore.layout = layout;
+    pageStore.page.layout = layout;
 
     localStorage.setItem('cm_setting_layout',layout)
     if(layout != 'one') {
@@ -187,9 +206,14 @@ const onChangePageLayout = throttle((layout)=>{
     }
 })
 
-watch(() => pageStore.layout,(value)=>{
+watch(() => pageStore.page.layout,(value)=>{
     aside.layout = value;
     aside.fold = Common.getLayoutFold(value,aside.prefix);
+})
+
+
+watch(() => pageStore.page.back, (value)=>{
+    setBackMenu()
 })
 
 watch(() => fileStore.id,(value)=>{

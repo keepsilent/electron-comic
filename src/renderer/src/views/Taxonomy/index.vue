@@ -1,6 +1,8 @@
 <template>
     <Toolbar @upload="onShowUpload" @refresh="onRefresh"/>
     <div class="taxonomy-wrap scrollbar">
+
+        <!-- Menu -->
         <div v-if="empty.show != true" class="taxonomy-header">
             <div class="menu">
                 <span v-for="(item,index) in menu.data" :key="index" :class="{'active':menu.current == item.value}"  @click="onSwitchSort(item.value)">{{item.name}}</span>
@@ -9,13 +11,15 @@
                 <span v-for="(item,index) in menu.sort" :key="index" :class="{'selected':item.selected}" @click="onSwitchGroup(item.value)">{{item.name}}</span>
             </div>
         </div>
-        <div v-if="empty.show != true"  class="taxonomy-main">
+
+        <!-- Main -->
+        <div v-if="empty.show != true" class="taxonomy-main">
             <template v-if="menu.current == 'group'">
                 <section v-for="(items,indexs) in load.list" :key="indexs" :class="{active: menu.group == items.name}">
                     <h3>{{items.name}}</h3>
                     <span v-for="(item, index) in items.data" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                         <em>{{item.name}}</em>
-                        <i>{{setCountUnit(item.count)}}</i>
+                        <i>{{Common.setCountUnit(item.count)}}</i>
                     </span>
                 </section>
             </template>
@@ -23,10 +27,11 @@
             <template v-if="menu.current == 'popular'">
                 <span v-for="(item,index) in load.popular" :key="index" class="item" :data-name="item.name" @click="onSearchTaxonomy">
                     <em>{{item.name}}</em>
-                    <i>{{setCountUnit(item.count)}}</i>
+                    <i>{{Common.setCountUnit(item.count)}}</i>
                 </span>
             </template>
         </div>
+
         <Statusbar :pagination="pagination" :group="menu.group"></Statusbar>
 
         <Empty :empty="empty" style="margin-top:20%"></Empty>
@@ -41,8 +46,8 @@ import {reactive,onMounted} from 'vue'
 import {useRouter,useRoute} from 'vue-router'
 import {Base, Common} from "@renderer/utils";
 import type {ConfirmInter,EmptyInter,PaginationInter} from "@renderer/types/common";
-import type {PageInter,LoadInter,MenuInter,SortInter,TermInter} from "@renderer/types/views/taxonomy";
-import {getTermList, getTermGroupFristRcord, getTermGroupFristRcordPosition} from "@renderer/api/terms";
+import type {PageInter,LoadInter,MenuInter,SortInter,TermInter,ParamsInter} from "@renderer/types/views/taxonomy";
+import {getTermList,getTermGroupFristRcord,getTermGroupFristRcordPosition} from "@renderer/api/terms";
 import {throttle} from "@renderer/utils/throttle";
 import {usePageStore} from '@renderer/stores/page'
 
@@ -58,8 +63,8 @@ const router = useRouter();
 const pageStore = usePageStore();
 const page:PageInter = reactive({
     init:false,
-    actions: {},
     upload: false,
+    actions: {},
 })
 const menu:MenuInter = reactive({
     current: 'group',
@@ -70,7 +75,7 @@ const menu:MenuInter = reactive({
         {name:'Popular',value: 'popular'}
     ]
 })
-const load:LoadInter = reactive({ page: '1', pageSize: 100, list:[], popular:[], taxonomy: '', sort: ''})
+const load:LoadInter = reactive({ page: '1', pageSize: 100, taxonomy: '', sort: '',list:[], popular:[]})
 const empty:EmptyInter = reactive({show: false});
 const confirm:ConfirmInter = reactive({show: false, content: ''});
 const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})
@@ -79,22 +84,16 @@ onMounted(()=> {
     init();
 })
 
-const init = function () {
+const init = function():void {
     const {type, page: current, group, sort} = route.query;
 
     menu.group = group as string ?? '';
     menu.current = sort as string ?? 'group';
 
     load.page = current as string ?? '1';
-    load.taxonomy = getTaxonomy(type as string);
+    load.taxonomy = getTaxonomy(type as string ?? '');
 
-    pagination.source = t('aside.menu.'+type) as string || '';
-    loadTermList();
-}
-
-const onRefresh = function():void {
-    page.init = false;
-    load.page = '1';
+    pagination.source = t('aside.menu.'+type) as string ?? '';
     loadTermList();
 }
 
@@ -113,29 +112,39 @@ const loadTermList = async function():Promise<boolean|void> {
         setDataGroup(list);
         setPagination(res.data)
     } catch (err) {
+        page.init = true;
         pagination.show = false;
         Base.printErrorLog('getTermList',err)
     }
 }
 
-const setEmpty = function({total}):boolean|void {
-    if(total !== 0 ) {
-        return false;
-    }
+const loadTermGroupFristRcordPosition = async function(name, group):Promise<boolean|void> {
+    try {
+        const {taxonomy} = load;
+        const params = {taxonomy: taxonomy, name: name}
+        const res = await getTermGroupFristRcordPosition(params)
+        if(res.code != 200) {
+            return false;
+        }
+        if(Base.isEmpty(res.data)) {
+            return false;
+        }
 
-    const {taxonomy} = load;
-    const options = {
-        tag: 'icon-tag',
-        artist: 'icon-artist',
-        category: 'icon-we',
-        parody: 'icon-parody',
-        group: 'icon-group'
-    }
+        const {total} = res.data[0];
+        const object = {
+            path: `/taxonomy`,
+            query:  {
+                type: getTaxonomys(load.taxonomy),
+                page: Math.ceil(total / load.pageSize) || 1,
+                group: String.fromCharCode(group),
+                sort: menu.current
+            }
+        }
+        router.push(object)
 
-    let title = t('empty.repositories.title');
-    let subtitle = t('empty.repositories.subtitle');
-    let icon = options[taxonomy];
-    Common.showEmpty(empty, title, subtitle, icon)
+    } catch (err) {
+        Base.printErrorLog('getTermGroupFristRcord',err);
+    }
 }
 
 const setDataGroup = function(data:any[]):void {
@@ -181,7 +190,7 @@ const getGroupData = function(group:object, data:any[]):{name:string,data:TermIn
     return arr;
 }
 
-const getParams = function() {
+const getParams = function():ParamsInter {
     const options = {
         page: load.page,
         pageSize: load.pageSize,
@@ -216,12 +225,7 @@ const getTaxonomys = function(key:string):string {
     return options[key];
 }
 
-const setPagination = function({page,totalPage,total}):void {
-    pagination.show = true;
-    pagination.page = page;
-    pagination.totalPage = totalPage;
-    pagination.total = total;
-}
+
 
 const createSortDefaultData = function():{name:string,value:number,selected:boolean}[] {
     const data = [{name: '#',value: 35, selected: false}]
@@ -230,6 +234,33 @@ const createSortDefaultData = function():{name:string,value:number,selected:bool
     }
 
     return data;
+}
+
+const setPagination = function({page,totalPage,total}):void {
+    pagination.show = true;
+    pagination.page = page;
+    pagination.totalPage = totalPage;
+    pagination.total = total;
+}
+
+const setEmpty = function({total}):boolean|void {
+    if(total !== 0 ) {
+        return false;
+    }
+
+    const {taxonomy} = load;
+    const options = {
+        tag: 'icon-tag',
+        artist: 'icon-artist',
+        category: 'icon-we',
+        parody: 'icon-parody',
+        group: 'icon-group'
+    }
+
+    const title = t('empty.repositories.title');
+    const subtitle = t('empty.repositories.subtitle');
+    const icon = options[taxonomy];
+    Common.showEmpty(empty, title, subtitle, icon)
 }
 
 const onSwitchSort = throttle((type)=>{
@@ -263,34 +294,6 @@ const onSwitchGroup = throttle(async (group)=>{
     }
 })
 
-const loadTermGroupFristRcordPosition = async function(name, group):Promise<boolean|void> {
-    try {
-        const {taxonomy} = load;
-        const params = {taxonomy: taxonomy, name: name}
-        const res = await getTermGroupFristRcordPosition(params)
-        if(res.code != 200) {
-            return false;
-        }
-        if(Base.isEmpty(res.data)) {
-            return false;
-        }
-
-        const {total} = res.data[0];
-        const object = {
-            path: `/taxonomy`,
-            query:  {
-                type: getTaxonomys(load.taxonomy),
-                page: Math.ceil(total / load.pageSize) || 1,
-                group: String.fromCharCode(group),
-                sort: menu.current
-            }
-        }
-        router.push(object)
-
-    } catch (err) {
-        Base.printErrorLog('getTermGroupFristRcord',err);
-    }
-}
 
 const onChangePage = function({value}):void {
     const object = {
@@ -318,6 +321,12 @@ const onSearchTaxonomy = function(event):void {
     router.push(object)
 }
 
+const onRefresh = function():void {
+    page.init = false;
+    load.page = '1';
+    loadTermList();
+}
+
 const onShowUpload = function():void {
     page.upload = true
 }
@@ -332,10 +341,6 @@ const onCancelConfirm = function():void {
 
 const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
-}
-
-const setCountUnit = function (value) {
-    return Common.setCountUnit(value);
 }
 </script>
 

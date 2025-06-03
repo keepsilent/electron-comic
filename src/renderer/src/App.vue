@@ -36,7 +36,7 @@ interface Page {
 const pageStore = usePageStore();
 const page:Page = reactive({
     launch: true,
-    layout: Common.getLayoutFold(pageStore.layout,'main')
+    layout: Common.getLayoutFold(pageStore.page.layout,'main')
 })
 
 const onWatchBubbling = function ():void {
@@ -64,7 +64,7 @@ window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     setMaximize();
 })
 
-watch(() => pageStore.layout,(value) => {
+watch(() => pageStore.page.layout,(value) => {
     page.layout = Common.getLayoutFold(value,'main');
 })
 </script>

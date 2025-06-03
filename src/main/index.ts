@@ -99,7 +99,10 @@ const createWindow = async function() {
     })
 
     ipcMain.on('openpath', (event,value) => {
-        console.log('event',event);
+        if(value == 'open app folder') {
+            shell.openPath(app.getAppPath())
+            return false;
+        }
         let {frameId} = event;
         console.log('frameId',frameId);
         shell.openPath(value)

@@ -429,6 +429,7 @@ const onSwitchView = function(event):void {
 const onGoBack = function():void {
     setHideMoreMenu();
     router.back();
+    pageStore.page.back = pageStore.page.back+1;
 }
 
 const onShowUpload = function():void {

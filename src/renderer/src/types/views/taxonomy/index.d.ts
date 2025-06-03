@@ -40,3 +40,11 @@ export interface MenuInter {
     }[],
     sort: SortInter[]
 }
+
+
+export interface ParamsInter {
+    page:string,
+    pageSize:number,
+    taxonomy:string,
+    sort:string
+}

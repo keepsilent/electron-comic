@@ -80,7 +80,7 @@ const page:PageInter = reactive({
     show: false,
     total: 0,
     path: [],
-    layout: Common.getLayoutFold(pageStore.layout,'statusbar-inner')
+    layout: Common.getLayoutFold(pageStore.page.layout,'statusbar-inner')
 })
 const confirm:ConfirmInter = reactive({show: false});
 
@@ -136,7 +136,7 @@ watch(() => props.file.file_path,(value)=>{
     page.total = Base.getDataLength(page.path);
 })
 
-watch(() => pageStore.layout,(value) => {
+watch(() => pageStore.page.layout,(value) => {
     page.layout = Common.getLayoutFold(value,'statusbar-inner');
 })
 </script>

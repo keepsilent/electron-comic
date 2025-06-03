@@ -53,7 +53,7 @@ const page:PageInter = reactive({
     maximize: { name: 'Maximize', value: 'maximize'},
     layout: {
         prefix: 'header-inner',
-        fold: Common.getLayoutFold(pageStore.layout,'header-inner')
+        fold: Common.getLayoutFold(pageStore.page.layout,'header-inner')
     }
 })
 
@@ -120,7 +120,7 @@ const onOperateConfirm = function () {
     Common.operateConfirm(confirm, page);
 }
 
-watch(() => pageStore.layout,(value)=>{
+watch(() => pageStore.page.layout,(value)=>{
     const {layout:{prefix}} = page;
     page.layout.fold = Common.getLayoutFold(value, prefix);
 })
