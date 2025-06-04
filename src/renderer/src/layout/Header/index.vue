@@ -1,6 +1,7 @@
 <template>
     <div class="header">
         <div :class="['header-inner',page.layout.fold]">
+            <!-- Search -->
             <div class="nav ml-m">
                 <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
                 <div class="search ml-m">
@@ -10,7 +11,7 @@
                 </div>
             </div>
 
-            <!-- 头部菜单 -->
+            <!-- Menu -->
             <div class="menu tc">
                 <div class="left">
                     <span class="iconfont icon-setting" :title="$t('button.setting')" @click="onShowSetting">
@@ -26,6 +27,7 @@
             </div>
         </div>
     </div>
+
     <Setting :show="page.setting" @hide="onHideSetting" @electron="onElectronEvent"></Setting>
 </template>
 
@@ -40,16 +42,16 @@ import type {PageInter} from "@renderer/types/layout/header";
 
 import Setting from "@renderer/components/Setting.vue";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
 
 const page:PageInter = reactive({
     init: false,
-    actions: {},
-    keyword: '',
     setting: false,
+    keyword: '',
+    actions: {},
     maximize: { name: 'Maximize', value: 'maximize'},
     layout: {
         prefix: 'header-inner',
@@ -73,17 +75,17 @@ const onSearch = function({keyCode}):boolean|void {
     router.push({path:'/',query: {q:keyword}})
 }
 
-const onShowSetting = function ():void {
+const onShowSetting = function():void {
     page.setting = true;
     pageStore.pop.setting = true;
 }
 
-const onHideSetting = function ():void {
+const onHideSetting = function():void {
     page.setting = false;
     pageStore.pop.setting = false;
 }
 
-const onGoBack = function ():void {
+const onGoBack = function():void {
     router.back();
 }
 
@@ -94,7 +96,7 @@ const onClear = function():void {
     }
 }
 
-const onIPC = function(event): void {
+const onIPC = function(event):void {
     const {currentTarget: {dataset: {key}}} = event
     switch (key) {
         case 'restore':
@@ -112,24 +114,7 @@ const onIPC = function(event): void {
     }
 }
 
-const onCancelConfirm = function () {
-    Common.cancelConfirm(confirm);
-}
-
-const onOperateConfirm = function () {
-    Common.operateConfirm(confirm, page);
-}
-
-watch(() => pageStore.page.layout,(value)=>{
-    const {layout:{prefix}} = page;
-    page.layout.fold = Common.getLayoutFold(value, prefix);
-})
-
-watch(() => pageStore.pop.setting,(value) => {
-    page.setting = value;
-})
-
-const onElectronEvent = function (args) {
+const onElectronEvent = function(args):void {
     const {key, data} = args;
     switch (key) {
         case 'maximize':
@@ -144,6 +129,14 @@ const onElectronEvent = function (args) {
     }
 }
 
+const onCancelConfirm = function():void {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function():void {
+    Common.operateConfirm(confirm, page);
+}
+
 window.electron.ipcRenderer.on('maximize',(event,args)=> {
     if(args == true) {
         page.maximize.name = t('button.restore');
@@ -153,6 +146,15 @@ window.electron.ipcRenderer.on('maximize',(event,args)=> {
 
     page.maximize.name = t('button.maximize');
     page.maximize.value = 'maximize';
+})
+
+watch(() => pageStore.page.layout,(value)=>{
+    const {layout:{prefix}} = page;
+    page.layout.fold = Common.getLayoutFold(value, prefix);
+})
+
+watch(() => pageStore.pop.setting,(value) => {
+    page.setting = value;
 })
 </script>
 <style src="./index.scss" lang="scss" scoped></style>

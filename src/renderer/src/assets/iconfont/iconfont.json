@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "29930",
+      "name": "Favor Fill",
+      "font_class": "favor-fill",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "29931",
+      "name": "Favor",
+      "font_class": "favor",
+      "unicode": "e64d",
+      "unicode_decimal": 58957
+    },
+    {
       "icon_id": "176308",
       "name": "attention",
       "font_class": "attention",
@@ -20,23 +34,9 @@
       "unicode_decimal": 59211
     },
     {
-      "icon_id": "11121373",
-      "name": "过滤器",
-      "font_class": "guolvqi",
-      "unicode": "e627",
-      "unicode_decimal": 58919
-    },
-    {
-      "icon_id": "13074974",
-      "name": "filter",
-      "font_class": "filter",
-      "unicode": "e60f",
-      "unicode_decimal": 58895
-    },
-    {
       "icon_id": "40266635",
-      "name": "过滤 ",
-      "font_class": "a-guangqi_guolv11x",
+      "name": "Filter",
+      "font_class": "filter",
       "unicode": "e61a",
       "unicode_decimal": 58906
     },
@@ -63,7 +63,7 @@
     },
     {
       "icon_id": "158975",
-      "name": "file",
+      "name": "File",
       "font_class": "file1",
       "unicode": "e73b",
       "unicode_decimal": 59195
@@ -270,20 +270,6 @@
       "font_class": "home-fill",
       "unicode": "e6bb",
       "unicode_decimal": 59067
-    },
-    {
-      "icon_id": "38795563",
-      "name": "Toggle Left",
-      "font_class": "toggle-left",
-      "unicode": "e64d",
-      "unicode_decimal": 58957
-    },
-    {
-      "icon_id": "38795564",
-      "name": "Toggle Right",
-      "font_class": "toggle-right",
-      "unicode": "e64f",
-      "unicode_decimal": 58959
     },
     {
       "icon_id": "15838497",
@@ -503,13 +489,6 @@
       "unicode_decimal": 59030
     },
     {
-      "icon_id": "1268632",
-      "name": "Contact Customer Service",
-      "font_class": "contact-customer-service",
-      "unicode": "e603",
-      "unicode_decimal": 58883
-    },
-    {
       "icon_id": "1269460",
       "name": "Feedback",
       "font_class": "feedback",
@@ -538,20 +517,6 @@
       "unicode_decimal": 58923
     },
     {
-      "icon_id": "1280397",
-      "name": "Female",
-      "font_class": "female",
-      "unicode": "e632",
-      "unicode_decimal": 58930
-    },
-    {
-      "icon_id": "1280407",
-      "name": "Male",
-      "font_class": "male",
-      "unicode": "e633",
-      "unicode_decimal": 58931
-    },
-    {
       "icon_id": "1280419",
       "name": "Star",
       "font_class": "star",
@@ -566,13 +531,6 @@
       "unicode_decimal": 58934
     },
     {
-      "icon_id": "1280535",
-      "name": "Visible",
-      "font_class": "visible",
-      "unicode": "e63b",
-      "unicode_decimal": 58939
-    },
-    {
       "icon_id": "1280559",
       "name": "Problem",
       "font_class": "problem",
@@ -585,34 +543,6 @@
       "font_class": "unselected",
       "unicode": "e63e",
       "unicode_decimal": 58942
-    },
-    {
-      "icon_id": "1280573",
-      "name": "Personal",
-      "font_class": "personal",
-      "unicode": "e640",
-      "unicode_decimal": 58944
-    },
-    {
-      "icon_id": "1280623",
-      "name": "Message",
-      "font_class": "message",
-      "unicode": "e641",
-      "unicode_decimal": 58945
-    },
-    {
-      "icon_id": "1280631",
-      "name": "Scanning",
-      "font_class": "scanning",
-      "unicode": "e642",
-      "unicode_decimal": 58946
-    },
-    {
-      "icon_id": "1280634",
-      "name": "Love",
-      "font_class": "love",
-      "unicode": "e643",
-      "unicode_decimal": 58947
     },
     {
       "icon_id": "1280643",
@@ -641,20 +571,6 @@
       "font_class": "return",
       "unicode": "e64b",
       "unicode_decimal": 58955
-    },
-    {
-      "icon_id": "1281480",
-      "name": "Switch",
-      "font_class": "switch",
-      "unicode": "e64c",
-      "unicode_decimal": 58956
-    },
-    {
-      "icon_id": "1281489",
-      "name": "Invisible",
-      "font_class": "invisible",
-      "unicode": "e64e",
-      "unicode_decimal": 58958
     },
     {
       "icon_id": "1281596",
@@ -697,13 +613,6 @@
       "font_class": "close",
       "unicode": "e660",
       "unicode_decimal": 58976
-    },
-    {
-      "icon_id": "1299861",
-      "name": "Screenshots",
-      "font_class": "screenshots",
-      "unicode": "e662",
-      "unicode_decimal": 58978
     },
     {
       "icon_id": "1299872",

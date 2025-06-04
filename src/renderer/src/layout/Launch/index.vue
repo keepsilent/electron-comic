@@ -34,7 +34,7 @@ interface Page {
     show: boolean
 }
 
-const { t } = useI18n();
+const {t} = useI18n();
 const props = defineProps<Props>()
 const page = reactive<Page>({show: true})
 

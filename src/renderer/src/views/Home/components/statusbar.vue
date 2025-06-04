@@ -65,7 +65,6 @@ const onOperateConfirm = function():void {
 }
 
 watch(() => pageStore.page.layout,(value)=>{
-    //const prefix = page.layout.prefix;
     const {layout: {prefix}} = page;
     page.layout.fold = Common.getLayoutFold(value,prefix);
 })

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4833690 */
-  src: url('iconfont.woff2?t=1747297417389') format('woff2'),
-       url('iconfont.woff?t=1747297417389') format('woff'),
-       url('iconfont.ttf?t=1747297417389') format('truetype');
+  src: url('iconfont.woff2?t=1749003568997') format('woff2'),
+       url('iconfont.woff?t=1749003568997') format('woff'),
+       url('iconfont.ttf?t=1749003568997') format('truetype');
 }
 
 .iconfont {
@@ -13,6 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-favor-fill:before {
+  content: "\e64c";
+}
+
+.icon-favor:before {
+  content: "\e64d";
+}
+
 .icon-attention:before {
   content: "\e73d";
 }
@@ -21,15 +29,7 @@
   content: "\e74b";
 }
 
-.icon-guolvqi:before {
-  content: "\e627";
-}
-
 .icon-filter:before {
-  content: "\e60f";
-}
-
-.icon-a-guangqi_guolv11x:before {
   content: "\e61a";
 }
 
@@ -165,14 +165,6 @@
   content: "\e6bb";
 }
 
-.icon-toggle-left:before {
-  content: "\e64d";
-}
-
-.icon-toggle-right:before {
-  content: "\e64f";
-}
-
 .icon-lock:before {
   content: "\e676";
 }
@@ -297,10 +289,6 @@
   content: "\e696";
 }
 
-.icon-contact-customer-service:before {
-  content: "\e603";
-}
-
 .icon-feedback:before {
   content: "\e608";
 }
@@ -317,14 +305,6 @@
   content: "\e62b";
 }
 
-.icon-female:before {
-  content: "\e632";
-}
-
-.icon-male:before {
-  content: "\e633";
-}
-
 .icon-star:before {
   content: "\e635";
 }
@@ -333,32 +313,12 @@
   content: "\e636";
 }
 
-.icon-visible:before {
-  content: "\e63b";
-}
-
 .icon-problem:before {
   content: "\e63d";
 }
 
 .icon-unselected:before {
   content: "\e63e";
-}
-
-.icon-personal:before {
-  content: "\e640";
-}
-
-.icon-message:before {
-  content: "\e641";
-}
-
-.icon-scanning:before {
-  content: "\e642";
-}
-
-.icon-love:before {
-  content: "\e643";
 }
 
 .icon-search:before {
@@ -375,14 +335,6 @@
 
 .icon-return:before {
   content: "\e64b";
-}
-
-.icon-switch:before {
-  content: "\e64c";
-}
-
-.icon-invisible:before {
-  content: "\e64e";
 }
 
 .icon-remind:before {
@@ -407,10 +359,6 @@
 
 .icon-close:before {
   content: "\e660";
-}
-
-.icon-screenshots:before {
-  content: "\e662";
 }
 
 .icon-delete:before {

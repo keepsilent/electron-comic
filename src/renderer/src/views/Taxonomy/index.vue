@@ -75,7 +75,7 @@ const menu:MenuInter = reactive({
         {name:'Popular',value: 'popular'}
     ]
 })
-const load:LoadInter = reactive({ page: '1', pageSize: 1, taxonomy: '', sort: '',list:[], popular:[]})
+const load:LoadInter = reactive({ page: '1', pageSize: 100, taxonomy: '', sort: '',list:[], popular:[]})
 const empty:EmptyInter = reactive({show: false});
 const confirm:ConfirmInter = reactive({show: false, content: ''});
 const pagination:PaginationInter = reactive({show: false, page: 1, totalPage: 1, total: 0, source: ''})

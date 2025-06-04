@@ -951,5 +951,4 @@ watch(() => pageStore.page.layout,(value)=>{
     settings.page.layout = Common.getLayoutFold(value,'detail-page');
 })
 </script>
-
 <style src="./index.scss" lang="scss" scoped></style>

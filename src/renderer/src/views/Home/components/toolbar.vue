@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="item" @click="onShowFileFilter"><span><i class="iconfont icon-a-guangqi_guolv11x"></i><em class="title">{{t('tool.filter')}}</em></span></div>
+            <div class="item" @click="onShowFileFilter"><span><i class="iconfont icon-filter"></i><em class="title">{{t('tool.filter')}}</em></span></div>
 
 
 <!--            <div class="line"></div>-->

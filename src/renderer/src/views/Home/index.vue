@@ -271,21 +271,30 @@ const loadFileArtist = async function(object_id):Promise<Record<string, any>> {
     }
 }
 
-const onRedirect = function(event):void {
-    const {currentTarget: {dataset: {id}}} = event
-    const object = {
-        path: '/reader',
-        query: {
-            id: id
-        }
-    }
-
-    router.push(object)
-}
-
 const setDefaultImage = function(event):void{
     const {currentTarget: {dataset: {index}}} = event
     load.list[index].file_cover = Common.getDefaultImage();
+}
+
+const getToolbarViewClass = function():string {
+    const model = pageStore.toolbar.view;
+    return `file-main__${model}`;
+}
+
+const onFilefilter = function({change}):boolean|void {
+    if(change == false) {
+        return false;
+    }
+
+    const {options} = File.getFileFilterOptions();
+    page.options = options;
+
+    loadFileList();
+}
+
+const onSwitchOrder = function({mode, sort}):void {
+    load.order = { mode: mode, sort: sort}
+    loadFileList();
 }
 
 const onChangePage = function({value}):void {
@@ -304,30 +313,21 @@ const onChangePage = function({value}):void {
     router.push(object)
 }
 
-const onSwitchOrder = function({mode, sort}):void {
-    load.order = { mode: mode, sort: sort}
-    loadFileList();
-}
-
 const onRefresh = function():void {
     page.init = false;
     init();
 }
 
-const getToolbarViewClass = function():string {
-    const model = pageStore.toolbar.view;
-    return `file-main__${model}`;
-}
-
-const onFilefilter = function({change}):boolean|void {
-    if(change == false) {
-        return false;
+const onRedirect = function(event):void {
+    const {currentTarget: {dataset: {id}}} = event
+    const object = {
+        path: '/reader',
+        query: {
+            id: id
+        }
     }
 
-    const {options} = File.getFileFilterOptions();
-    page.options = options;
-
-    loadFileList();
+    router.push(object)
 }
 
 const onUpload = function(show:boolean=true):void {

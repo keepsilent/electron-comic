@@ -40,6 +40,7 @@
 		"view": "View"
 	},
 	"aside": {
+		"advertisement": "AD",
 		"menu": {
 			"home": "Home",
 			"new": "New",
@@ -48,7 +49,10 @@
 			"artists": "Artists",
 			"categories": "Categories",
 			"parodies": "Parodies",
-			"groups": "Groups"
+			"groups": "Groups",
+			"about": "About",
+			"star": "Star",
+			"favor": "Favor"
 		},
 		"random": {
 			"empty": "No found file",
