@@ -3,7 +3,7 @@
         <div :class="['header-inner',page.layout.fold]">
             <!-- Search -->
             <div class="nav ml-m">
-                <span class="iconfont icon-return" :title="$t('button.return')" @click="onGoBack"></span>
+                <span class="iconfont icon-return" :title="$t('button.return')" @click="onReturn"></span>
                 <div class="search ml-m">
                     <i class="iconfont icon-search"></i>
                     <input type="text" v-model="page.keyword" :placeholder="$t('search.placeholder')" @keydown="onSearch" autocomplete="off">
@@ -85,7 +85,7 @@ const onHideSetting = function():void {
     pageStore.pop.setting = false;
 }
 
-const onGoBack = function():void {
+const onReturn = function():void {
     router.back();
 }
 

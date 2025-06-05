@@ -1,5 +1,5 @@
 <template>
-    <Toolbar :file="file" @operate="onOperateToolbar" @refresh="onRefresh" @upload="onShowUpload"/>
+    <Toolbar :file="file" @operate="onOperateToolbar" @refresh="onRefresh" @upload="onUpload"/>
     <div v-if="page.init == false" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space">
         <div class="detail-inner">
             <div class="detail-header-skeleton">
@@ -64,7 +64,7 @@
                         <label>{{t('details.tags')}}：</label>
                         <span class="item" v-for="(item,index) in file.file_tags" :key="index" :data-name="item.name" data-type="tag" @click="onSearchTaxonomy">
                             <em>{{item.name}}</em>
-                            <i>{{setCountUnit(item.count)}}</i>
+                            <i>{{Common.setCountUnit(item.count)}}</i>
                         </span>
                     </div>
 
@@ -126,7 +126,7 @@
 
             <div v-if="thumbnail.length > 0" class="detail-footer mt-m">Σ(ﾟдﾟ;) {{t('details.end')}}</div>
 
-            <!-- 分页数 -->
+            <!-- Show Page Num -->
             <div v-if="settings.page.show" :class="['detail-page','none-select',settings.page.layout]">
                 <span class="current">{{settings.page.num}}</span>
                 <em>/</em>
@@ -139,8 +139,8 @@
     <Statusbar :file="file" :settings="settings"></Statusbar>
 
     <Loading :show="page.loading"></Loading>
-    <Upload :show="page.upload" @hide="onHideUpload"></Upload>
-    <FileEdit :show="fileEdit" :file="file" @cancel="onCancelFileEdit" @update="onUpdateFileEdit"></FileEdit>
+    <Upload :show="page.upload" @hide="onUpload(false)"></Upload>
+    <FileEdit :show="page.edit" :file="file" @cancel="onCancelFileEdit" @update="onUpdateFileEdit"></FileEdit>
     <Confirm :confirm="confirm" @cancel="onCancelConfirm" @confirm="onOperateConfirm"></Confirm>
 </template>
 
@@ -148,12 +148,13 @@
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
-import type {PageInter, ConfirmInter, FileInter, EmptyInter, InterimInter} from "@renderer/utils/types";
-import {Alphabet, Base,Common, File,Time} from "@renderer/utils";
+import type {ConfirmInter, EmptyInter, InterimInter} from "@renderer/types/common";
+import type {PageInter, FileInter, ThumbnailInter, MetaInter, SettingsInter} from "@renderer/types/views/reader";
+import {Base, Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page';
 import {useFileStore} from '@renderer/stores/file';
-import {getFileInfo, updateFileStatus, getFileTaxonomy} from "@renderer/api/file";
-import {isFileMetaExist,getFileMetaValue,updateFileMetaValue,addFileMeta} from "@renderer/api/filemeta";
+import {getFileInfo, updateFileInfo, updateFileStatus, getFileTaxonomy} from "@renderer/api/file";
+import {isFileMetaExist, getFileMetaValue, updateFileMetaValue, addFileMeta} from "@renderer/api/filemeta";
 import {Archive} from 'libarchive.js/main.js';
 
 import Toolbar from "./components/toolbar.vue";
@@ -165,54 +166,35 @@ import Upload from "@renderer/components/Upload.vue";
 import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
 import FileEdit from "@renderer/components/FileEdit.vue";
-import {updateFileInfo} from "../../api/file";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
-
-
-interface ThumbnailInter {
-    name?:string,
-    cover?:string,
-    alias?:string,
-    origin?: { type: string, width: string, height: string}
-    width?:number,
-    height?:number
-    status?:string
-}
-
-interface SettingsInter {
-    page?: {
-        show: boolean,
-        num: number,
-        total: number,
-        layout: string
-    },
-    scrollTop?: number,
-    zoom?: number,
-    space?: number
-    thumbnail?: { index?:string,width?:string,height?:string }[],
-}
-
 const pageStore = usePageStore();
 const fileStore = useFileStore();
 const fs = require("fs") as typeof import("fs");
 const scrollbar:any = ref(null);
 const menubar:any = ref(null);
-const fileEdit = ref(false);
-const page:PageInter = reactive({init: false, loading: false, upload: false, layout:pageStore.page.layout, actions: {}});
-const confirm:ConfirmInter = reactive({show:false});
-const file:FileInter = reactive({file_id: 0});
-const interim:InterimInter = reactive({show: true, space: true});
-const empty:EmptyInter = reactive({show: false});
-const thumbnail:ThumbnailInter[] = reactive([])
-const meta = reactive({
+
+const page:PageInter = reactive({init: false, loading: false, edit: false, upload: false, layout:pageStore.page.layout, actions: {}});
+const file:FileInter = reactive({
+    file_id: 0,
+    file_date: '',
+    file_modified: '',
+    file_name: '',
+    file_path: '',
+    file_status: '',
+    file_size: '',
+    file_total: 0,
+    file_mine_type: '',
+    file_view: 0,
+    file_intro: '',
+});
+const meta:MetaInter = reactive({
     id: {show: false, id: 0, source: ''},
     title: {show:  false, title: '',source: ''},
 });
-
-const settings = reactive({
+const settings:SettingsInter = reactive({
     page: {
         show: false,
         num: 1,
@@ -225,6 +207,12 @@ const settings = reactive({
     thumbnail:[],
 });
 
+const thumbnail:ThumbnailInter[] = reactive([])
+const confirm:ConfirmInter = reactive({show:false,content:''});
+const empty:EmptyInter = reactive({show: false});
+const interim:InterimInter = reactive({show: true, space: true});
+
+
 onMounted(async () => {
     init();
 })
@@ -236,48 +224,28 @@ onBeforeUnmount(() => {
     scrollbar.value.removeEventListener("click", onContent);
 });
 
-watch(() => page.init,(value) => {
-    if(value == false) {
-        return false;
-    }
-
-    setTimeout(  () => {
-        if(Base.isEmpty(thumbnail)) {
-            return false;
-        }
-        prerenderThumbnail();
-        scrollbar.value.addEventListener("scroll", onScroll)
-        scrollbar.value.addEventListener("click", onContent)
-    },4)
-})
-
-// page.actions.onGoBack = function ():void {
-//     Common.cancelConfirm(confirm);
-//     router.back()
-// }
-
-const init = function () {
+const init = function():void {
     setArchive();
     loadDetail();
 }
 
-const setArchive = function () {
+const setArchive = function():void {
     Common.setArchive(Archive);
 }
 
-const loadDetail = async function () {
+const loadDetail = async function ():Promise<boolean|void> {
     try {
         const {id} = route.query;
         const params = {id: id, status:'normal'}
         const res = await getFileInfo(params);
 
         if(res.code != 200 ) {
-            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onGoBack')
+            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onReturn')
             return false;
         }
 
         if(Base.isEmpty(res.data)) {
-            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onGoBack')
+            Common.showAlert(confirm,t('alert.content.inexistence'),t('alert.default'),t('button.ok'),'onReturn')
             return false;
         }
 
@@ -292,7 +260,7 @@ const loadDetail = async function () {
     }
 }
 
-const renderContent = function (file) {
+const renderContent = function (file):boolean|void {
     const {file_path, file_status} = file;
     if(file_status == 'normal' && File.isExists(file_path)) {
         renderFilesThumbnail(file);
@@ -305,7 +273,7 @@ const renderContent = function (file) {
     Common.showEmpty(empty,title, subtitle)
 }
 
-const setFileStatus = async function ({file_id}) {
+const setFileStatus = async function ({file_id}):Promise<void> {
     try {
         const params = {id: file_id, status: 'lose'}
         await updateFileStatus(params)
@@ -314,7 +282,7 @@ const setFileStatus = async function ({file_id}) {
     }
 }
 
-const resetFileData = async function (data) {
+const resetFileData = async function (data):Promise<boolean|void> {
     if(Base.isEmpty(data)) {
         return false
     }
@@ -333,28 +301,31 @@ const resetFileData = async function (data) {
     await setFileMetaTitle(file.file_id,file.file_alias);
 }
 
-const setFileMetaId = async function (file_id):Promise<boolean> {
+const setFileMetaId = async function (file_id:number):Promise<boolean> {
     const res = await getFileMeta(file_id,'id');
     if(Base.isEmpty(res)) {
         return false
     }
 
+    const {id, source} = res
     meta.id = {
-        id: res.id,
-        source: res.source,
+        id: id,
+        source: source,
         show: true,
     }
     return true
 }
 
-const setFileMetaTitle = async function (file_id, file_name):Promise<boolean> {
+const setFileMetaTitle = async function (file_id:number, file_name:string):Promise<boolean> {
     const res = await getFileMeta(file_id,'title');
+    console.log('setFileMetaTitle',res);
     if(Base.isEmpty(res)) {
         return false
     }
 
-    const language = getFileTitleLanguage(res.title, file_name);
-    const subtitle = getFileSubtitle(res.title, language);
+    const {title} = res;
+    const language = getFileTitleLanguage(title, file_name);
+    const subtitle = getFileSubtitle(title, language);
 
     meta.title = {
         title: subtitle,
@@ -414,7 +385,7 @@ const getFileSubtitle = function (data:object, type:string):string {
     return ''
 }
 
-const loadFileTaxonomy = async function (file_id, taxonomy) {
+const loadFileTaxonomy = async function(file_id:number, taxonomy:string) {
     try {
         const params = {file_id: file_id, taxonomy: taxonomy}
         const res = await getFileTaxonomy(params)
@@ -430,7 +401,7 @@ const loadFileTaxonomy = async function (file_id, taxonomy) {
     }
 }
 
-const renderStatus = function (file) {
+const renderStatus = function(file):void {
     fileStore.info = file;
     fileStore.id = file.file_id;
     // pageStore.num = file.file_total;
@@ -453,7 +424,7 @@ const renderFilesThumbnail = async function (file):Promise<void> {
     }
 }
 
-const readImageFile = async function (data):Promise<boolean> {
+const readImageFile = async function (data):Promise<boolean|void> {
     if(Base.isEmpty(data)) {
         return false;
     }
@@ -470,17 +441,16 @@ const readImageFile = async function (data):Promise<boolean> {
     Object.assign(thumbnail, data)
     setThumbnailPage()
     autoCreateCover();
-    return true;
 }
 
-const getThumbnailOrigin = function (index) {
+const getThumbnailOrigin = function (index):{type:string,width:string,height:string} {
 
     const {thumbnail} = settings;
     const width = import.meta.env.VITE_APP_COMIC_WIDTH;
     const height = import.meta.env.VITE_APP_COMIC_HEIGHT;
 
     for(let i in thumbnail) {
-        let item:{index?:string,width?:string,height?:string} = thumbnail[i] || {index: 0, width: '', height: ''}
+        let item:{index:string,width:string,height:string} = thumbnail[i] || {index: 0, width: '', height: ''}
         if(index == item.index) {
             return { type: 'real', width: item.width, height: item.height}
         }
@@ -489,12 +459,12 @@ const getThumbnailOrigin = function (index) {
     return { type: 'placeholder', width: width, height: height}
 }
 
-const setThumbnailPage = function () {
+const setThumbnailPage = function():void {
     settings.page.show = true;
     settings.page.total = Base.getDataLength(thumbnail);
 }
 
-const autoCreateCover = function () {
+const autoCreateCover = function():boolean|void {
     const {file_id} = file;
     const cover = thumbnail[0].cover
     const path = File.getFileCoverById(file_id);
@@ -507,7 +477,7 @@ const autoCreateCover = function () {
     File.createCoverByBase64(file_id.toString(), cover);
 }
 
-const renderCover = async function ({file_id}) {
+const renderCover = async function ({file_id}):Promise<boolean> {
     try {
         const path = File.getFileCoverById(file_id);
 
@@ -530,19 +500,11 @@ const renderCover = async function ({file_id}) {
     }
 }
 
-const onCancelConfirm = function () {
-    Common.cancelConfirm(confirm);
-}
-
-const onOperateConfirm = function () {
-    Common.operateConfirm(confirm, page);
-}
-
-const setDefaultImage = function () {
+const setDefaultImage = function():void {
     file.file_cover = Common.getDefaultImage();
 }
 
-const onScroll = function (event) {
+const onScroll = function (event):void {
     const scrollTop = event.target.scrollTop;
     settings.scrollTop = scrollTop;
 
@@ -551,11 +513,11 @@ const onScroll = function (event) {
     renderThumbnailPage(scrollTop);
 }
 
-const getThumbnailTotal = function () {
+const getThumbnailTotal = function ():number {
     return settings.page.total - 1;
 }
 
-const renderThumbnailPage = function (scrollTop) {
+const renderThumbnailPage = function (scrollTop):boolean|void {
     const total = getThumbnailTotal();
     const offset = parseInt( (window.screen.height / 2).toString());
 
@@ -579,7 +541,7 @@ const renderThumbnailPage = function (scrollTop) {
     }
 }
 
-const isScrollbarTouchBottom = function () {
+const isScrollbarTouchBottom = function ():boolean {
     const scrollableElement = document.getElementById("scrollbar");
     if(!scrollableElement) {
         return false;
@@ -595,7 +557,7 @@ const isScrollbarTouchBottom = function () {
     return false;
 }
 
-const prerenderThumbnail = function () {
+const prerenderThumbnail = function ():void {
     const {page, scrollTop} = settings
     const index = Number(page.num) - 1;
     const total = Number(page.total) - 1;
@@ -609,7 +571,7 @@ const prerenderThumbnail = function () {
     }
 }
 
-const runPrerenderThumbnailScheme = function (index, total, scrollTop) {
+const runPrerenderThumbnailScheme = function(index:number, total:number, scrollTop:number):boolean|void {
     if(scrollTop == 0 && index == 0) {
         showThumbnail(index);
         return false;
@@ -638,26 +600,26 @@ const runPrerenderThumbnailScheme = function (index, total, scrollTop) {
     showThumbnail(index);
 }
 
-const renderThumbnail = function (scrollTop) {
+const renderThumbnail = function (scrollTop:number):void {
     const total = getThumbnailTotal();
     for(let i in thumbnail) {
         if(thumbnail[i].status == 'loading') {
             const position = getImageScrollPosition(i,total);
             const offset = (position.bottom - position.top) / 2;
             if(scrollTop >= position.top - offset * 4 && scrollTop < position.bottom + offset ){
-                showThumbnail(i);
+                showThumbnail(Number(i));
                 break;
             }
 
             if(position.top == position.bottom && Number(i) == total){
-                showThumbnail(i);
+                showThumbnail(Number(i));
                 break;
             }
         }
     }
 }
 
-const showThumbnail = async function (index) {
+const showThumbnail = async function (index:number):Promise<boolean|void> {
     if(thumbnail[index].status == 'finish') {
         return false;
     }
@@ -677,7 +639,7 @@ const showThumbnail = async function (index) {
     setThumbnailPreviewSize(index)
 }
 
-const setThumbnailPreviewSize = function (index) {
+const setThumbnailPreviewSize = function (index:number):void {
     const img:{src:any, width: any, height:any, onload:any,onerror:any} = new Image();
     img.src = thumbnail[index].cover;
     img.onload = function() {
@@ -703,7 +665,7 @@ const getThumbnailPreviewSizeEquation = function (value:number = 0):number {
     return value * zoom / 100
 }
 
-const getImageScrollPosition = function (i,total) {
+const getImageScrollPosition = function (i:string,total:number):{top:number, bottom:number} {
     const next = (parseInt(i)+1) > total ? total : (parseInt(i)+1);
     const topId = document.getElementById('file-item-'+i);
     const bottomId = document.getElementById('file-item-'+next);
@@ -717,7 +679,7 @@ const getImageScrollPosition = function (i,total) {
 }
 
 
-const getElementPagePosition = function(element) {
+const getElementPagePosition = function(element):{x:number,y:number} {
     let left = element.offsetLeft;
     let top = element.offsetTop;
     const current = element.offsetParent;
@@ -754,25 +716,25 @@ const isExistFileSetttings = async function ():Promise<boolean> {
     }
 }
 
-const getFileMeta = async function(id:number, key:string) {
+const getFileMeta = async function(id:number, key:string):Promise<{id: number,title: object, source: string}> {
     try {
         const params = {id: id, key: key }
         const res = await getFileMetaValue(params);
         if(res.code !== 200) {
-            return '';
+            return {id: 0, title: {}, source: ''};
         }
 
         if(Base.isEmpty(res.data)) {
-            return '';
+            return {id: 0, title: {}, source: ''};
         }
 
         return JSON.parse(res.data[0].meta_value);
     } catch (err) {
-        return ''
+        return {id: 0, title: {}, source: ''}
     }
 }
 
-const getFileSettings = async function() {
+const getFileSettings = async function():Promise<boolean|void> {
     if(Base.isEmpty(file)) {
         return false;
     }
@@ -804,7 +766,7 @@ const getFileSettings = async function() {
     }
 }
 
-const updateFileView = async function () {
+const updateFileView = async function():Promise<boolean|void> {
     if(Base.isEmpty(file)) {
         return false;
     }
@@ -821,7 +783,7 @@ const updateFileView = async function () {
     }
 }
 
-const updateFileSettings = async function () {
+const updateFileSettings = async function():Promise<boolean|void> {
     if(Base.isEmpty(file)) {
         return false;
     }
@@ -868,7 +830,7 @@ const getThumbnailCacheData = function ():object {
     return data;
 }
 
-const onUpdateSettings = function ({key,value}) {
+const onUpdateSettings = function ({key,value}):void {
     switch (key) {
         case 'space':
             settings.space = value;
@@ -884,20 +846,20 @@ const onUpdateSettings = function ({key,value}) {
     }
 }
 
-const onContent = function () {
+const onContent = function():void {
     menubar.value.onHideSetting();
 }
 
-const onOperateToolbar = function (args) {
+const onOperateToolbar = function(args):void {
     switch (args.key) {
         case 'edit':
-            fileEdit.value = args.value;
+            page.edit = args.value;
             break
     }
 }
 
 const onCancelFileEdit = function ():void {
-    fileEdit.value = false;
+    page.edit = false;
 }
 
 const onUpdateFileEdit = function (data):boolean {
@@ -912,12 +874,8 @@ const onUpdateFileEdit = function (data):boolean {
     return true;
 }
 
-const onCopy = function (event) {
+const onCopy = function (event):void {
     Base.copy(event);
-}
-
-const setCountUnit = function (value) {
-    return Common.setCountUnit(value);
 }
 
 const onSearchTaxonomy = function (event):void {
@@ -933,18 +891,37 @@ const onSearchTaxonomy = function (event):void {
     router.push(object)
 }
 
-const onShowUpload = function () {
-    page.upload = true
-}
-
-const onHideUpload = function () {
-    page.upload = false;
+const onUpload = function (show:boolean=true):void {
+    page.upload = show
 }
 
 const onRefresh = function () {
     page.init = false;
     init();
 }
+
+const onCancelConfirm = function():void {
+    Common.cancelConfirm(confirm);
+}
+
+const onOperateConfirm = function():void {
+    Common.operateConfirm(confirm, page);
+}
+
+watch(() => page.init,(value) => {
+    if(value == false) {
+        return false;
+    }
+
+    setTimeout(  () => {
+        if(Base.isEmpty(thumbnail)) {
+            return false;
+        }
+        prerenderThumbnail();
+        scrollbar.value.addEventListener("scroll", onScroll)
+        scrollbar.value.addEventListener("click", onContent)
+    },4)
+})
 
 watch(() => pageStore.page.layout,(value)=>{
     page.layout = value;

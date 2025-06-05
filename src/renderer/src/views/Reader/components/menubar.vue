@@ -2,11 +2,8 @@
     <div class="menu-wrap" @click.stop>
         <div class="menu-inner">
             <div class="menu-item">
-                <span class="iconfont icon-quit" @click="onGoBack"></span>
+                <span class="iconfont icon-quit" @click="onReturn"></span>
             </div>
-<!--            <div class="menu-item">-->
-<!--                <span class="iconfont icon-light-on"></span>-->
-<!--            </div>-->
             <div :class="settings.show ? 'menu-item active' : 'menu-item'">
                 <span class="iconfont icon-setting-fill" @click="onShowSetting"></span>
                 <template v-if="settings.show">
@@ -43,11 +40,10 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
 import {reactive, onMounted, watch} from "vue";
-import {useRouter,useRoute} from 'vue-router'
-import {Base, Common, File} from "@renderer/utils";
+import {useRouter, useRoute} from 'vue-router'
+import {Base} from "@renderer/utils";
+import type {ConfirmInter} from "@renderer/types/common";
 import {debounce, throttle} from "@renderer/utils/throttle";
-import type {PageInter, ConfirmInter} from "@renderer/utils/types";
-
 
 interface Props {
     settings: {
@@ -57,23 +53,27 @@ interface Props {
     }
 }
 
-interface Settings {
+interface PageInter {
+    show:boolean,
+    actions:any
+}
+
+interface SettingsInter {
     show: boolean,
     zoom?: number,
     space?: number,
     scrollTop?: number
 }
 
-
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 
 const emit = defineEmits(['update'])
 const props = defineProps<Props>()
-const page:PageInter = reactive({show: false, actions:{}})
-const confirm:ConfirmInter = reactive({show: false});
-const settings:Settings = reactive({show: false, zoom: 0, space: 0, scrollTop: 0});
+const page = reactive<PageInter>({show: false, actions:{}})
+const confirm = reactive<ConfirmInter>({show: false, content: ''});
+const settings = reactive<SettingsInter>({show: false, zoom: 0, space: 0, scrollTop: 0});
 
 onMounted(() => {
     settings.zoom = props.settings.zoom ?? 100;
@@ -81,22 +81,37 @@ onMounted(() => {
     settings.scrollTop = props.settings.scrollTop ?? 0;
 })
 
-const onHideSetting = function () {
-    settings.show = false
+const asyncUpdate = function(key):boolean|void {
+    if(Base.isEmpty(key)) {
+        return false;
+    }
+    const args = {key:key,value: settings[key]};
+    emit('update',args)
 }
 
-const onShowSetting = function () {
+const onShowSetting = function():void {
     settings.show = settings.show ?　false: true;
 }
 
-const onGoBack = async function () {
+const onHideSetting = function():void {
+    settings.show = false
+}
+
+const onReturn = function():void {
     router.back();
+}
+
+const onReturnTop = function():void {
+    const element = document.getElementById('scrollbar');
+
+    if (element) {
+        element.scrollTop = 0;
+    }
 }
 
 const onChangeRange = debounce((event) => {
     asyncUpdate(event.target.dataset.key);
 });
-
 
 const onResetSetting = throttle(() => {
     const zoom = import.meta.env.VITE_APP_COMIC_ZOOM;
@@ -112,22 +127,6 @@ const onResetSetting = throttle(() => {
     }
 })
 
-const asyncUpdate = function (key) {
-    if(Base.isEmpty(key)) {
-        return false;
-    }
-    const args = {key:key,value: settings[key]};
-    emit('update',args)
-}
-
-const onReturnTop = function () {
-    const element = document.getElementById('scrollbar');
-
-    if (element) {
-        element.scrollTop = 0;
-    }
-}
-
 watch(() => props.settings.zoom,(value)=>{
     settings.zoom = value;
 })
@@ -136,7 +135,7 @@ watch(() => props.settings.space,(value)=>{
     settings.space = value;
 })
 
-defineExpose({ onHideSetting })
+defineExpose({onHideSetting})
 </script>
 
 <style scoped lang="scss">

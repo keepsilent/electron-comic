@@ -99,13 +99,13 @@ const createWindow = async function() {
     })
 
     ipcMain.on('openpath', (event,value) => {
-        if(value == 'open app folder') {
-            shell.openPath(app.getAppPath())
-            return false;
-        }
         let {frameId} = event;
         console.log('frameId',frameId);
-        shell.openPath(value)
+        if(value == 'open app folder') {
+            shell.openPath(app.getAppPath())
+        } else {
+            shell.openPath(value)
+        }
     })
 
     // ipcMain.handle('sqQuery', (event: IpcMainInvokeEvent,param: queryParam): Promise<any> => {

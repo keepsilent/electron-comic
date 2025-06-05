@@ -148,7 +148,7 @@ const addNextDoubleBtn = function(data:dataInter[],page:number, end: number, tot
     }
 
     data.push({ name: 'next-double', value: page + middle, scene:'els'});
-    data.push({ name: totalPage as string, value: totalPage, scene:''})
+    data.push({ name: totalPage.toString(), value: totalPage, scene:''})
     return data;
 }
 

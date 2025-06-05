@@ -183,10 +183,10 @@ interface Props {
         file_status?: string,
         file_modified?: string,
         file_mine_type?: string,
-        file_tags?: { name:string, count:string}[],
-        file_artists?: { name:string, count:string}[],
-        file_languages?: { name:string, count:string}[],
-        file_categories?: { name:string, count:string}[],
+        file_tags?: { name:string, count:number}[],
+        file_artists?: { name:string, count:number}[],
+        file_languages?: { name:string, count:number}[],
+        file_categories?: { name:string, count:number}[],
     }
 }
 

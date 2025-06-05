@@ -1,5 +1,4 @@
 <template>
-
     <!-- Status Bar -->
     <div class="statusbar-wrap">
         <div :class="['statusbar-inner',page.layout]">
@@ -30,7 +29,7 @@ import {useI18n} from "vue-i18n";
 import {reactive,onMounted, watch} from 'vue'
 import {Base,Common,File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
-import type {ConfirmInter} from "@renderer/utils/types";
+import type {ConfirmInter} from "@renderer/types/common";
 
 import Confirm from "@renderer/components/Confirm.vue";
 
@@ -50,10 +49,10 @@ interface Props {
         file_status?: string,
         file_modified?: string,
         file_mine_type?: string,
-        file_tags?: { name:string, count:string}[],
-        file_artists?: { name:string, count:string}[],
-        file_languages?: { name:string, count:string}[],
-        file_categories?: { name:string, count:string}[],
+        file_tags?: { name:string, count:number}[],
+        file_artists?: { name:string, count:number}[],
+        file_languages?: { name:string, count:number}[],
+        file_categories?: { name:string, count:number}[],
     },
     settings: {
         page: {
@@ -73,28 +72,16 @@ interface PageInter {
     layout:string
 }
 
-const { t } = useI18n();
+const {t} = useI18n();
 const pageStore = usePageStore();
 const props = defineProps<Props>()
-const page:PageInter = reactive({
+const page = reactive<PageInter>({
     show: false,
     total: 0,
     path: [],
     layout: Common.getLayoutFold(pageStore.page.layout,'statusbar-inner')
 })
-const confirm:ConfirmInter = reactive({show: false});
-
-
-const onOpenFolder = function (event) {
-    const {currentTarget: {dataset: {index}}} = event
-    const path = page.path[index].value;
-    if(!File.isExists(path || '')) {
-        Common.showAlert(confirm,t("alert.content.inexistence"));
-        return false;
-    }
-
-    window.electron.ipcRenderer.send('openpath', path);
-}
+const confirm = reactive<ConfirmInter>({show: false, content: ''});
 
 const analyzePath = function (path:string = ''):{name:string,value:string}[] {
     if(Base.isEmpty(path)) {
@@ -123,11 +110,22 @@ const analyzePath = function (path:string = ''):{name:string,value:string}[] {
     return list;
 }
 
-const onCancelConfirm = function () {
+const onOpenFolder = function(event):boolean|void {
+    const {currentTarget: {dataset: {index}}} = event
+    const path = page.path[index].value;
+    if(!File.isExists(path || '')) {
+        Common.showAlert(confirm,t("alert.content.inexistence"));
+        return false;
+    }
+
+    window.electron.ipcRenderer.send('openpath', path);
+}
+
+const onCancelConfirm = function():void {
     Common.cancelConfirm(confirm);
 }
 
-const onOperateConfirm = function () {
+const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 

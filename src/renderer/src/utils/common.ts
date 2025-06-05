@@ -19,6 +19,8 @@ const openFolder = function (type:string) {
             const os = require('os') as typeof import("os");
             path = os.homedir(); // 用于获取当前用户的主目录路径
             break
+        default:
+            break
     }
 
     window.electron.ipcRenderer.send('openpath', path);

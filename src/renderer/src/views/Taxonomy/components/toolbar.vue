@@ -47,7 +47,7 @@
             </div>
 
             <div class="line"></div>
-            <div class="item" @click="onGoBack"><span><i class="iconfont icon-back"></i><em class="title">{{t('button.return')}}</em></span></div>
+            <div class="item" @click="onReturn"><span><i class="iconfont icon-back"></i><em class="title">{{t('button.return')}}</em></span></div>
             <div class="item" @click="onRefresh"><span><i class="iconfont icon-refresh"></i><em class="title">{{t('button.refresh')}}</em></span></div>
         </div>
     </div>
@@ -143,16 +143,15 @@ const onSwitchOpen = function(event):void {
     pageStore.toolbar.more = false;
 }
 
-const onGoBack = function():void {
+const onReturn = function():void {
     setHideMoreMenu();
     router.back();
     pageStore.page.back = pageStore.page.back+1;
 }
 
 const onRefresh = function():void {
+    setHideMoreMenu();
     emit('refresh');
-
-    pageStore.toolbar.more = false;
 }
 
 const getViewIcon = function():string {

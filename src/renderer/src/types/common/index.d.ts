@@ -11,9 +11,9 @@ export interface File {
     file_path: string,
     file_status: string,
     file_size: string,
-    file_total: string,
+    file_total: number,
     file_mine_type: string,
-    file_view :number,
+    file_view: number,
     file_intro: string,
 }
 

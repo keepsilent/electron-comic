@@ -133,7 +133,7 @@ const setBackMenu = function():void {
             case '/taxonomy':
                 for(let i in data) {
                     if(data[i].url == path && data[i].key == type) {
-                        menu.current = i;
+                        menu.current = Number(i);
                     }
                 }
                 break;
