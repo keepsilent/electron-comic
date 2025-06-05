@@ -18,13 +18,13 @@ export interface MenuInter {
 
 export interface BannerInter {
     name: string,
-    image: string,
-    url: string
+    url: string,
+    image?: string
 }
 
 export interface UserInter {
     nicename: string,
-    avatar: string
+    avatar?: string
 }
 
 export interface AsideInter {

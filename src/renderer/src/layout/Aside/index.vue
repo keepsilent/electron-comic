@@ -7,7 +7,7 @@
                 <!-- User Avatar-->
                 <div class="user tc">
                     <div class="user-info">
-                        <img class="avatar" :src="user.avatar" :alt="user.nicename" width="48" height="48">
+                        <img class="avatar" src="@renderer/assets/electron.svg" :alt="user.nicename" width="48" height="48">
                         <p class="title">{{user.nicename}}</p>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
             <!-- Banner -->
             <div class="aside-footer">
                 <div class="banner">
-                    <img :src="banner.image" :alt="banner.name" :data-url="banner.url" data-target="_blank" width="100%" @click="onRedirectByEvent">
+                    <img src="@renderer/assets/images/banner/banner-01.png" :alt="banner.name" :data-url="banner.url" data-target="_blank" width="100%" @click="onRedirectByEvent">
                     <span class="tips">{{t('aside.advertisement')}}</span>
                 </div>
                 <div class="line"></div>
@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRouter} from 'vue-router'
-import {reactive, watch} from "vue";
+import { reactive, watch} from "vue";
 import {Base, Common} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import {useFileStore} from '@renderer/stores/file'
@@ -67,6 +67,7 @@ import type {ConfirmInter} from "@renderer/types/common";
 import type {PageInter, AsideInter, MenuInter, BannerInter, UserInter} from "@renderer/types/layout/aside";
 
 import Confirm from "@renderer/components/Confirm.vue";
+
 
 const {t} = useI18n();
 const router = useRouter()
@@ -88,7 +89,6 @@ const aside:AsideInter = reactive({
 
 const user:UserInter = reactive({
     nicename: 'Comic++',
-    avatar: './src/assets/electron.svg'
 })
 
 const menu:MenuInter = reactive({
@@ -108,7 +108,6 @@ const menu:MenuInter = reactive({
 
 const banner:BannerInter = reactive({
     name: '阿里云服务器（ECS）等，高性能服务器，就选阿里云 ',
-    image:'./src/assets/images/banner/banner-01.png',
     url: 'https://s.click.taobao.com/Viylruu'}
 )
 
