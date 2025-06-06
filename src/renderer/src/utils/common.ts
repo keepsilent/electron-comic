@@ -137,7 +137,8 @@ const lazyRenderPage = function (page):void {
  */
 const setArchive = function (Archive):void {
     const options = {
-        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js'
+        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js?asset'
+        //workerUrl: '../../dist/worker-bundle.js'
     }
 
     Archive.init(options);
