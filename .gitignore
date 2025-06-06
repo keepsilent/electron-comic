@@ -6,3 +6,4 @@ out
 *.log*
 
 !/src/renderer/src/utils/libarchive.js/dist
+!/src/renderer/public/js/libarchive.js/dist

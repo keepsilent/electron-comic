@@ -136,9 +136,10 @@ const lazyRenderPage = function (page):void {
  * @param {Archive} Archive
  */
 const setArchive = function (Archive):void {
+    const path = Config.getPublicPath('/js/libarchive.js/dist/worker-bundle.js');
+    const workerUrl = new URL(path, import.meta.url).href
     const options = {
-        workerUrl: '/src/utils/libarchive.js/dist/worker-bundle.js?asset'
-        //workerUrl: '../../dist/worker-bundle.js'
+        workerUrl: workerUrl,
     }
 
     Archive.init(options);
