@@ -10,7 +10,7 @@ export interface File {
     file_name: string,
     file_path: string,
     file_status: string,
-    file_size: number,
+    file_size: string,
     file_total: number,
     file_mine_type: string,
     file_view: number,
