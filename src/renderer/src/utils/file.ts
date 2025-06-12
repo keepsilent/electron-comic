@@ -287,14 +287,15 @@ const isImageFileByPath = function (path:string = ''):boolean {
  * @param {String} name 文件名
  * @param {String} base64 base64图片
  */
-const createCoverByBase64 = function (name:string = '', base64:string = ''):boolean|void {
+const createCoverByBase64 = async function (name:string = '', base64:string = ''):Promise<boolean|void> {
     if (Base.isEmpty(base64)) {
         return false
     }
 
     //const path = getCoverPathByName(name);
     const path = `${Config.getStoragePath()}${name}.png`;
-    const dataBuffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
+    const newBase64 = await getScaleBase64(base64)
+    const dataBuffer = Buffer.from(newBase64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
     fs.writeFile(path, dataBuffer,function(err) {//用fs写入文件
         if(Base.isEmpty(err)) {
            return false
@@ -302,6 +303,60 @@ const createCoverByBase64 = function (name:string = '', base64:string = ''):bool
 
         Base.printErrorLog('Use fs model write file fail:',err);
     });
+}
+
+/**
+ * 获取缩放的Base64
+ * @method getScaleBase64
+ * @param {String} base64 base64字符串
+ * @param {Number} maxWidth 图片最大宽，默认：432
+ * @param {Number} maxHeight 图片最大高，默认：576
+ * @param {Number} quality 图片压缩率,0-1
+ */
+const getScaleBase64 = async function (base64: string, maxWidth: number = 432 , maxHeight: number = 576, quality:number = 0.6):Promise<string> {
+    const image = new Image();
+    image.src = base64;
+    image.setAttribute("crossOrigin", 'Anonymous');    // url为外域时需要
+
+    return new Promise((resolve, reject) => {
+        image.onload = function() {
+            const {width:originalWidth,height:originalHeight} = image;
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d") as any;
+            const {width, height} = scaleImage(originalWidth, originalHeight, maxWidth, maxHeight)
+            canvas.width = width;
+            canvas.height = height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/webp", quality));
+        }
+
+        image.onerror = function () {
+            reject('');
+        }
+    })
+}
+
+/**
+ * 等比例缩放图片
+ * @method scaleImage
+ * @param {Number} originalWidth 图片原始宽
+ * @param {Number} originalHeight 图片原始宽
+ * @param {Number} maxWidth 图片最大宽
+ * @param {Number} maxHeight 图片最大高
+ */
+const scaleImage = function (originalWidth:number, originalHeight:number, maxWidth:number, maxHeight:number):{width:number, height:number} {
+    const aspectRatio = originalWidth / originalHeight;
+    let width = maxWidth;
+    let height = maxHeight;
+
+    if (width / height > aspectRatio) {
+        width = height * aspectRatio;
+    } else {
+        height = width / aspectRatio;
+    }
+
+    return { width, height };
 }
 
 /**

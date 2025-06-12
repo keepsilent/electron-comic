@@ -92,7 +92,7 @@ class Database {
                 file_name TEXT NOT NULL DEFAULT '' ,
                 file_path TEXT NOT NULL DEFAULT '' ,
                 file_status VARCHAR(32) NOT NULL DEFAULT 'normal',
-                file_size VARCHAR(64) NOT NULL DEFAULT '0',
+                file_size INTEGER NOT NULL DEFAULT 0,
                 file_total VARCHAR(10) NOT NULL DEFAULT '0',
                 file_mine_type VARCHAR(64) NOT NULL DEFAULT '',
                 file_view INT(11) NOT NULL DEFAULT 0,
