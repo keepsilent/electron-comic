@@ -1,12 +1,14 @@
 .file {
     &-wrap {
-        height: calc(100vh - 25px - 48px - 41px);
-        padding: var(--spacing-m);
+        height: calc(100vh - 49px - 41px - 26px);
+        //padding: var(--spacing-m);
         overflow-y: auto;
     }
 
     &-main {
         display: grid;
+        min-height: calc(100vh - 49px - 41px - 26px - 24px - 60px);
+        padding: var(--spacing-m);
         gap: 15px;
 
         &__skeleton {

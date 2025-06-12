@@ -90,7 +90,7 @@
         align-items: flex-start;
         justify-content: flex-start;
 
-        padding: var(--spacing-m);
+        padding: var(--spacing-l);
 
         .cover {
             margin-right: var(--spacing-m);
@@ -186,6 +186,8 @@
 
     &-main {
 
+        padding-left: var(--spacing-l);
+        padding-right: var(--spacing-l);
         padding-bottom: var(--spacing-xl);
 
         .file-item {

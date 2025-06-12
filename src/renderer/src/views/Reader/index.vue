@@ -108,7 +108,8 @@
             <Empty :empty="empty"></Empty>
 
             <div class="detail-main">
-                <div v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
+                <Interim v-if="settings.page.show == false" :interim="interim" style="opacity: 0.65"></Interim>
+                <div v-else v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
                     <template v-if="item.status == 'loading'">
                         <div class="loading">
                             <img src="@renderer/assets/images/common/loading.gif" width="200" height="200">
@@ -212,7 +213,6 @@ const confirm:ConfirmInter = reactive({show:false,content:''});
 const empty:EmptyInter = reactive({show: false});
 const interim:InterimInter = reactive({show: true, space: true});
 
-
 onMounted(async () => {
     init();
 })
@@ -251,12 +251,13 @@ const loadDetail = async function ():Promise<boolean|void> {
 
         resetFileData(res.data);
         await getFileSettings();
-        renderCover(file);
-        renderContent(file)
-        renderStatus(file);
-        Common.lazyRenderPage(page);
+        await renderCover(file);
+        await renderContent(file)
+        await renderStatus(file);
     } catch (err) {
         Base.printErrorLog('getFileInfo',err)
+    } finally {
+        page.init = true;
     }
 }
 
@@ -311,14 +312,13 @@ const setFileMetaId = async function (file_id:number):Promise<boolean> {
     meta.id = {
         id: id,
         source: source,
-        show: true,
+        show: id != 0 ? true: false,
     }
     return true
 }
 
 const setFileMetaTitle = async function (file_id:number, file_name:string):Promise<boolean> {
     const res = await getFileMeta(file_id,'title');
-    console.log('setFileMetaTitle',res);
     if(Base.isEmpty(res)) {
         return false
     }
@@ -414,11 +414,14 @@ const renderFilesThumbnail = async function (file):Promise<void> {
         const fileBuffer = fs.readFileSync(file.file_path);
         const blob = new Blob([fileBuffer], {type: file.file_mine_type});
 
-        const archive = await Archive.open(blob);
-        const extract = await archive.extractFiles();
+        let archive = await Archive.open(blob);
+        let extract = await archive.extractFiles();
         //const current =  (new Date()).valueOf() - now;
 
         readImageFile(File.getExtractImageList(extract));
+
+        archive = null;
+        extract = null;
     } catch (err) {
         Base.printErrorLog('archive',err)
     }
@@ -444,7 +447,6 @@ const readImageFile = async function (data):Promise<boolean|void> {
 }
 
 const getThumbnailOrigin = function (index):{type:string,width:string,height:string} {
-
     const {thumbnail} = settings;
     const width = import.meta.env.VITE_APP_COMIC_WIDTH;
     const height = import.meta.env.VITE_APP_COMIC_HEIGHT;
@@ -477,7 +479,7 @@ const autoCreateCover = function():boolean|void {
     File.createCoverByBase64(file_id.toString(), cover);
 }
 
-const renderCover = async function ({file_id}):Promise<boolean> {
+const renderCover = async function ({file_id}):Promise<boolean|void> {
     try {
         const path = File.getFileCoverById(file_id);
 
@@ -490,13 +492,10 @@ const renderCover = async function ({file_id}):Promise<boolean> {
             return false;
         }
 
-
         const fileBuffer = fs.readFileSync(path);
         file.file_cover = await File.getBase64Image(fileBuffer);
-        return true;
     } catch (err) {
         Base.printErrorLog('loadCover readFileSync',err)
-        return false;
     }
 }
 
@@ -677,7 +676,6 @@ const getImageScrollPosition = function (i:string,total:number):{top:number, bot
 
     return { top: top, bottom: bottom };
 }
-
 
 const getElementPagePosition = function(element):{x:number,y:number} {
     let left = element.offsetLeft;
@@ -870,7 +868,6 @@ const onUpdateFileEdit = function (data):boolean {
     file.file_path = data.file_path;
     file.file_alias = data.file_alias;
     file.file_intro = data.file_intro;
-    console.log('onUpdateFileEdit',data);
     return true;
 }
 
@@ -897,6 +894,7 @@ const onUpload = function (show:boolean=true):void {
 
 const onRefresh = function () {
     page.init = false;
+    settings.page.show = false;
     init();
 }
 
@@ -914,12 +912,21 @@ watch(() => page.init,(value) => {
     }
 
     setTimeout(  () => {
+        scrollbar.value.addEventListener("click", onContent)
+    },4)
+})
+
+watch(() => settings.page.show,(value) => {
+    if(value == false) {
+        return false;
+    }
+
+    setTimeout(  () => {
         if(Base.isEmpty(thumbnail)) {
             return false;
         }
         prerenderThumbnail();
         scrollbar.value.addEventListener("scroll", onScroll)
-        scrollbar.value.addEventListener("click", onContent)
     },4)
 })
 
