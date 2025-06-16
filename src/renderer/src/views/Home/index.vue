@@ -1,6 +1,6 @@
 <template>
     <Toolbar @order="onSwitchOrder" @filter="onFilefilter" @upload="onUpload" @refresh="onRefresh"/>
-    <div ref="scrollbar" class="file-wrap scrollbar">
+    <div ref="scrollbar" class="file-wrap scrollbar" id="scrollbar">
 
         <!-- Skeleton -->
         <div v-if="page.init == false" :class="['file-main','file-main__skeleton',toolbar.view.class]">
@@ -72,7 +72,7 @@
 <script lang="ts" setup>
 import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
-import {ref,reactive,watch,onMounted} from 'vue'
+import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 
 import {Base,Common,File,Time} from "@renderer/utils";
 import {getFileList,getFileArtist} from "@renderer/api/file";
@@ -129,7 +129,17 @@ onMounted(() => {
     toolbar.view.class = getToolbarViewClass();
 
     init()
+    scrollbar.value.addEventListener("scroll", onScroll)
 })
+
+onBeforeUnmount(() => {
+    scrollbar.value.removeEventListener("scroll", onScroll);
+});
+
+const onScroll = function (event):void {
+    const scrollTop = event.target.scrollTop;
+    localStorage.setItem('cm_cache_home_scroll',scrollTop)
+}
 
 const init = function ():void {
     setArchive();
@@ -173,16 +183,16 @@ const loadFileList = async function ():Promise<boolean|void> {
     } catch (err) {
         Base.printErrorLog('getFileList',err);
     } finally {
-        page.init = true;
+        //page.init = true;
         setDelayDisplay()
     }
 }
 
 const setDelayDisplay = function ():boolean|void {
-    if(Number(load.page) != 1) {
-        page.init = true;
-        return false;
-    }
+    // if(Number(load.page) != 1) {
+    //     page.init = true;
+    //     return false;
+    // }
 
     setTimeout(()=> {
         page.init = true;
@@ -309,7 +319,7 @@ const onChangePage = function({value}):void {
             taxonomy: taxonomy,
         }
     }
-
+    localStorage.setItem('cm_cache_home_scroll','0');
     router.push(object)
 }
 
@@ -352,6 +362,19 @@ const onCancelConfirm = function():void {
 const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
+
+watch(() => page.init,(value) => {
+    if(value != true) {
+        return false
+    }
+
+    const scrollBar = document.getElementById('scrollbar')
+    const scrollTop = localStorage.getItem('cm_cache_home_scroll') as number || 0;
+    if(scrollBar) {
+        scrollBar.scrollTop = scrollTop;
+    }
+})
+
 
 watch(() => pageStore.pageSize,(value) => {
     load.pageSize = value;

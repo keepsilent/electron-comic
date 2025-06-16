@@ -130,7 +130,7 @@ export const getFileList = async function (params:Record<string, any>):Promise<R
         const orderby = getFileListOrderBy(order ? order: {mode:'name',sort: 'desc'});
 
         const sql = `SELECT * FROM cm_file ${join} WHERE ${where} ${orderby} LIMIT $page, $pageSize`;
-        console.log('sql',sql);
+        //console.log('sql',sql);
         const data: queryParam = {
             sql: sql,
             params: {

@@ -150,6 +150,10 @@ const onSwitchMenu = function(event):boolean|void {
         return false;
     }
 
+    if(key == 'home'){
+        localStorage.setItem('cm_cache_home_scroll','0');
+    }
+
     router.push({path: url, query: {type:key}})
 }
 

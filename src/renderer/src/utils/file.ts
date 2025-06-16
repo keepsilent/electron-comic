@@ -313,7 +313,7 @@ const createCoverByBase64 = async function (name:string = '', base64:string = ''
  * @param {Number} maxHeight 图片最大高，默认：576
  * @param {Number} quality 图片压缩率,0-1
  */
-const getScaleBase64 = async function (base64: string, maxWidth: number = 432 , maxHeight: number = 576, quality:number = 0.6):Promise<string> {
+const getScaleBase64 = async function (base64: string, maxWidth: number = 324 , maxHeight: number = 432, quality:number = 0.6):Promise<string> {
     const image = new Image();
     image.src = base64;
     image.setAttribute("crossOrigin", 'Anonymous');    // url为外域时需要

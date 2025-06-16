@@ -92,7 +92,8 @@ const analyzePath = function (path:string = ''):{name:string,value:string}[] {
     const data = path.split('\\');
     const len = Base.getDataLength(data);
 
-    data.splice(len - 1,1);
+   // data.splice(len - 1,1);
+    data.splice(len ,1);
 
     for(let i in data) {
         let path = '';
