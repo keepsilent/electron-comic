@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {reactive, watch} from "vue";
 
-import {Base, Common, File} from "@renderer/utils";
+import {Common, File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
@@ -41,17 +41,11 @@ const page:Page = reactive({
     layout: Common.getLayoutFold(pageStore.page.layout,'main')
 })
 
-const onWatchBubbling = function ():void {
-    pageStore.toolbar.more = false;
-    pageStore.toolbar.submenu.view = false;
-    pageStore.toolbar.submenu.order = false;
-}
-
-const setLaunch = function ():void {
+const setProgramLaunch = function ():void {
     page.launch = false;
 }
 
-const setMaximize = function ():boolean|void {
+const setWindowMaximize = function ():boolean|void {
     const maximize = localStorage.getItem('cm_setting_maximize') ?? '';
 
     if(maximize !== 'true') {
@@ -61,26 +55,21 @@ const setMaximize = function ():boolean|void {
     window.electron?.ipcRenderer.send('maximize');
 }
 
-const setAppPath = function ({path}):void {
-    const db = `${path}\\files\\db`;
-    const images = `${path}\\files\\temp\\images`;
+const setStoragesFolder = function ({path}):void {
+    const storage = import.meta.env.VITE_APP_STORAGE_PATH
 
-    createFolder(db)
-    createFolder(images)
-    localStorage.setItem('cm_app_path',path);
+    const dbPath = `${path}\\${storage}\\database`;
+    const imagePath = `${path}\\${storage}\\files\\images`;
+
+    File.mkdir(dbPath)
+    File.mkdir(imagePath)
+    window.localStorage.setItem('cm_app_path',path);
 }
 
-const createFolder = function (path):boolean|void {
-    if(Base.isEmpty(path)) {
-        return false;
-    }
-
-    if(File.isExists(path)) {
-        return false;
-    }
-
-    console.log('createFolder',path);
-    File.mkdir(path);
+const onWatchBubbling = function ():void {
+    pageStore.toolbar.more = false;
+    pageStore.toolbar.submenu.view = false;
+    pageStore.toolbar.submenu.order = false;
 }
 
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
@@ -92,9 +81,9 @@ window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
     }
 
     console.log('args.app.path',args.app.path);
-    setLaunch();
-    setMaximize();
-    setAppPath(args.app)
+    setProgramLaunch();
+    setWindowMaximize();
+    setStoragesFolder(args.app)
 })
 
 watch(() => pageStore.page.layout,(value) => {

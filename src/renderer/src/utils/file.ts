@@ -475,15 +475,15 @@ const getFileFilterOptions = function (): {mode :string, options:object } {
     const options = localStorage.getItem('cm_setting_file_filter');
 
     const res = {
-        mode: 'full',
+        mode: 'minimal',
         options:{
             title: true,
             cover: true,
             artist: true,
             date: true,
-            view: true,
-            type: true,
-            size: true
+            view: false,
+            type: false,
+            size: false
         }
     }
 

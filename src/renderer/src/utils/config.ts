@@ -28,7 +28,8 @@ const getPublicPath = function (path:string = ''):string {
  * @return {String}
  */
 const getStoragePath = function ():string {
-    return localStorage.getItem('cm_setting_storage_path') ?? localStorage.getItem('cm_app_path')+'\\files\\temp';
+    const storage = import.meta.env.VITE_APP_STORAGE_PATH
+    return localStorage.getItem('cm_setting_storage_path') ?? localStorage.getItem('cm_app_path')+`\\${storage}\\files`;
 }
 
 /**
@@ -37,7 +38,8 @@ const getStoragePath = function ():string {
  * @return {String}
  */
 const getDatabasePath = function ():string {
-    return localStorage.getItem('cm_app_path')+'\\files\\db';
+    const storage = import.meta.env.VITE_APP_STORAGE_PATH
+    return localStorage.getItem('cm_app_path')+`\\${storage}\\database`;
 }
 
 export default {

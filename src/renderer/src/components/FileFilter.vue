@@ -147,6 +147,8 @@ const onSelectOption = function (option) {
 
             page.filter[0].selected = true
             page.filter[1].selected = true
+            page.filter[2].selected = true
+            page.filter[3].selected = true
             break
         case 'full':
             for(let i in page.filter) {
