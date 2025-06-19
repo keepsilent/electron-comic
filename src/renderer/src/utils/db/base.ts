@@ -1,4 +1,5 @@
 import Config from "../config";
+
 const sqlite3 = require('sqlite3').verbose();
 const os = require('os') as typeof import("os");
 const path = require("path") as typeof import("path");
@@ -68,7 +69,7 @@ class Database {
                     if (err) {
                         reject(Database.instance.dataFormat(500,err));
                     } else {
-                        console.log("Connected to the database.");
+                        // console.log("Connected to the database.");
                         resolve(Database.instance.dataFormat(200,'Connected to the database'));
                     }
                 });

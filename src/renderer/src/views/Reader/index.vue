@@ -467,21 +467,22 @@ const setThumbnailPage = function():void {
 }
 
 const autoCreateCover = function():boolean|void {
-    const {file_id} = file;
+    const {file_id,file_date} = file;
     const cover = thumbnail[0].cover
-    const path = File.getFileCoverById(file_id);
+    const path = File.getFileCoverById(file_id.toString(), file_date);
 
+    console.log('autoCreateCover',path);
     if (File.isExists(path)) {
         return false;
     }
 
     file.file_cover = cover;
-    File.createCoverByBase64(file_id.toString(), cover);
+    File.createCoverByBase64(file_id.toString(), file_date, cover);
 }
 
-const renderCover = async function ({file_id}):Promise<boolean|void> {
+const renderCover = async function ({file_id, file_date}):Promise<boolean|void> {
     try {
-        const path = File.getFileCoverById(file_id);
+        const path = File.getFileCoverById(file_id.toString(), file_date);
 
         if (File.isExists(path) == false && File.isExists(file.file_path) == false) {
             file.file_cover = Common.getDefaultImage()

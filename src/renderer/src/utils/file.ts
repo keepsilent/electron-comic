@@ -1,5 +1,6 @@
 import Base from './base'
 import Config from "./config";
+import Time from "./time";
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
@@ -278,13 +279,14 @@ const isImageFileByPath = function (path:string = ''):boolean {
  * 获取存图片路径
  * @method getStorageImagesPath
  * @param {String} name 文件名称
+ * @param {String} date 上传文件时间
  * @return {String}
  */
-const getStorageImagesPath = function (name:string):string {
+const getStorageImagesPath = function (name:string, date:string):string {
     const storagePath = Config.getStoragePath()
-    const imagesPath = `${storagePath}\\images`;
+    const imagesPath = `${storagePath}\\images\\${Time.formatDate(date,'YYYY-MM')}`;
 
-    console.log('storagePath',storagePath)
+    mkdir(imagesPath);
     return path.resolve(imagesPath, `${name}.png`)
 }
 
@@ -292,15 +294,15 @@ const getStorageImagesPath = function (name:string):string {
  * 生成封面图片
  * @method createCoverByBase64
  * @param {String} name 文件名
+ * @param {String} date 上传文件时间
  * @param {String} base64 base64图片
  */
-const createCoverByBase64 = async function (name:string = '', base64:string = ''):Promise<boolean|void> {
+const createCoverByBase64 = async function (name:string = '',date:string='', base64:string = ''):Promise<boolean|void> {
     if (Base.isEmpty(base64)) {
         return false
     }
 
-    //const path = getCoverPathByName(name);
-    const imagesPath = getStorageImagesPath(name);
+    const imagesPath = getStorageImagesPath(name, date);
     const newBase64 = await getScaleBase64(base64)
     const dataBuffer = Buffer.from(newBase64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
     fs.writeFile(imagesPath, dataBuffer,function(err) {//用fs写入文件
@@ -367,33 +369,12 @@ const scaleImage = function (originalWidth:number, originalHeight:number, maxWid
 }
 
 /**
- * 获取封面图片路径
- * @method getCoverPathByName
- * @param {String} value 文件名
- * @return {String}
- */
-const getCoverPathByName = function (value:string):string {
-    if(Base.isEmpty(value)) {
-        return '';
-    }
-
-    if(value.indexOf('.') == -1) {
-        return '';
-    }
-
-    const index = value.lastIndexOf('.');
-    const name = value.slice(0, index);
-    return getStorageImagesPath(name)
-}
-
-
-/**
  * 获取文件图片通过id
  * @method getFileCoverById
- * @param {Number} id 文件ID
+ * @param {String} id 文件ID
  */
-const getFileCoverById = function (id:number):string {
-    return getStorageImagesPath(id.toString());
+const getFileCoverById = function (id:string, date:string):string {
+    return getStorageImagesPath(id, date);
 }
 
 

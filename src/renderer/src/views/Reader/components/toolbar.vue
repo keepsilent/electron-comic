@@ -110,7 +110,7 @@ const page = reactive<PageInter>({
         onDeleteFile:async function () {
             try {
                 Common.cancelConfirm(confirm);
-                const {file_id, file_path} = props.file;
+                const {file_id, file_date, file_path} = props.file;
                 const params = { file_id: file_id};
                 const res = await deleteFileInfoRecord(params);
                 if(res == false) {
@@ -118,7 +118,7 @@ const page = reactive<PageInter>({
                     return false;
                 }
 
-                const cover_path = File.getFileCoverById(file_id || 0);
+                const cover_path = File.getFileCoverById(file_id.toString(), file_date || '');
                 File.deleteFile(file_path || '');
                 File.deleteFile(cover_path);
 

@@ -251,9 +251,9 @@ const setPagination = function({page,totalPage,total}):void {
     pagination.total = total;
 }
 
-const getCover = async function({file_id}):Promise<any>{
+const getCover = async function({file_id, file_date}):Promise<any>{
     try {
-        const path = File.getFileCoverById(file_id);
+        const path = File.getFileCoverById(file_id.toString(), file_date);
         if (File.isExists(path) == false) {
             return Common.getDefaultImage();
         }

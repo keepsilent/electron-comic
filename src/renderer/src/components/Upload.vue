@@ -159,7 +159,7 @@ const preprocessUploadFile = async function (file) {
 }
 
 const checkUploadFile = async function (file, record) {
-    const {file_id, file_path, file_status} = record;
+    const {file_id, file_date, file_path, file_status} = record;
     if(file_status == 'normal' && File.isExists(file_path)) {
         return { status: 'fail', scene:'check', message:t('uploader.exist') }
     }
@@ -168,10 +168,10 @@ const checkUploadFile = async function (file, record) {
         File.deleteFile(file_path);
     }
 
-    return await updateFileInfoRecord(file_id, file); //文件被删除,转移或掉失,需要更新信息
+    return await updateFileInfoRecord(file_id, file_date, file); //文件被删除,转移或掉失,需要更新信息
 }
 
-const updateFileInfoRecord = async function(file_id, file) {
+const updateFileInfoRecord = async function(file_id, file_date, file) {
     try {
         const archive = await Archive.open(file);
         const extract = await archive.extractFiles();
@@ -191,7 +191,7 @@ const updateFileInfoRecord = async function(file_id, file) {
             return { status: 'fail', scene:'update', message:t('uploader.database') };
         }
 
-        await createFileCover(file_id, extract);
+        await createFileCover(file_id, file_date, extract);
         await getNhentaiList({file_id:file_id, file_name: file.name});
 
         return { status: 'success', scene: 'update'};
@@ -201,9 +201,9 @@ const updateFileInfoRecord = async function(file_id, file) {
     }
 }
 
-const createFileCover = async function (file_id, extract) {
+const createFileCover = async function (file_id, file_date, extract) {
     const cover = await File.getExtractFileCover(extract);
-    File.createCoverByBase64(file_id, cover);
+    File.createCoverByBase64(file_id, file_date, cover);
 }
 
 const insertFileInfoRecord = async function (file) {
@@ -224,7 +224,8 @@ const insertFileInfoRecord = async function (file) {
         }
 
         const file_id = res.data;
-        await createFileCover(file_id, extract);
+        const file_date = new Date().getTime();
+        await createFileCover(file_id, file_date, extract);
         await getNhentaiList({file_id:file_id, file_name: file.name});
 
         return { status: 'success', scene: 'insert'};
