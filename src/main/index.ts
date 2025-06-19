@@ -45,7 +45,7 @@ const createWindow = async function() {
     // 当窗口准备好显示时，显示窗口
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
-        mainWindow.webContents.send('ready-to-show');
+        mainWindow.webContents.send('ready-to-show',{'app':{'path':app.getAppPath()}});
 
         //mainWindow.webContents.send('resize', mainWindow.getContentBounds())
     })
@@ -101,11 +101,12 @@ const createWindow = async function() {
     ipcMain.on('openpath', (event,value) => {
         let {frameId} = event;
         console.log('frameId',frameId);
-        if(value == 'open app folder') {
-            shell.openPath(app.getAppPath())
-        } else {
-            shell.openPath(value)
-        }
+        shell.openPath(value)
+        // if(value == 'open app folder') {
+        //     shell.openPath(app.getAppPath())
+        // } else {
+        //     shell.openPath(value)
+        // }
     })
 
     // ipcMain.handle('sqQuery', (event: IpcMainInvokeEvent,param: queryParam): Promise<any> => {

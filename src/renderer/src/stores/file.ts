@@ -5,11 +5,13 @@ import {defineStore} from 'pinia'
 export const useFileStore = defineStore('file',()=>{
 
     const id = ref(null);
-    const info:object = reactive({});
+    const path = ref('');
+    const info = reactive({});
 
     return {
         id: id,
-        info: info
+        info: info,
+        path: path
     }
 })
 

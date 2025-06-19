@@ -4,14 +4,6 @@ const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
 
-/**
- * 获取存储路径
- * @method getStorePath
- */
-const getStorePath = function ():string {
-    return './user/images/cover';
-}
-
 
 /**
  * 生成文件目录
@@ -281,6 +273,21 @@ const isImageFileByPath = function (path:string = ''):boolean {
     return false;
 }
 
+
+/**
+ * 获取存图片路径
+ * @method getStorageImagesPath
+ * @param {String} name 文件名称
+ * @return {String}
+ */
+const getStorageImagesPath = function (name:string):string {
+    const storagePath = Config.getStoragePath()
+    const imagesPath = `${storagePath}\\images`;
+
+    console.log('storagePath',storagePath)
+    return path.resolve(imagesPath, `${name}.png`)
+}
+
 /**
  * 生成封面图片
  * @method createCoverByBase64
@@ -293,10 +300,10 @@ const createCoverByBase64 = async function (name:string = '', base64:string = ''
     }
 
     //const path = getCoverPathByName(name);
-    const path = `${Config.getStoragePath()}${name}.png`;
+    const imagesPath = getStorageImagesPath(name);
     const newBase64 = await getScaleBase64(base64)
     const dataBuffer = Buffer.from(newBase64.replace(/^data:image\/\w+;base64,/, ""), 'base64'); //把base64码转成buffer对象，
-    fs.writeFile(path, dataBuffer,function(err) {//用fs写入文件
+    fs.writeFile(imagesPath, dataBuffer,function(err) {//用fs写入文件
         if(Base.isEmpty(err)) {
            return false
         }
@@ -375,9 +382,8 @@ const getCoverPathByName = function (value:string):string {
     }
 
     const index = value.lastIndexOf('.');
-    const name = value.substr(0, index);
-    const path = Config.getStoragePath();
-    return `${path}${name}.png`;
+    const name = value.slice(0, index);
+    return getStorageImagesPath(name)
 }
 
 
@@ -387,9 +393,7 @@ const getCoverPathByName = function (value:string):string {
  * @param {Number} id 文件ID
  */
 const getFileCoverById = function (id:number):string {
-    const prefix = Config.getStoragePath();
-    const path = `${prefix}${id}.png`;
-    return path;
+    return getStorageImagesPath(id.toString());
 }
 
 
@@ -486,19 +490,54 @@ const getFileFilterOptions = function (): {mode :string, options:object } {
     return options ? JSON.parse(options) : res;
 }
 
+/**
+ * removeToNewDir
+ * @method removeToNewDir
+ * @param {String} sourceFilePath 来源文件路径
+ * @param {String} destinationFilePath 目录文件路径
+ * @return {Boolean|Void}
+ */
+const removeToNewDir = function (sourceFilePath:string, destinationFilePath:string):boolean|void {
+    if(Base.isEmpty(sourceFilePath) || Base.isEmpty(destinationFilePath)) {
+        return false
+    }
+
+    fs.readdir(sourceFilePath, { withFileTypes: true }, (err, files) => {
+        if (err) {
+            console.error('读取目录出错:', err);
+            return false;
+        }
+
+        for (let file of files) {
+            const sourcePath = path.resolve(sourceFilePath, file.name)
+            const destinationPath = path.resolve(destinationFilePath, file.name)
+
+            if (file.isDirectory() && sourcePath === destinationFilePath) { //排除移动至自身下级文件夹
+                continue;
+            }
+
+            fs.rename(sourcePath, destinationPath, err => {
+                if (err) {
+                    console.error(`移动文件 ${file} 出错:`, err);
+                } else {
+                    console.log(`成功移动文件: ${file}`);
+                }
+            });
+        }
+    })
+}
+
 export default {
     mkdir: mkdir,
     isExists: isExists,
     isImageFileByPath: isImageFileByPath,
 
+    removeToNewDir: removeToNewDir,
     createCoverByBase64: createCoverByBase64,
 
     getFileExt: getFileExt,
     getFileAlias: getFileAlias,
-    getStorePath: getStorePath,
     getFileCoverById: getFileCoverById,
-
-
 
     formatFileSize: formatFileSize,
     deleteFile: deleteFile,

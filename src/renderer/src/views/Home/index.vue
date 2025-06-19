@@ -95,7 +95,7 @@ const route = useRoute();
 const router = useRouter();
 const pageStore = usePageStore();
 const fs = require("fs") as typeof import("fs");
-const scrollbar = ref(null);
+const scrollbar:any = ref(null);
 const page:PageInter = reactive({
     init: false,
     upload: false,
@@ -369,9 +369,9 @@ watch(() => page.init,(value) => {
     }
 
     const scrollBar = document.getElementById('scrollbar')
-    const scrollTop = localStorage.getItem('cm_cache_home_scroll') as number || 0;
+    const scrollTop = localStorage.getItem('cm_cache_home_scroll') || '0';
     if(scrollBar) {
-        scrollBar.scrollTop = scrollTop;
+        scrollBar.scrollTop = Number(scrollTop);
     }
 })
 

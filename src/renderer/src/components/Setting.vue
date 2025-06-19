@@ -129,6 +129,7 @@ import {Base,Config, Common} from "@renderer/utils";
 import type {PageInter, ConfirmInter,SelectInter, switchInter} from "@renderer/utils/types";
 import Confirm from "@renderer/components/Confirm.vue";
 import {usePageStore} from '@renderer/stores/page'
+import {useFileStore} from '@renderer/stores/file'
 
 import Select from "./Select.vue";
 import Switch from "./Switch.vue";
@@ -152,6 +153,7 @@ const { t, locale} = useI18n();
 const emit = defineEmits(['hide','electron'])
 const props = defineProps<Props>()
 const pageStore = usePageStore();
+const fileStore = useFileStore();
 const page:Page = reactive({show: true})
 const confirm:ConfirmInter = reactive({show: false});
 const menu = ref('general');
@@ -296,20 +298,16 @@ const onSelectFile = function () {
    //electron!.ipcRenderer.send('openDialog',general.path);
 }
 
-// electron.ipcRenderer.on('openDialog',(event,args)=> {
-//     const {canceled,filePaths} = args;
-//     if(canceled == true) {
-//         return false;
-//     }
-//     const [path] = filePaths;
-//     general.path = path;
-//     localStorage.setItem('cm_settging_storage_path',path);
-// })
+
 
 watch(() => props.show,(value)=>{
     menu.value = 'general';
     //延时显示，动画效果更佳
     setTimeout(()=> {page.show = value},10)
+})
+
+watch(() => fileStore.path,(value)=>{
+    general.path = value;
 })
 </script>
 

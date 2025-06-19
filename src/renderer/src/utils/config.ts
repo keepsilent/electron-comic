@@ -1,20 +1,10 @@
-
 /**
- * 设置容器高度
- * @method setMainHeight
- * @param {Number} height 屏幕高度
- * @param {Number} blank 留白空间,默认:118
- */
-const getMainHeight = function (height:number, blank:number = 118):number {
-    return height - blank;
-}
-
-/**
- * 获取存储路径
+ * 获取APP路径
  * @method getStoragePath
+ * @return {String}
  */
-const getStoragePath = function (key:string = ''):string {
-    return localStorage.getItem('cm_setting_storage_path') || import.meta.env.VITE_APP_COVER_PATH
+const getAppPath = function ():string {
+    return localStorage.getItem('cm_app_path') ?? '';
 }
 
 /**
@@ -32,9 +22,28 @@ const getPublicPath = function (path:string = ''):string {
     return new URL(path, import.meta.url).href
 }
 
+/**
+ * 获取存储路径
+ * @method getStoragePath
+ * @return {String}
+ */
+const getStoragePath = function ():string {
+    return localStorage.getItem('cm_setting_storage_path') ?? localStorage.getItem('cm_app_path')+'\\files\\temp';
+}
+
+/**
+ * 获取数据库存储路径
+ * @method getDatabasePath
+ * @return {String}
+ */
+const getDatabasePath = function ():string {
+    return localStorage.getItem('cm_app_path')+'\\files\\db';
+}
+
 export default {
-    getMainHeight: getMainHeight,
+    getAppPath: getAppPath,
+    getPublicPath: getPublicPath,
     getStoragePath: getStoragePath,
-    getPublicPath: getPublicPath
+    getDatabasePath: getDatabasePath
 }
 

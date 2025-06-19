@@ -11,10 +11,12 @@ const sqlite3 = require('sqlite3').verbose();
 const os = require('os') as typeof import("os");
 const path = require("path") as typeof import("path");
 
-const homedir = os.homedir(); // 用于获取当前用户的主目录路径
-const userDataPath = homedir.replace(/\\/g,'\\\\'); // 替换绝对和相对路径
-const dbPath = path.join(userDataPath, "sqliteDatabase.db")
-console.error('dbPath',dbPath);
+// const homedir = os.homedir(); // 用于获取当前用户的主目录路径
+// const userDataPath = homedir.replace(/\\/g,'\\\\'); // 替换绝对和相对路径
+// const dbPath = path.join(userDataPath, "sqliteDatabase.db")
+// console.error('dbPath',dbPath);
+const sqlite3DBPath = localStorage.getItem('cm_app_path')+'\\files\\db'
+const dbPath = path.join(sqlite3DBPath, "database.db")
 
 export interface queryParam {
     sql: string;

@@ -1,4 +1,4 @@
-# electron-app
+# Comic++
 
 An Electron application with Vue and TypeScript
 

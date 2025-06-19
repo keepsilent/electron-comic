@@ -21,7 +21,8 @@
 </template>
 <script setup lang="ts">
 import {reactive, watch} from "vue";
-import {Common} from "@renderer/utils";
+
+import {Base, Common, File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 
 import Aside from '@renderer/layout/Aside/index.vue'
@@ -33,6 +34,7 @@ interface Page {
     layout: string
 }
 
+const path = require("path") as typeof import("path");
 const pageStore = usePageStore();
 const page:Page = reactive({
     launch: true,
@@ -59,9 +61,40 @@ const setMaximize = function ():boolean|void {
     window.electron?.ipcRenderer.send('maximize');
 }
 
+const setAppPath = function ({path}):void {
+    const db = `${path}\\files\\db`;
+    const images = `${path}\\files\\temp\\images`;
+
+    createFolder(db)
+    createFolder(images)
+    localStorage.setItem('cm_app_path',path);
+}
+
+const createFolder = function (path):boolean|void {
+    if(Base.isEmpty(path)) {
+        return false;
+    }
+
+    if(File.isExists(path)) {
+        return false;
+    }
+
+    console.log('createFolder',path);
+    File.mkdir(path);
+}
+
 window.electron.ipcRenderer.on('ready-to-show',(event,args)=> {
+    const mode = import.meta.env.MODE;
+    if(mode == 'production') {
+        args.app.path = path.join(args.app.path, './../../')
+        const index = args.app.path.lastIndexOf('\\');
+        args.app.path = args.app.path.slice(0, index);
+    }
+
+    console.log('args.app.path',args.app.path);
     setLaunch();
     setMaximize();
+    setAppPath(args.app)
 })
 
 watch(() => pageStore.page.layout,(value) => {

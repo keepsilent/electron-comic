@@ -57,8 +57,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRouter} from 'vue-router'
-import { reactive, watch} from "vue";
-import {Base, Common} from "@renderer/utils";
+import {reactive, watch} from "vue";
+import {Base, Config, Common, File} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page'
 import {useFileStore} from '@renderer/stores/file'
 import {debounce, throttle} from "@renderer/utils/throttle";
@@ -73,6 +73,8 @@ const {t} = useI18n();
 const router = useRouter()
 const pageStore = usePageStore();
 const fileStore = useFileStore();
+const fs = require("fs") as typeof import("fs");
+const path = require("path") as typeof import("path");
 const page:PageInter = reactive({
     init: false,
     file: {
@@ -221,5 +223,63 @@ watch(() => pageStore.page.back, (value)=>{
 watch(() => fileStore.id,(value)=>{
     page.file.file_id = value ? value as string : '0';
 })
+
+window.electron.ipcRenderer.on('openDialog',(event,args)=> {
+    const {canceled,filePaths} = args;
+    if(canceled == true) {
+        return false;
+    }
+    const [path] = filePaths;
+    const originFilePath = Config.getStoragePath();
+
+    if(Base.isEmpty(originFilePath) || Base.isEmpty(path)) {
+        return false;
+    }
+
+    fileStore.path = path;
+    localStorage.setItem('cm_setting_storage_path',path);
+    File.removeToNewDir(originFilePath, path)
+})
+
+
+//
+// const getFiles = function (originFilePath:string, copyFilePath:string):void {
+//     console.log('originFilePath',path.resolve(originFilePath));
+//     fs.readdir(originFilePath, { withFileTypes: true }, (err, files) => {
+//         if (err) {
+//             console.error('读取目录出错:', err);
+//             return false;
+//         }
+//         for (let file of files) {
+//             if(file.isDirectory()) { //如果是文件夹就递归变量把最新的文件夹路径传过去
+//                 const originDirPath = path.resolve(originFilePath,file.name)
+//                 if(originDirPath !== copyFilePath) {
+//                     console.log('originDirPath xx',originDirPath);
+//                     copyDirSync(originFilePath, copyFilePath, file.name)
+//                 }
+//             } else { //获取旧文件夹中要复制的文件
+//                 copyFileSync(originFilePath,copyFilePath,file.name)
+//             }
+//         }
+//         console.log('files err',err);
+//         console.log('files',files);
+//     })
+// }
+//
+// const copyDirSync = function(originFilePath:string, copyFilePath:string, fileName:string):void {
+//     const originDirPath = path.resolve(originFilePath,fileName)
+//     const copyDirPath = path.resolve(copyFilePath,fileName)
+//     File.mkdir(copyDirPath);
+//     getFiles(originDirPath,copyDirPath)
+// }
+//
+// const copyFileSync = function(originFilePath:string, copyFilePath:string, fileName:string):boolean|void {
+//     const originFile = path.resolve(originFilePath, fileName) //获取新文件夹中复制的地方
+//     const copyFile = path.resolve(copyFilePath, fileName)  //将文件从旧文件夹复制到新文件夹中
+//     if(!File.isImageFileByPath(copyFile)) {
+//         return false
+//     }
+//     fs.copyFileSync(originFile,copyFile)
+// }
 </script>
 <style src="./index.scss" lang="scss" scoped></style>

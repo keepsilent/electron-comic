@@ -10,14 +10,13 @@ const openFolder = function (type:string) {
     let path = ''
     switch (type) {
         case 'app':
-            path = 'open app folder'
+            path = Config.getAppPath()
             break
         case 'cache':
-            path = Config.getStoragePath()// 用于获取当前用户的主目录路径
+            path = Config.getStoragePath()
             break
         case 'database':
-            const os = require('os') as typeof import("os");
-            path = os.homedir(); // 用于获取当前用户的主目录路径
+            path = Config.getDatabasePath()
             break
         default:
             break
