@@ -4,7 +4,11 @@ export interface PageInter extends Page {
     loading: boolean,
     edit: boolean,
     upload: boolean,
-    layout: string
+    layout: string,
+    cover: {
+        width: string,
+        height: string
+    }
 }
 
 export interface FileInter extends File {
@@ -45,4 +49,10 @@ export interface SettingsInter {
 export interface MetaInter {
     id: { show: boolean, id: number, source: string},
     title: {show: boolean, title: string, source: string},
+}
+
+
+export interface CoverInter {
+    width: string,
+    height: string
 }

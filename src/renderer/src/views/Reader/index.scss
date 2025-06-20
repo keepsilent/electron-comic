@@ -93,10 +93,12 @@
         padding: var(--spacing-l);
 
         .cover {
+            height: auto;
             margin-right: var(--spacing-m);
             border-radius: var(--border-radius-l);
-            object-fit: contain;
+            object-fit: cover;
         }
+
 
         .info {
             position: relative;
@@ -242,8 +244,7 @@
 
                 img {
                     width: 100%;
-                    height: 100%;
-                    object-fit: contain;
+                    height: auto;
                 }
             }
         }

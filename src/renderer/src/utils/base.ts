@@ -159,7 +159,6 @@ const unique = function (arr:any):object {
     return Array.from(new Set(arr))
 }
 
-
 /**
  * 复制文本到剪贴板
  * @method copy
@@ -173,7 +172,6 @@ const copy = async function (event) {
         printErrorLog('toClipboard',err)
     }
 }
-
 
 /**
  * 获取页数

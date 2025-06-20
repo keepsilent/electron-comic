@@ -6,7 +6,14 @@ interface Artist {
 
 interface FileItem extends File {
     file_cover: string,
+    file_cover_options: {
+        marginTop: string,
+        marginLeft: string,
+        width: string,
+        height: string
+    },
     file_ext: string,
+
     file_artist: {
         status: string,
         data: Artist[],
@@ -45,5 +52,13 @@ export interface ToolbarInter {
         class: string,
         model: string
     }
+}
+
+
+export interface CoverInter {
+    marginTop: string,
+    marginLeft: string,
+    width: string,
+    height: string
 }
 

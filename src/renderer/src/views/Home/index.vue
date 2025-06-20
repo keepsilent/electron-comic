@@ -15,7 +15,7 @@
             <div v-if="empty.show != true" :class="['file-main',toolbar.view.class]">
                 <div v-for="(item,index) in load.list" :key="index" class="file-item" :data-id="item.file_id" @click="onRedirect">
                     <div v-if="page.options.cover" class="cover">
-                        <img :src="item.file_cover" :data-index="index" width="216" height="287" @error="setDefaultImage">
+                        <img :src="item.file_cover" :data-index="index" width="216" height="287" :style="item.file_cover_options" @error="setDefaultImage">
                         <div v-if="page.options.view || page.options.type || page.options.size" class="mask">
                             <div class="mask-inner">
                                 <div class="mask-left">
@@ -78,7 +78,7 @@ import {Base,Common,File,Time} from "@renderer/utils";
 import {getFileList,getFileArtist} from "@renderer/api/file";
 import {usePageStore} from '@renderer/stores/page'
 import type {ConfirmInter,EmptyInter,PaginationInter} from "@renderer/types/common";
-import type {PageInter,LoadInter,ToolbarInter} from "@renderer/types/views/home";
+import type {CoverInter, PageInter,LoadInter,ToolbarInter} from "@renderer/types/views/home";
 
 import Toolbar from "./components/toolbar.vue";
 import Statusbar from "./components/statusbar.vue";
@@ -100,8 +100,8 @@ const page:PageInter = reactive({
     init: false,
     upload: false,
     options: {},
-    actions: {}}
-);
+    actions: {}
+});
 const load:LoadInter = reactive({
     page: '1',
     pageSize: pageStore.pageSize,
@@ -236,8 +236,57 @@ const setFileList = async function (data):Promise<boolean|void> {
         data[i].file_size = File.formatFileSize(data[i].file_size);
         data[i].file_date = Time.getTimeAgo(data[i].file_date,'YYYY-MM-DD','MM-DD');
         data[i].file_artist = await loadFileArtist(data[i].file_id);
+        data[i].file_cover_options = await getImageSize(data[i].file_cover);
     }
     load.list = data;
+}
+
+const getImageSize = function(src:string):Promise<CoverInter> {
+    const img = new Image()
+    img.src = src;
+    return new Promise<CoverInter>((resolve, reject) => {
+        img.onload = function() {
+            resolve(setImageCenter(img.width, img.height));
+        }
+
+        img.onerror = function() {
+            reject({marginLeft: '0',marginTop: '0', width: '100%', height: 'auto'});
+        }
+    });
+}
+
+const setImageCenter = function(originalWidth:number,originalHeight:number):CoverInter {
+    const model = toolbar.view.model;
+    const data = {
+        super: {width: 216, height:288},
+        large: {width: 183, height:243},
+        middle: {width: 155, height:204},
+        small: {width: 130, height:171}
+    }
+    const {width,height} = data[model];
+    const object = { marginLeft: '0', marginTop:　'0', width: '100%', height: 'auto' }
+    if(originalWidth < width) {
+        object.width = originalWidth+'px';
+        object.marginLeft = ((width - originalWidth) / 2)+'px';
+
+        if(originalHeight < height) {
+            object.height = originalHeight+'px';
+            object.marginTop = ((height - originalHeight) / 2)+'px';
+        } else {
+            object.height = height+'px';
+        }
+    } else {
+        object.width = width+'px';
+        const zoomHeight = originalHeight * (width / height)
+        if(zoomHeight <　height) {
+            object.height = zoomHeight.toString()+'px';
+            object.marginTop = ((height - zoomHeight) / 2)+'px';
+        } else {
+            object.height = height+'px';
+        }
+    }
+
+    return object;
 }
 
 const getFileExt = function(path):string {
@@ -376,14 +425,25 @@ watch(() => page.init,(value) => {
 })
 
 
+const resetPreviewImageSize = async function():Promise<boolean|void> {
+    if(Base.isEmpty(load.list)) {
+        return false;
+    }
+    for (let i in load.list) {
+        load.list[i].file_cover_options = await getImageSize(load.list[i].file_cover);
+    }
+}
+
 watch(() => pageStore.pageSize,(value) => {
     load.pageSize = value;
     loadFileList();
 })
 
-watch(() => pageStore.toolbar.view,(value) => {
+watch(() => pageStore.toolbar.view, (value) => {
     toolbar.view.model = value;
     toolbar.view.class = getToolbarViewClass();
+
+    resetPreviewImageSize();
 })
 </script>
 <style src="./index.scss" lang="scss" scoped></style>

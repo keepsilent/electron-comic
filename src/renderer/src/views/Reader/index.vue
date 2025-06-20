@@ -50,7 +50,8 @@
     <div v-if="page.init" ref="scrollbar" class="detail-wrap scrollbar scrollbar-space" id="scrollbar">
         <div class="detail-inner">
             <div class="detail-header">
-                <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" @error="setDefaultImage">
+                <img class="cover" :src="file.file_cover" :alt="file.file_name" width="183" height="243" :style="page.cover" @error="setDefaultImage">
+
                 <div class="info">
 
 
@@ -150,7 +151,7 @@ import {useI18n} from 'vue-i18n';
 import {useRouter,useRoute} from 'vue-router'
 import {ref, reactive, watch, onMounted, onBeforeUnmount} from 'vue'
 import type {ConfirmInter, EmptyInter, InterimInter} from "@renderer/types/common";
-import type {PageInter, FileInter, ThumbnailInter, MetaInter, SettingsInter} from "@renderer/types/views/reader";
+import type {CoverInter, PageInter, FileInter, ThumbnailInter, MetaInter, SettingsInter} from "@renderer/types/views/reader";
 import {Base, Common, File,Time} from "@renderer/utils";
 import {usePageStore} from '@renderer/stores/page';
 import {useFileStore} from '@renderer/stores/file';
@@ -168,6 +169,7 @@ import Interim from "@renderer/components/Interim.vue";
 import Empty from "@renderer/components/Empty.vue";
 import FileEdit from "@renderer/components/FileEdit.vue";
 
+
 const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -177,7 +179,14 @@ const fs = require("fs") as typeof import("fs");
 const scrollbar:any = ref(null);
 const menubar:any = ref(null);
 
-const page:PageInter = reactive({init: false, loading: false, edit: false, upload: false, layout:pageStore.page.layout, actions: {}});
+const page:PageInter = reactive({
+    init: false,
+    loading: false,
+    edit: false,
+    upload: false,
+    layout:pageStore.page.layout, actions: {},
+    cover:{ width: '100%', height: 'auto'}
+});
 const file:FileInter = reactive({
     file_id: 0,
     file_date: '',
@@ -502,6 +511,23 @@ const renderCover = async function ({file_id, file_date}):Promise<boolean|void> 
 
 const setDefaultImage = function():void {
     file.file_cover = Common.getDefaultImage();
+}
+
+const getImageSize = async function(src:string = ''):Promise<CoverInter> {
+    if(Base.isEmpty(src)) {
+        return { width: '100%', height: 'auto'};
+    }
+    const img = new Image()
+    img.src = src;
+    return new Promise<CoverInter>((resolve, reject) => {
+        img.onload = function() {
+            resolve(setImageCenter(img.width, img.height));
+        }
+
+        img.onerror = function() {
+            reject({ width: '100%', height: 'auto'});
+        }
+    });
 }
 
 const onScroll = function (event):void {
@@ -829,6 +855,30 @@ const getThumbnailCacheData = function ():object {
     return data;
 }
 
+const setImageCenter = function(originalWidth:number,originalHeight:number):{width:string,height:string} {
+    const width = 183, height = 243;
+    const object = { width: '100%', height: 'auto' }
+    if(originalWidth < width) {
+        object.width = originalWidth+'px';
+
+        if(originalHeight < height) {
+            object.height = originalHeight+'px';
+        } else {
+            object.height = height+'px';
+        }
+    } else {
+        object.width = width+'px';
+        const zoomHeight = originalHeight * (width / height)
+        if(zoomHeight <　height) {
+            object.height = zoomHeight.toString()+'px';
+        } else {
+            object.height = height+'px';
+        }
+    }
+
+    return object;
+}
+
 const onUpdateSettings = function ({key,value}):void {
     switch (key) {
         case 'space':
@@ -934,6 +984,10 @@ watch(() => settings.page.show,(value) => {
 watch(() => pageStore.page.layout,(value)=>{
     page.layout = value;
     settings.page.layout = Common.getLayoutFold(value,'detail-page');
+})
+
+watch(() => file.file_cover,async(value)=>{
+    page.cover = await getImageSize(value)
 })
 </script>
 <style src="./index.scss" lang="scss" scoped></style>
