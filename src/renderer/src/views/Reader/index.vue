@@ -889,7 +889,7 @@ const onUpdateSettings = function ({key,value}):void {
         case 'zoom':
             settings.zoom = value;
             for(let i in thumbnail) {
-                const {width, height} = thumbnail[i]
+                const {width, height} = thumbnail[i].origin
                 thumbnail[i].width = getThumbnailPreviewSizeEquation(width)
                 thumbnail[i].height = getThumbnailPreviewSizeEquation(height)
             }
