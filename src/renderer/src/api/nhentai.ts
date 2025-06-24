@@ -51,6 +51,14 @@ export const getNhentaiList = async function ({file_id, file_name}):Promise<Bool
         }
 
         if(Base.isEmpty(res.data) || Base.isEmpty(res.data.result)) {
+            // const tags = [
+            //     {name: "santa", type: "artist"},
+            //     {name: "chinese", type: "language"}
+            // ]
+            // await batchInsertTermRelationships(file_id, tags);
+
+            const tags = getTagsByTitle(file_name)
+            await batchInsertTermRelationships(file_id, tags)
             return false
         }
 
@@ -61,9 +69,9 @@ export const getNhentaiList = async function ({file_id, file_name}):Promise<Bool
             return false;
         }
 
+
         const {id, title, tags} = info;
         await batchInsertTermRelationships(file_id, tags);
-
         await insertFileMeta({file_id: file_id, meta_key: 'id', meta_value:JSON.stringify({id:id,source:'nhentai'})});
         await insertFileMeta({file_id: file_id, meta_key: 'title', meta_value:JSON.stringify({title:title,source:'nhentai'})});
         return true
@@ -71,6 +79,57 @@ export const getNhentaiList = async function ({file_id, file_name}):Promise<Bool
         Base.printErrorLog('getNhentaiList',err);
         return false;
     }
+}
+
+const getTagsByTitle = function (title:string = ''):{name:string,type:string}[] {
+    const tags = [];
+    const artist = getArtistNameByTitle(title);
+    const language = getLanguageByTitle(title)
+    if(!Base.isEmpty(artist)) {
+        tags.push( {name: artist, type: "artist"},)
+    }
+
+    if(!Base.isEmpty(language)) {
+        tags.push( {name: language, type: "language"},)
+    }
+
+    return tags;
+}
+
+const getLanguageByTitle = function (title:string = ''):string {
+    if(Base.isEmpty(title)) {
+        return ''
+    }
+
+    title = title.toLowerCase();
+    const data = ['chinese','english','japanese','korean']
+    for(let i in data) {
+        if(title.includes(`[${data[i]}]`) || title.includes(`(${data[i]})`)) {
+            return data[i];
+        }
+    }
+
+    return '';
+}
+
+const getArtistNameByTitle = function (title:string):string {
+    const regex = /^\[(.+?)\](.+?)((\((.+?)\))|(\[(.+?)\]))*/i;
+    if(regex.test(title) == false) {
+        return '';
+    }
+
+    const end = title.indexOf(']');
+    const name = title.slice(1,end);
+    return getArtistAlias(name);
+}
+
+const getArtistAlias = function (artist:string):string {
+    if(!artist.includes('(') && !artist.includes(')')) {
+        return artist;
+    }
+    const begin = artist.indexOf('(')+1;
+    const end = artist.indexOf(')');
+    return artist.slice(begin,end);
 }
 
 const batchInsertTermRelationships = async function (object_id:number, tags:object):Promise<boolean> {

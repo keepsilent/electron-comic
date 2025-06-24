@@ -5,6 +5,8 @@ export interface PageInter extends Page {
     edit: boolean,
     upload: boolean,
     layout: string,
+    width: string,
+    height: string
     cover: {
         width: string,
         height: string

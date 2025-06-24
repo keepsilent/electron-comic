@@ -110,7 +110,7 @@
 
             <div class="detail-main">
                 <Interim v-if="settings.page.show == false" :interim="interim" style="opacity: 0.65"></Interim>
-                <div v-else v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
+                <div v-else v-for="(item,index) in thumbnail" :key="index" class="file-item" :id="'file-item-'+index" :style="item.cover == '' ? { width: page.width+'px', height: page.height+'px',marginTop: settings.space+'px'}:　{ width: item.width+'px', height:item.height+'px',marginTop: settings.space+'px'}">
                     <template v-if="item.status == 'loading'">
                         <div class="loading">
                             <img src="@renderer/assets/images/common/loading.gif" width="200" height="200">
@@ -184,6 +184,8 @@ const page:PageInter = reactive({
     loading: false,
     edit: false,
     upload: false,
+    width: import.meta.env.VITE_APP_COMIC_WIDTH,
+    height: import.meta.env.VITE_APP_COMIC_HEIGHT,
     layout:pageStore.page.layout, actions: {},
     cover:{ width: '100%', height: 'auto'}
 });
@@ -440,7 +442,6 @@ const readImageFile = async function (data):Promise<boolean|void> {
     if(Base.isEmpty(data)) {
         return false;
     }
-
     for(let i in data) {
         data[i].cover = (Number(i) == 0) ? await File.getBase64Image(data[i]) : '';
         data[i].alias = File.getFileAlias(data[i].name);
@@ -451,6 +452,7 @@ const readImageFile = async function (data):Promise<boolean|void> {
     }
 
     Object.assign(thumbnail, data)
+
     setThumbnailPage()
     autoCreateCover();
 }
@@ -480,7 +482,6 @@ const autoCreateCover = function():boolean|void {
     const cover = thumbnail[0].cover
     const path = File.getFileCoverById(file_id.toString(), file_date);
 
-    console.log('autoCreateCover',path);
     if (File.isExists(path)) {
         return false;
     }
@@ -679,6 +680,7 @@ const setThumbnailPreviewSize = function (index:number):void {
             width: getThumbnailPreviewSizeEquation(Number(img.width)),
             height: getThumbnailPreviewSizeEquation(Number(img.height))
         }
+        console.log('index',index,thumbnail[index]);
     }
 
     img.onerror = function () {

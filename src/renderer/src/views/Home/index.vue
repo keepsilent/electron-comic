@@ -147,6 +147,7 @@ const init = function ():void {
     loadFileList();
 }
 
+
 const setArchive = function ():void {
     Common.setArchive(Archive);
 }

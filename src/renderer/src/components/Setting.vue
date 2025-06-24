@@ -194,16 +194,21 @@ const language:SelectInter = reactive({
     ]
 })
 
+const createPageingOptions = function ():{name:string,value:string}[]{
+    const data = []
+    for(let i = 20; i<= 100; i++) {
+        let value = i.toString()
+        data.push({name:value, value:value });
+    }
+    return data;
+}
+
 const pageing:SelectInter = reactive({
     key: 'pageing',
     name: localStorage.getItem('cm_setting_page_size') || '20',
     value: localStorage.getItem('cm_setting_page_size') || '20',
     width: 70,
-    options: [
-        {name:'20',value: '20'},
-        {name:'50',value: '50'},
-        {name:'100',value: '100'}
-    ]
+    options: createPageingOptions()
 })
 
 
@@ -212,6 +217,8 @@ const shortcuts:switchInter = reactive({
     value: localStorage.getItem('cm_setting_shortcuts') == 'false' ? false : true,
     options:[t('button.on'),t('button.off')]
 })
+
+
 
 const onRedirect = function (event) {
     const {currentTarget: {dataset: {value}}} = event
