@@ -195,7 +195,7 @@ const language:SelectInter = reactive({
 })
 
 const createPageingOptions = function ():{name:string,value:string}[]{
-    const data = []
+    const data:{name:string,value:string}[] = []
     for(let i = 20; i<= 100; i++) {
         let value = i.toString()
         data.push({name:value, value:value });

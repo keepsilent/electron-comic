@@ -5,6 +5,7 @@ import type {
 } from "@renderer/utils/db/base";
 import {isTermExist, increaseTerm, increaseTermRelationships} from "@renderer/api/terms";
 import {insertFileMeta} from "@renderer/api/filemeta";
+import base from "../utils/base";
 
 const options = {
     baseURL: 'https://nhentai.net/api',
@@ -82,15 +83,24 @@ export const getNhentaiList = async function ({file_id, file_name}):Promise<Bool
 }
 
 const getTagsByTitle = function (title:string = ''):{name:string,type:string}[] {
-    const tags = [];
-    const artist = getArtistNameByTitle(title);
-    const language = getLanguageByTitle(title)
+    const tags:{name:string,type:string}[] = [];
+    const name = getArtistNameByTitle(title);
+    const artist = getArtistAlias(name);
+    const language = getLanguageByTitle(title);
+    const tag = getTagByTitle(title, name, artist, language);
+
     if(!Base.isEmpty(artist)) {
-        tags.push( {name: artist, type: "artist"},)
+        tags.push({name: artist, type: "artist"})
     }
 
     if(!Base.isEmpty(language)) {
-        tags.push( {name: language, type: "language"},)
+        tags.push({name: language, type: "language"})
+    }
+
+    if(!Base.isEmpty(tag)) {
+        for(let i in tag) {
+            tags.push({name: tag[i], type: "tag"})
+        }
     }
 
     return tags;
@@ -102,9 +112,12 @@ const getLanguageByTitle = function (title:string = ''):string {
     }
 
     title = title.toLowerCase();
-    const data = ['chinese','english','japanese','korean']
+    const data = ['chinese','english','japanese','korean','中国翻訳']
     for(let i in data) {
         if(title.includes(`[${data[i]}]`) || title.includes(`(${data[i]})`)) {
+            if(data[i] == '中国翻訳'){
+                return 'chinese'
+            }
             return data[i];
         }
     }
@@ -120,7 +133,7 @@ const getArtistNameByTitle = function (title:string):string {
 
     const end = title.indexOf(']');
     const name = title.slice(1,end);
-    return getArtistAlias(name);
+    return name;
 }
 
 const getArtistAlias = function (artist:string):string {
@@ -131,6 +144,73 @@ const getArtistAlias = function (artist:string):string {
     const end = artist.indexOf(')');
     return artist.slice(begin,end);
 }
+
+const getTagByTitle = function (title:string, name:string='', artist:string ='', language:string = ''):string[] {
+    const regex = /\((.+?)\)|\[(.+?)\]/g;
+    if(regex.test(title) == false) {
+        return [];
+    }
+
+    const data:string[] = [];
+    const res = title.match(regex);
+    const tmp = getFilterTag(name, artist, language)
+    for(let i in res) {
+        let has = false
+        for(let j in tmp) {
+            if(res[i].includes(`[${tmp[j]}]`) || res[i].includes(`(${tmp[j]})`)) {
+                has = true
+            }
+        }
+
+        if(has == false) {
+            data.push(res[i]);
+        }
+    }
+
+    for(let i in data) {
+        data[i] = data[i].replaceAll(/\(|\)|\[|\]/g,'');
+    }
+
+    return filterLanguageTag(data)
+}
+
+const filterLanguageTag = function (data:string[]):string[] {
+    const tmp:string[] = [];
+    const language = ['chinese','english','japanese','korean']
+    for(let i in data) {
+        let has = false
+        let value = data[i].toLowerCase();
+        for(let j in language) {
+            if(value.includes(language[j])) {
+                has = true
+            }
+        }
+
+        if(has == false) {
+            tmp.push(data[i]);
+        }
+    }
+
+    return tmp;
+}
+
+const getFilterTag = function (name:string='', artist:string ='', language:string = ''):string[] {
+    const tmp:string[] = []
+    if(!Base.isEmpty(name)) {
+        tmp.push(name)
+    }
+
+    if(!Base.isEmpty(artist)) {
+        tmp.push(artist)
+    }
+
+    if(!Base.isEmpty(language)) {
+        tmp.push(language)
+    }
+
+    return tmp
+}
+
 
 const batchInsertTermRelationships = async function (object_id:number, tags:object):Promise<boolean> {
     if(Base.isEmpty(tags)) {

@@ -93,9 +93,9 @@
                         </span>
                     </div>
 
-                    <div class="taxonomy">
-                        <label>{{t('details.pages')}}：{{file.file_total}}</label>
-                    </div>
+<!--                    <div class="taxonomy">-->
+<!--                        <label>{{t('details.pages')}}：{{file.file_total}}</label>-->
+<!--                    </div>-->
 
                     <div class="taxonomy">
                         <label>{{t('details.uploaded')}}：{{file.file_modified}}</label>
@@ -680,7 +680,6 @@ const setThumbnailPreviewSize = function (index:number):void {
             width: getThumbnailPreviewSizeEquation(Number(img.width)),
             height: getThumbnailPreviewSizeEquation(Number(img.height))
         }
-        console.log('index',index,thumbnail[index]);
     }
 
     img.onerror = function () {
@@ -890,8 +889,8 @@ const onUpdateSettings = function ({key,value}):void {
             settings.zoom = value;
             for(let i in thumbnail) {
                 const {width, height} = thumbnail[i].origin
-                thumbnail[i].width = getThumbnailPreviewSizeEquation(width)
-                thumbnail[i].height = getThumbnailPreviewSizeEquation(height)
+                thumbnail[i].width = getThumbnailPreviewSizeEquation(Number(width))
+                thumbnail[i].height = getThumbnailPreviewSizeEquation(Number(height))
             }
             break;
     }
