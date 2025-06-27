@@ -160,13 +160,13 @@ const preprocessUploadFile = async function (file) {
 
 const checkUploadFile = async function (file, record) {
     const {file_id, file_date, file_path, file_status} = record;
-    if(file_status == 'normal' && File.isExists(file_path)) {
-        return { status: 'fail', scene:'check', message:t('uploader.exist') }
-    }
-
-    if(file.path != file_path) { //如果文件路径不一样,删除旧的文件
-        File.deleteFile(file_path);
-    }
+    // if(file_status == 'normal' && File.isExists(file_path)) {
+    //     return { status: 'fail', scene:'check', message:t('uploader.exist') }
+    // }
+    //
+    // if(file.path != file_path) { //如果文件路径不一样,删除旧的文件
+    //     File.deleteFile(file_path);
+    // }
 
     return await updateFileInfoRecord(file_id, file_date, file); //文件被删除,转移或掉失,需要更新信息
 }
@@ -175,6 +175,11 @@ const updateFileInfoRecord = async function(file_id, file_date, file) {
     try {
         const archive = await Archive.open(file);
         const extract = await archive.extractFiles();
+        const cover = await File.getExtractFileCover(extract);
+
+        if(Base.isEmpty(cover)) { //没有图片文件
+            return { status: 'fail', scene: 'update', message:t('uploader.accident')};
+        }
 
         const params = {
             file_id: file_id,

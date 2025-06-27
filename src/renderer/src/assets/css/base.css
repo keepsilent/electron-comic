@@ -50,7 +50,8 @@
     --yellow-10: #FFF9E0;
     --yellow-20: #FFF4BE;
     --yellow-30: #FFE47E;
-    --yellow-40: #FFCF3F;
+    /*--yellow-40: #FFCF3F;*/
+    --yellow-40: #FFC459;
     --yellow-50: #FFB400;
     --yellow-60: #DE9C00;
     --yellow-70: #AD7A03;
@@ -87,7 +88,8 @@
 
 :root {
     /*Brand*/
-    --base-color-brand: var(--yellow-50);
+   /*// --base-color-brand: var(--yellow-50);*/
+    --base-color-brand: var(--yellow-40);
     --base-color-info: var(--blue-50);
     --base-color-warning: var(--yellow-50);
     --base-color-error: var(--red-50);
