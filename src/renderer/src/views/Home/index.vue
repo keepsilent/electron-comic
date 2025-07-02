@@ -8,6 +8,13 @@
                 <div class="cover"></div>
                 <p class="title"></p>
                 <p class="subtitle"></p>
+                <p class="info">
+                    <span class="artist" v-if="page.options.artist">
+                        <span class="round"></span>
+                        <span class="name"></span>
+                    </span>
+                    <span class="time" v-if="toolbar.view.model != 'middle' && toolbar.view.model != 'small' && page.options.date"></span>
+                </p>
             </div>
         </div>
 
@@ -132,6 +139,7 @@ onMounted(() => {
     scrollbar.value.addEventListener("scroll", onScroll)
 })
 
+
 onBeforeUnmount(() => {
     scrollbar.value.removeEventListener("scroll", onScroll);
 });
@@ -183,20 +191,8 @@ const loadFileList = async function ():Promise<boolean|void> {
     } catch (err) {
         Base.printErrorLog('getFileList',err);
     } finally {
-        //page.init = true;
-        setDelayDisplay()
+        Common.lazyRenderPage(page)
     }
-}
-
-const setDelayDisplay = function ():boolean|void {
-    // if(Number(load.page) != 1) {
-    //     page.init = true;
-    //     return false;
-    // }
-
-    setTimeout(()=> {
-        page.init = true;
-    },150)
 }
 
 const setCountUnit = function (value):string {
@@ -412,19 +408,6 @@ const onOperateConfirm = function():void {
     Common.operateConfirm(confirm, page);
 }
 
-watch(() => page.init,(value) => {
-    if(value != true) {
-        return false
-    }
-
-    const scrollBar = document.getElementById('scrollbar')
-    const scrollTop = localStorage.getItem('cm_cache_home_scroll') || '0';
-    if(scrollBar) {
-        scrollBar.scrollTop = Number(scrollTop);
-    }
-})
-
-
 const resetPreviewImageSize = async function():Promise<boolean|void> {
     if(Base.isEmpty(load.list)) {
         return false;
@@ -433,6 +416,20 @@ const resetPreviewImageSize = async function():Promise<boolean|void> {
         load.list[i].file_cover_options = await getImageSize(load.list[i].file_cover);
     }
 }
+
+watch(() => page.init,(value) => {
+    if(value != true) {
+        return false
+    }
+
+    setTimeout(function (){
+        const scrollBar = document.getElementById('scrollbar')
+        const scrollTop = localStorage.getItem('cm_cache_home_scroll') || '0';
+        if(scrollBar) {
+            scrollBar.scrollTop = Number(scrollTop);
+        }
+    },10)
+})
 
 watch(() => pageStore.pageSize,(value) => {
     load.pageSize = value;

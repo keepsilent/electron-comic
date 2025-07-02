@@ -56,20 +56,19 @@ export const getNhentaiList = async function ({file_id, file_name}):Promise<Bool
             //     {name: "santa", type: "artist"},
             //     {name: "chinese", type: "language"}
             // ]
-            // await batchInsertTermRelationships(file_id, tags);
-
             const tags = getTagsByTitle(file_name)
             await batchInsertTermRelationships(file_id, tags)
             return false
         }
 
-        const {num_pages, per_page, result } = res.data;
+        const { result } = res.data;
         const info = getFileInfo(result, name);
 
         if(Base.isEmpty(info)) {
+            const tags = getTagsByTitle(file_name)
+            await batchInsertTermRelationships(file_id, tags)
             return false;
         }
-
 
         const {id, title, tags} = info;
         await batchInsertTermRelationships(file_id, tags);
@@ -103,6 +102,7 @@ const getTagsByTitle = function (title:string = ''):{name:string,type:string}[] 
         }
     }
 
+    console.log('tags',tags);
     return tags;
 }
 
@@ -126,13 +126,14 @@ const getLanguageByTitle = function (title:string = ''):string {
 }
 
 const getArtistNameByTitle = function (title:string):string {
-    const regex = /^\[(.+?)\](.+?)((\((.+?)\))|(\[(.+?)\]))*/i;
+    const regex = /^((\((.+?)\))|(\[(.+?)\]))*(.+?)((\((.+?)\))|(\[(.+?)\]))*/i;
     if(regex.test(title) == false) {
         return '';
     }
-
+    const begin = title.indexOf('[')+1
     const end = title.indexOf(']');
-    const name = title.slice(1,end);
+
+    const name = title.slice(begin,end);
     return name;
 }
 

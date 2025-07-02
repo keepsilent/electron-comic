@@ -126,7 +126,9 @@
                 </div>
             </div>
 
-            <div v-if="thumbnail.length > 0" class="detail-footer mt-m">Σ(ﾟдﾟ;) {{t('details.end')}}</div>
+            <div v-if="thumbnail.length > 0" class="detail-footer mt-m">
+                <span>Σ(ﾟдﾟ;) {{t('details.end')}}</span>
+            </div>
 
             <!-- Show Page Num -->
             <div v-if="settings.page.show" :class="['detail-page','none-select',settings.page.layout]">
@@ -268,7 +270,7 @@ const loadDetail = async function ():Promise<boolean|void> {
     } catch (err) {
         Base.printErrorLog('getFileInfo',err)
     } finally {
-        page.init = true;
+        Common.lazyRenderPage(page)
     }
 }
 
@@ -473,6 +475,9 @@ const getThumbnailOrigin = function (index):{type:string,width:string,height:str
 }
 
 const setThumbnailPage = function():void {
+    // setTimeout(function () {
+    //
+    // },420)
     settings.page.show = true;
     settings.page.total = Base.getDataLength(thumbnail);
 }

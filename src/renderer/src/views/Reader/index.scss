@@ -95,7 +95,9 @@
         border-bottom: solid 1px var(--border-color-default);
 
         .cover {
-            height: auto;
+            width: 183px;
+            height: 243px;
+            //height: auto;
             margin-right: var(--spacing-m);
             border-radius: var(--border-radius-l);
             object-fit: cover;
@@ -257,7 +259,32 @@
         color: var(--content-color-tertiary);
         font-size: var(--text-size-l);
         line-height: 1;
-        text-align: center;
+
+        span {
+            display: block;
+            position: relative;
+            width: fit-content;
+            margin: 0 auto;
+            &::before {
+                content: '';
+                position: absolute;
+                top: 7px;
+                left:-100px;
+                display: block;
+                width: 90px;
+                border-top: solid 1px var(--border-color-default);
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 7px;
+                right:-100px;
+                display: block;
+                width: 90px;
+                border-top: solid 1px var(--border-color-default);
+            }
+        }
     }
 
     &-page {

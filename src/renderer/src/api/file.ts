@@ -25,7 +25,7 @@ export const getRandomFileInfo = async function ({file_id}):Promise<Result> {
         sql: sql,
         params: {$file_id: file_id}
     }
-    console.log('getRandomFileInfo',sql);
+
     return await DB.query(data);
 }
 

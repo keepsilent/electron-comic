@@ -34,6 +34,51 @@
             p.subtitle {
                 width: var(--skeleton-width-l);
             }
+
+            p.info {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: var(--skeleton-width-default);
+
+
+                .artist {
+                    display: flex;
+                    align-items: center;
+                    width: 50%;
+                    margin-top: var(--spacing-s);
+                    .round {
+                        display: block;
+                        width: var(--skeleton-height-default);
+                        height: var(--skeleton-height-default);
+                        margin-right: var(--spacing-xs);
+
+                        border-radius: var(--skeleton-radius-max);
+                        background: var(--skeleton-color-secondary);
+                        animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
+                    }
+                    .name {
+                        display: block;
+                        width: 70%;
+                        height: var(--skeleton-height-default);
+
+                        border-radius: var(--skeleton-radius-default);
+                        background: var(--skeleton-color-secondary);
+                        animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
+                    }
+                }
+
+                .time {
+                    display: block;
+                    width: 45%;
+                    height: var(--skeleton-height-default);
+                    margin-top: var(--spacing-s);
+
+                    border-radius: var(--skeleton-radius-default);
+                    background: var(--skeleton-color-secondary);
+                    animation: fade var(--skeleton-animation-duration) infinite ease-in-out;
+                }
+            }
         }
 
         &__super {
