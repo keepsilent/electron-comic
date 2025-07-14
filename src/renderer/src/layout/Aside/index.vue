@@ -19,7 +19,7 @@
                             <i :class="index == menu.current ? 'iconfont '+item.icon+'-fill' : 'iconfont '+item.icon"></i>
                             <em>{{item.name}}</em>
                         </div>
-                        <span v-if="index == 1" class="line mt-s mb-s"></span>
+                        <span v-if="index == 1 || index == 5" class="line mt-s mb-s"></span>
                     </template>
                 </div>
             </div>
@@ -98,12 +98,14 @@ const menu:MenuInter = reactive({
     data:[
         {name: t('aside.menu.home'), key:'home', url: '/',icon: 'icon-home'},
         {name: t('aside.menu.random'), key:'random', url: '',icon: 'icon-discover'},
+
         {name: t('aside.menu.tags'), key:'tags', url: '/taxonomy',icon: 'icon-tag'},
-        {name: t('aside.menu.artists'), key:'artists', url: '/taxonomy',icon: 'icon-artist'},
+
         {name: t('aside.menu.categories'), key:'categories', url: '/taxonomy',icon: 'icon-we'},
         {name: t('aside.menu.parodies') ,key:'parodies', url: '/taxonomy',icon: 'icon-parody'},
         {name: t('aside.menu.groups'), key:'groups', url: '/taxonomy',icon: 'icon-group'},
 
+        {name: t('aside.menu.artists'), key:'artists', url: '/taxonomy',icon: 'icon-artist'},
         // {name: t('aside.menu.favor'), key:'favor', url: '',icon: 'icon-favor'},
         // {name: t('aside.menu.about'), key:'favor', url: '',icon: 'icon-about'}
     ]

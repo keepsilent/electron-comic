@@ -475,9 +475,6 @@ const getThumbnailOrigin = function (index):{type:string,width:string,height:str
 }
 
 const setThumbnailPage = function():void {
-    // setTimeout(function () {
-    //
-    // },420)
     settings.page.show = true;
     settings.page.total = Base.getDataLength(thumbnail);
 }
